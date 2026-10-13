@@ -2,7 +2,7 @@
 
 const STORE = 'evoluifit-v1';
 const arrow = '<svg class="arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg>';
-const initialState = () => ({ profile: null, measurements: [], completed: [] });
+const initialState = () => ({ profile: null, measurements: [], completed: [], workoutSessions: {}, favorites: [], recipeChecks: {} });
 let state = initialState();
 let storageAvailable = true;
 let storageNotice = '';
@@ -10,7 +10,7 @@ try {
   const saved = JSON.parse(localStorage.getItem(STORE) || 'null');
   if (saved) {
     state = restoreState(saved);
-    if (JSON.stringify(saved) !== JSON.stringify(state)) storageNotice = 'Há registros locais inválidos. Os registros válidos foram recuperados; os dados originais permanecem no navegador até você salvar uma alteração.';
+    if (JSON.stringify({...initialState(),...saved}) !== JSON.stringify(state)) storageNotice = 'Há registros locais inválidos. Os registros válidos foram recuperados; os dados originais permanecem no navegador até você salvar uma alteração.';
   }
 } catch {
   storageNotice = 'Não foi possível ler os registros locais. Você pode recomeçar ou apagar os dados em Preferências. O conteúdo original ainda não foi alterado.';
@@ -20,11 +20,18 @@ try {
 } catch { storageAvailable = false; }
 let view = 'inicio';
 let selectedDay = new Date().getDay();
+const resumableSession=Object.values(state.workoutSessions).filter(s=>s.date===localDate(new Date())&&!s.finished).at(-1);
+if(resumableSession)selectedDay=Number(resumableSession.signature.split('|')[0]);
 let calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 let photos = [];
 let photoDb;
 let photoError = false;
 let pageToken = 0;
+let openExercises = null;
+let recipeFilter = 'all';
+let currentRecipe = null;
+let currentRecipeStep = 0;
+const restTimer = {deadline:0,remaining:60,interval:null,running:false,seconds:60};
 const main = document.querySelector('#main');
 const modal = document.querySelector('#modal');
 const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -47,6 +54,19 @@ function restoreState(saved) {
     restored.measurements = [...records.values()].sort((a,b)=>a.date.localeCompare(b.date));
   }
   if (Array.isArray(saved.completed)) restored.completed = [...new Set(saved.completed.filter(dateIsValid))].sort();
+  if (Array.isArray(saved.favorites)) restored.favorites = [...new Set(saved.favorites.filter(i=>Number.isInteger(i)&&i>=0&&i<6))];
+  if (saved.recipeChecks && typeof saved.recipeChecks==='object') for (const [key,entry] of Object.entries(saved.recipeChecks)) {
+    if (/^[0-5]$/.test(key) && entry && typeof entry==='object') restored.recipeChecks[key] = {
+      ingredients:Array.isArray(entry.ingredients)?[...new Set(entry.ingredients.filter(i=>Number.isInteger(i)&&i>=0&&i<[5,4,5,4,5,5][Number(key)]))]:[],
+      steps:Array.isArray(entry.steps)?[...new Set(entry.steps.filter(i=>Number.isInteger(i)&&i>=0&&i<3))]:[],
+    };
+  }
+  if (saved.workoutSessions && typeof saved.workoutSessions==='object') for (const [key,entry] of Object.entries(saved.workoutSessions)) {
+    if (!entry || !dateIsValid(entry.date) || typeof entry.signature!=='string' || !/^\d{4}-\d{2}-\d{2}\|[0-6]\|(?:yes|no)\|(?:beginner|intermediate|advanced)\|[a-z,]+$/.test(key) || key!==`${entry.date}|${entry.signature}` || !entry.sets || typeof entry.sets!=='object') continue;
+    const checked={};
+    for (const [id,values] of Object.entries(entry.sets)) if (['squat','push','row','hinge','plank','lunge','shoulder','pull','bridge','deadbug','calf'].includes(id)&&Array.isArray(values)) checked[id]=values.slice(0,4).map(v=>v===true);
+    restored.workoutSessions[key]={date:entry.date,signature:entry.signature,sets:checked,finished:entry.finished===true};
+  }
   return restored;
 }
 const decimal = n => Number(n).toLocaleString('pt-BR', {maximumFractionDigits:1,minimumFractionDigits:1});
@@ -63,6 +83,8 @@ const svgIcon = name => `<svg class="icon" viewBox="0 0 24 24" fill="none" strok
   weight:'<path d="M4 8h16l2 13H2L4 8Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2M12 4v2"/>',
   target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="m12 12 9-9"/>',
   sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/>',
+  play:'<path d="m9 5 11 7-11 7Z"/><circle cx="12" cy="12" r="10"/>',
+  heart:'<path d="M12 20S3 14.5 3 8.5C3 3 9 2 12 6c3-4 9-3 9 2.5C21 14.5 12 20 12 20Z"/>',
   check:'<path d="m5 12 4 4L19 6"/>'
 }[name] || ''}</svg>`;
 
@@ -122,7 +144,8 @@ function toast(message) {
   const el = document.querySelector('#toast'); el.textContent = message; el.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(()=>el.classList.remove('show'),4500);
 }
-function openModal(content) { document.querySelector('#modal-content').innerHTML = content; if (!modal.open) modal.showModal(); }
+function openModal(content) { document.querySelectorAll('dialog video').forEach(v=>v.pause()); document.querySelector('#modal-content').innerHTML = content; if (!modal.open) modal.showModal(); }
+modal.addEventListener('close',()=>document.querySelectorAll('dialog video').forEach(v=>v.pause()));
 function modalHeader(title) { return `<div class="modal-top"><h2>${title}</h2><button data-action="close-modal" aria-label="Fechar janela">×</button></div>`; }
 function intro(eyebrow,title,sub) { return `<div class="page-intro"><div><p class="eyebrow">${eyebrow}</p><h1>${title}</h1><p class="subtitle">${sub}</p></div><div class="date-chip">${svgIcon('calendar')}${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long'})}</div></div>`; }
 function latest() { return [...state.measurements].sort((a,b)=>b.date.localeCompare(a.date))[0]; }
@@ -177,7 +200,43 @@ function profileForm() {
 }
 function profilePage() {
   if (!state.profile) return `${intro('VAMOS COMEÇAR','Um plano com o seu ritmo.','Conte um pouco sobre você. Dá para mudar suas escolhas depois.')}<div class="onboard"><section class="onboard-aside"><div><p class="eyebrow">SEU PONTO DE PARTIDA</p><h2>A evolução começa<br>com um passo.</h2><p>Sem pressa, sem promessas milagrosas. Encontre uma rotina possível para o seu dia a dia.</p></div><strong>01 ${arrow}</strong></section><section class="card">${profileForm()}</section></div><section class="card settings-card" style="margin-top:20px"><h2>Dados e acesso</h2><p>Seus dados ficam somente neste navegador, sem sincronização nem backup automático. Pessoas com acesso a este perfil do navegador podem ver os registros. Limpar dados do navegador remove seu histórico e fotos.</p><p>Preço planejado: R$ 24,99 por acesso vitalício, em uma única compra. Esta demonstração é gratuita e não realiza cobrança.</p><div class="actions"><button class="btn secondary" data-action="export">Exportar registros</button><button class="btn danger" data-action="clear-all">Apagar todos os dados</button><button class="btn subtle" data-action="premium">Ver demonstração</button><button class="text-button" data-action="integrations">Próximas integrações ${arrow}</button></div></section>`;
-  return `${intro('DO SEU JEITO','Preferências e dados','Ajuste seu plano e entenda como seus registros são guardados.')}<div class="profile-grid"><section class="card">${profileForm()}</section><div class="stack"><section class="card settings-card"><h2>Seu espaço é local</h2><p>Perfil, medidas e calendário ficam no localStorage. Fotos ficam no IndexedDB, apenas neste navegador. Nenhum dado é enviado a um servidor.</p><p>Não há sincronização, login ou backup automático. Quem usa este perfil do navegador pode acessar os dados. Isso não é um cofre criptografado. Evite dispositivos compartilhados.</p><p>Limpar dados do navegador ou usar modo privado pode apagar registros e fotos. Você pode exportar os registros em JSON (sem fotos).</p><div class="actions"><button class="btn secondary" data-action="export">Exportar registros</button><button class="btn danger" data-action="clear-all">Apagar todos os dados</button></div></section><section class="card settings-card"><span class="tag">ACESSO PLANEJADO</span><h2 style="margin-top:12px">Uma compra. Sua jornada.</h2><p>R$ 24,99 por acesso vitalício, em uma única compra. A demonstração está aberta, sem cobrança.</p><button class="btn" data-action="premium">Ver demonstração ${arrow}</button></section><section class="card settings-card"><h2>Próximas integrações</h2><p>Pagamento, aplicativo e anúncios são etapas futuras. Nenhum serviço de publicidade está conectado.</p><button class="text-button" data-action="integrations">Entender o que falta ${arrow}</button></section></div></div>`;
+  return `${intro('DO SEU JEITO','Preferências e dados','Ajuste seu plano e entenda como seus registros são guardados.')}<div class="profile-grid"><section class="card">${profileForm()}</section><div class="stack"><section class="card settings-card"><h2>Seu espaço é local</h2><p>Perfil, medidas, calendário, séries e receitas salvas ficam no localStorage. Fotos ficam no IndexedDB, apenas neste navegador. Nenhum dado é enviado a um servidor.</p><p>Não há sincronização, login ou backup automático. Quem usa este perfil do navegador pode acessar os dados. Isso não é um cofre criptografado. Evite dispositivos compartilhados.</p><p>Limpar dados do navegador ou usar modo privado pode apagar registros e fotos. Você pode exportar os registros em JSON (sem fotos).</p><div class="actions"><button class="btn secondary" data-action="export">Exportar registros</button><button class="btn danger" data-action="clear-all">Apagar todos os dados</button></div></section><section class="card settings-card"><span class="tag">ACESSO PLANEJADO</span><h2 style="margin-top:12px">Uma compra. Sua jornada.</h2><p>R$ 24,99 por acesso vitalício, em uma única compra. A demonstração está aberta, sem cobrança.</p><button class="btn" data-action="premium">Ver demonstração ${arrow}</button></section><section class="card settings-card"><h2>Próximas integrações</h2><p>Pagamento, aplicativo e anúncios são etapas futuras. Nenhum serviço de publicidade está conectado.</p><button class="text-button" data-action="integrations">Entender o que falta ${arrow}</button></section></div></div>`;
+}
+function guidePlayer(file, title) {
+  return `<section class="guide-player"><div class="guide-caption"><span>${svgIcon('play')} Vídeo: guia animado</span><small>15 s · Sem áudio · Arquivo local</small></div><video controls playsinline preload="none" poster="media/${file}.jpg" aria-label="Guia animado: ${escapeHTML(title)}"><source src="media/${file}.mp4" type="video/mp4"><track kind="captions" src="media/${file}.vtt" srclang="pt-BR" label="Português" default>Seu navegador não reproduz este vídeo. Use as instruções escritas abaixo.</video><p class="guide-disclaimer">Animação esquemática, não uma filmagem. Use junto às instruções escritas; a técnica deve ser adaptada com orientação profissional.</p><p class="video-error" hidden role="status">Não foi possível carregar o vídeo. As instruções escritas continuam disponíveis.</p></section>`;
+}
+function currentSessionInfo(w=plan()[selectedDay]) {
+  if(!state.profile || !w || w.active) return null;
+  const signature=`${selectedDay}|${state.profile.gym}|${state.profile.level}|${w.ids.join(',')}`;
+  const key=`${today()}|${signature}`;
+  const session=state.workoutSessions[key];
+  const total=w.ids.length*sets();
+  const count=w.ids.reduce((n,id)=>n+(session?.sets[id]||[]).slice(0,sets()).filter(Boolean).length,0);
+  return {key,signature,session,total,count,w};
+}
+function sessionPanel(w) {
+  const info=currentSessionInfo(w);
+  if(!info.session) return `<section class="card session-card"><div class="session-intro"><span class="session-icon">${svgIcon('play')}</span><div><h3>Vamos treinar juntos?</h3><p>Assista aos guias, marque cada série e use o descanso. Seu progresso é salvo neste navegador.</p></div></div><button class="btn lime" data-action="start-guided">Iniciar treino guiado ${arrow}</button></section>`;
+  return `<section class="card session-card active-session"><div class="session-progress"><div><span class="eyebrow">TREINO GUIADO · DATA DE HOJE</span><h3>${info.count} de ${info.total} séries concluídas</h3><p>${weekdays[selectedDay]} · ${info.session.finished?'Treino finalizado':'Você pode sair e retomar hoje, no mesmo navegador.'}</p></div><span class="session-percent">${Math.round(info.count/info.total*100)}<small>%</small></span></div><progress class="session-meter" max="${info.total}" value="${info.count}" aria-label="Progresso de séries"></progress><div class="rest-controls"><div class="rest-clock"><span class="muted">Descanso</span><strong id="rest-display" role="timer">${timerText()}</strong></div><label class="rest-select">Intervalo<select id="rest-duration" aria-label="Duração do descanso"><option value="60" ${restTimer.seconds===60?'selected':''}>60 segundos</option><option value="90" ${restTimer.seconds===90?'selected':''}>90 segundos</option></select></label><button class="btn secondary" data-action="rest-toggle" id="rest-toggle">${restTimer.running?'Pausar descanso':restTimer.remaining!==restTimer.seconds?'Retomar descanso':'Iniciar descanso'}</button><button class="text-button" data-action="rest-reset">Reiniciar</button></div><div class="session-footer"><p>Marque as séries abaixo. A conclusão registra o treino na data de hoje.</p><button class="btn" data-action="finish-guided" ${info.count!==info.total||info.session.finished?'disabled':''}>${info.session.finished?'✓ Treino finalizado':'Concluir treino de hoje'}</button></div></section>`;
+}
+function seriesControls(id) {
+  const info=currentSessionInfo();if(!info?.session)return '';
+  return `<div class="series-controls"><span>Marque cada série realizada</span><div>${Array.from({length:sets()},(_,i)=>`<button class="series-button ${(info.session.sets[id]||[])[i]?'done':''}" data-series="${i}" data-exercise="${id}" aria-pressed="${Boolean((info.session.sets[id]||[])[i])}" aria-label="Série ${i+1} de ${escapeHTML(state.profile.gym==='yes'?exercises[id].gym:exercises[id].body)}">${(info.session.sets[id]||[])[i]?'✓ ':''}Série ${i+1}</button>`).join('')}</div></div>`;
+}
+function rememberOpenExercises() {openExercises=new Set([...main.querySelectorAll('.exercise[open]')].map(el=>el.dataset.exercise));}
+function timerText() {return `${String(Math.floor(restTimer.remaining/60)).padStart(2,'0')}:${String(restTimer.remaining%60).padStart(2,'0')}`;}
+function updateRestUI() {
+  const display=document.querySelector('#rest-display');if(display)display.textContent=timerText();
+  const btn=document.querySelector('#rest-toggle');if(btn)btn.textContent=restTimer.running?'Pausar descanso':restTimer.remaining===0?'Novo descanso':restTimer.remaining===restTimer.seconds?'Iniciar descanso':'Retomar descanso';
+}
+function stopRest() {clearInterval(restTimer.interval);restTimer.interval=null;restTimer.running=false;}
+function startRest(seconds=restTimer.remaining||restTimer.seconds) {
+  stopRest();restTimer.remaining=seconds;restTimer.deadline=Date.now()+seconds*1000;restTimer.running=true;updateRestUI();
+  restTimer.interval=setInterval(()=>{
+    restTimer.remaining=Math.max(0,Math.ceil((restTimer.deadline-Date.now())/1000));
+    if(restTimer.remaining===0){stopRest();toast('Descanso concluído. Retome apenas se estiver confortável.');}
+    updateRestUI();
+  },250);
 }
 function trainingPage() {
   if(!state.profile) return `${intro('TREINOS','Seu plano começa com você.','Informe seu objetivo e disponibilidade para montar uma rotina semanal.')}<section class="card empty"><p>Academia ou calistenia, no ritmo que cabe na sua semana.</p><button class="btn" data-view="perfil" style="margin-top:20px">Montar meu plano ${arrow}</button></section>`;
@@ -186,13 +245,27 @@ function trainingPage() {
   const safety=p.age<18?'<div class="notice warning">Para menores de 18 anos, esta rotina é apenas uma visão geral. Procure um profissional para adaptar volume, técnica e progressão à idade, com acompanhamento de um responsável. Não siga metas de perda de peso sem orientação.</div>':'';
   const goalText = p.goal==='fat'?'Se for confortável, complemente com 10–20 minutos de caminhada leve após o treino. O gasto energético e a perda de gordura variam; não há resultado garantido.':p.goal==='muscle'?'Priorize a execução. Só aumente a carga ou a dificuldade quando completar as séries com controle e sem dor.':'Priorize regularidade, técnica e um esforço que permita recuperar bem entre as sessões.';
   const done=state.completed.includes(today());
-  return `${intro('SEU PLANO SEMANAL','Movimento com propósito.',`${goalNames[p.goal]} · ${levelNames[p.level]} · ${p.days} dias · ${p.gym==='yes'?'Academia':'Em casa'}`)}${safety}<div class="day-tabs" aria-label="Dias de treino">${tabs}</div>${!w?`<section class="card rest-card"><span style="font-size:42px">☀</span><h2>${weekdays[selectedDay]}: descanso</h2><p>Deixe seu corpo recuperar. Se desejar, faça uma caminhada confortável ou mobilidade leve, sem forçar. Seu próximo treino está nos dias marcados com um ponto.</p></section>`:`<div class="workout-heading"><div><p class="eyebrow">${weekdays[selectedDay]}</p><h2>${w.name}</h2><p class="subtitle">${w.active?'20–30 minutos leves':`${sets()} séries por exercício · 60–90 s de descanso · cerca de 30–50 min`}</p></div><button class="btn ${done?'subtle':''}" data-action="toggle-today">${done?'✓ Hoje concluído':'Marcar treino de hoje'}</button></div>${w.active?`<section class="card"><h3>Um dia para recuperar em movimento</h3><p class="subtitle">Caminhe ou pedale em ritmo confortável por 20–30 minutos, permitindo conversar sem ficar ofegante. Faça 5 minutos de mobilidade suave. Reduza o tempo se estiver começando e interrompa se houver dor ou tontura.</p></section>`:`<div class="notice"><strong>Antes de começar:</strong> aqueça por 5–8 minutos com caminhada e movimentos leves. Faça uma série fácil de cada exercício para praticar. Termine com 2–3 repetições ainda possíveis; não é necessário chegar à falha. Interrompa diante de dor, tontura ou mal-estar.</div><div class="exercise-list">${w.ids.map((id,i)=>{const e=exercises[id];return `<details class="exercise" ${i===0?'open':''}><summary><span class="exercise-number">${String(i+1).padStart(2,'0')}</span><div class="exercise-info"><h3>${p.gym==='yes'?e.gym:e.body}</h3><p>${e.muscles}</p></div><span class="sets">${sets()} × ${e.reps}</span></summary><div class="exercise-body"><p>${e.how}</p><dl><dt>Mais fácil</dt><dd>${e.easy}</dd><dt>Mais difícil</dt><dd>${e.hard}</dd><dt>Alternativa</dt><dd>${e.alternative}</dd></dl></div></details>`;}).join('')}</div><div class="notice" style="margin-top:20px">${goalText}</div>`}`}
-  <p class="small muted" style="margin-top:18px">O botão registra a data de hoje, independentemente do dia consultado. Para outras datas, use o calendário. Alterar preferências recalcula a rotina, preservando seus registros.</p>`;
+  return `${intro('SEU PLANO SEMANAL','Movimento com propósito.',`${goalNames[p.goal]} · ${levelNames[p.level]} · ${p.days} dias · ${p.gym==='yes'?'Academia':'Em casa'}`)}${safety}<div class="day-tabs" aria-label="Dias de treino">${tabs}</div>${!w?`<section class="card rest-card"><span style="font-size:42px">☀</span><h2>${weekdays[selectedDay]}: descanso</h2><p>Deixe seu corpo recuperar. Se desejar, faça uma caminhada confortável ou mobilidade leve, sem forçar. Seu próximo treino está nos dias marcados com um ponto.</p></section>`:`<div class="workout-heading"><div><p class="eyebrow">${weekdays[selectedDay]}</p><h2>${w.name}</h2><p class="subtitle">${w.active?'20–30 minutos leves':`${sets()} séries por exercício · 60–90 s de descanso · cerca de 30–50 min`}</p></div><button class="btn ${done?'subtle':''}" data-action="toggle-today">${done?'✓ Hoje concluído':'Marcar treino de hoje'}</button></div>${w.active?`<section class="card"><h3>Um dia para recuperar em movimento</h3><p class="subtitle">Caminhe ou pedale em ritmo confortável por 20–30 minutos, permitindo conversar sem ficar ofegante. Faça 5 minutos de mobilidade suave. Reduza o tempo se estiver começando e interrompa se houver dor ou tontura.</p></section>`:`${sessionPanel(w)}<div class="notice"><strong>Antes de começar:</strong> aqueça por 5–8 minutos com caminhada e movimentos leves. Faça uma série fácil de cada exercício para praticar. Termine com 2–3 repetições ainda possíveis; não é necessário chegar à falha. Interrompa diante de dor, tontura ou mal-estar.</div><div class="exercise-list">${w.ids.map((id,i)=>{const e=exercises[id];return `<details class="exercise" data-exercise="${id}" ${(openExercises?openExercises.has(id):i===0)?'open':''}><summary><span class="exercise-number">${String(i+1).padStart(2,'0')}</span><div class="exercise-info"><h3>${p.gym==='yes'?e.gym:e.body}</h3><p>${e.muscles}</p></div><span class="sets">${sets()} × ${e.reps}</span></summary><div class="exercise-body">${guidePlayer(`${id}-${p.gym==='yes'?'gym':'home'}`,p.gym==='yes'?e.gym:e.body)}<p>${e.how}</p><dl><dt>Mais fácil</dt><dd>${e.easy}</dd><dt>Mais difícil</dt><dd>${e.hard}</dd><dt>Alternativa</dt><dd>${e.alternative}</dd></dl>${seriesControls(id)}</div></details>`;}).join('')}</div><div class="notice" style="margin-top:20px">${goalText}</div>`}`}
+  <p class="small muted" style="margin-top:18px">O treino guiado e o botão de marcação registram a data de hoje, independentemente do dia consultado. Para outras datas, use o calendário. Alterar preferências recalcula a rotina, preservando seus registros. O cronômetro é reiniciado ao recarregar a página.</p>`;
 }
-function recipesPage() { return `${intro('COMIDA DE VERDADE','Simples de fazer. Bom de comer.','Receitas acessíveis para facilitar a rotina, sem dietas milagrosas.')}<div class="notice">Porções são sugestões gerais, não uma prescrição alimentar. Verifique alergias e restrições; para necessidades individuais, procure um nutricionista.</div><div class="cards-grid">${recipes.map((r,i)=>`<article class="card recipe-card">${foodArt(i)}<div class="recipe-content"><span class="tag">${r.tag}</span><h2>${r.name}</h2><p>${r.cost}<br>${r.time} min · ${r.servings} ${r.servings===1?'porção':'porções'}</p><button class="btn secondary" data-recipe="${i}">Ver receita ${arrow}</button></div></article>`).join('')}</div>`; }
-function recipeModal(i) {
-  const r=recipes[i]; if(!r) return;
-  openModal(`<article class="modal-inner">${modalHeader(r.name)}<span class="tag">${r.time} min · ${r.servings} ${r.servings===1?'porção':'porções'}</span><h3>Ingredientes</h3><ul>${r.ingredients.map(s=>`<li>${s}</li>`).join('')}</ul><h3>Modo de preparo</h3><ol>${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol><div class="notice" style="margin:20px 0 0">${r.tip}</div></article>`);
+function favoriteButton(i,large=false) {
+  const saved=state.favorites.includes(i);
+  return `<button class="${large?'btn secondary':'favorite-button'} ${saved?'is-favorite':''}" data-favorite="${i}" aria-pressed="${saved}" aria-label="${saved?'Remover dos favoritos:':'Favoritar:'} ${escapeHTML(recipes[i].name)}">${svgIcon('heart')}${large?(saved?'Salva nos favoritos':'Salvar receita'):''}</button>`;
+}
+function recipesPage() {
+  const cards=recipes.map((r,i)=>({r,i})).filter(({i})=>recipeFilter==='all'||state.favorites.includes(i));
+  return `${intro('COMIDA DE VERDADE','Simples de fazer. Bom de comer.','Escolha uma receita, assista ao guia e prepare um passo de cada vez.')}<div class="notice">Porções são sugestões gerais, não uma prescrição alimentar. Verifique alergias e restrições; para necessidades individuais, procure um nutricionista.</div><div class="recipe-filters" aria-label="Filtro de receitas"><button data-recipe-filter="all" class="${recipeFilter==='all'?'active':''}" aria-pressed="${recipeFilter==='all'}">Todas as receitas <span>${recipes.length}</span></button><button data-recipe-filter="favorites" class="${recipeFilter==='favorites'?'active':''}" aria-pressed="${recipeFilter==='favorites'}">Minhas favoritas <span>${state.favorites.length}</span></button></div>${cards.length?`<div class="cards-grid">${cards.map(({r,i})=>`<article class="card recipe-card">${foodArt(i)}<div class="recipe-content"><div class="recipe-tag-row"><span class="tag">${r.tag}</span>${favoriteButton(i)}</div><h2>${r.name}</h2><p>${r.cost}<br>${r.time} min · ${r.servings} ${r.servings===1?'porção':'porções'}</p><button class="btn secondary" data-recipe="${i}">Ver receita ${arrow}</button></div></article>`).join('')}</div>`:'<section class="card empty">Ainda não há receitas favoritas.<br>Toque no coração de uma receita para salvá-la.</section>'}`;
+}
+function recipeStepHTML(i) {
+  const r=recipes[i],checked=state.recipeChecks[i]?.steps||[],done=checked.includes(currentRecipeStep);
+  return `<div class="recipe-step-top"><span class="eyebrow">ETAPA ${currentRecipeStep+1} DE ${r.steps.length}</span><span class="tag">${checked.length} / ${r.steps.length} concluídas</span></div><p>${r.steps[currentRecipeStep]}</p><div class="recipe-step-actions"><button class="text-button" data-recipe-direction="-1" ${currentRecipeStep===0?'disabled':''}>← Anterior</button><button class="btn ${done?'subtle':''}" data-action="recipe-step-done" ${done?'disabled':''}>${done?'✓ Etapa concluída':'Concluir esta etapa'}</button><button class="text-button" data-recipe-direction="1" ${currentRecipeStep===r.steps.length-1?'disabled':''}>Próxima →</button></div>${checked.length===r.steps.length?'<div class="notice recipe-finished">✓ Preparo concluído! Confira o cozimento antes de servir. Bom apetite.</div>':''}`;
+}
+function ingredientProgress(i) {const count=state.recipeChecks[i]?.ingredients.length||0;return `${count} de ${recipes[i].ingredients.length} ingredientes separados`;}
+function recipeModal(i,reset=true) {
+  const r=recipes[i];if(!r)return;
+  currentRecipe=i;if(reset)currentRecipeStep=0;
+  const checked=state.recipeChecks[i]?.ingredients||[];
+  openModal(`<article class="modal-inner recipe-modal">${modalHeader(r.name)}<div class="recipe-modal-meta"><span class="tag">${r.time} min · ${r.servings} ${r.servings===1?'porção':'porções'}</span>${favoriteButton(i,true)}</div>${guidePlayer(`recipe-${i}`,r.name)}<h3>Ingredientes</h3><p class="ingredient-count" id="ingredient-count">${ingredientProgress(i)}</p><ul class="ingredient-list">${r.ingredients.map((text,j)=>`<li><label class="ingredient ${checked.includes(j)?'checked':''}"><input type="checkbox" data-ingredient="${j}" data-recipe-id="${i}" ${checked.includes(j)?'checked':''}><span>${text}</span></label></li>`).join('')}</ul><h3>Preparo passo a passo</h3><div class="recipe-step" id="recipe-step">${recipeStepHTML(i)}</div><details class="recipe-transcript"><summary>Ver modo de preparo completo</summary><ol>${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol></details><div class="notice" style="margin:20px 0 0">${r.tip}</div><div class="recipe-modal-footer"><small>Checklist e favoritos ficam neste navegador.</small><button class="text-button" data-action="recipe-reset">Recomeçar preparo</button></div></article>`);
 }
 function bmiCard() {
   const m=latest(), value=bmi(m), age=state.profile?.age;
@@ -267,6 +340,7 @@ async function render() {
   }
   const pages={inicio:dashboard,perfil:profilePage,treinos:trainingPage,receitas:recipesPage,evolucao:progressPage,fotos:photosPage,calendario:calendarPage};
   main.innerHTML=(!storageAvailable?'<div class="notice warning">O armazenamento local está indisponível. Seus registros não poderão ser salvos. Verifique as permissões do navegador antes de começar.</div>':'')+(storageNotice?`<div class="notice warning">${escapeHTML(storageNotice)}</div>`:'')+pages[view]();
+  updateRestUI();
 }
 function navigate(next) {
   if(!['inicio','perfil','treinos','receitas','evolucao','fotos','calendario'].includes(next)) next='inicio';
@@ -288,8 +362,38 @@ function integrationsModal() {
 document.addEventListener('click',async event=>{
   const el=event.target.closest('button');if(!el)return;
   if(el.dataset.view) {navigate(el.dataset.view);return;}
-  if(el.dataset.day!==undefined) {selectedDay=Number(el.dataset.day);render();return;}
+  if(el.dataset.day!==undefined) {selectedDay=Number(el.dataset.day);openExercises=null;render();return;}
   if(el.dataset.recipe!==undefined) {recipeModal(Number(el.dataset.recipe));return;}
+  if(el.dataset.recipeFilter) {recipeFilter=el.dataset.recipeFilter;render();return;}
+  if(el.dataset.favorite!==undefined) {
+    const i=Number(el.dataset.favorite);if(!recipes[i])return;
+    const favorites=state.favorites.includes(i)?state.favorites.filter(n=>n!==i):[...state.favorites,i];
+    if(persist({...state,favorites})){
+      if(view==='receitas')render();
+      const saved=favorites.includes(i);
+      document.querySelectorAll(`dialog [data-favorite="${i}"]`).forEach(button=>{button.classList.toggle('is-favorite',saved);button.setAttribute('aria-pressed',String(saved));button.setAttribute('aria-label',`${saved?'Remover dos favoritos:':'Favoritar:'} ${recipes[i].name}`);button.innerHTML=`${svgIcon('heart')}${saved?'Salva nos favoritos':'Salvar receita'}`;});
+      toast(saved?'Receita salva nos favoritos.':'Receita removida dos favoritos.');
+    }
+    return;
+  }
+  if(el.dataset.recipeDirection){
+    currentRecipeStep=Math.max(0,Math.min(recipes[currentRecipe].steps.length-1,currentRecipeStep+Number(el.dataset.recipeDirection)));
+    document.querySelector('#recipe-step').innerHTML=recipeStepHTML(currentRecipe);return;
+  }
+  if(el.dataset.series!==undefined){
+    const info=currentSessionInfo(),id=el.dataset.exercise,index=Number(el.dataset.series);
+    if(!info?.session||!info.w.ids.includes(id)||!Number.isInteger(index)||index<0||index>=sets())return;
+    const values=Array.from({length:sets()},(_,j)=>info.session.sets[id]?.[j]===true);values[index]=!values[index];
+    const session={...info.session,sets:{...info.session.sets,[id]:values},finished:false};
+    rememberOpenExercises();
+    if(persist({...state,workoutSessions:{...state.workoutSessions,[info.key]:session}})){
+      await render();
+      if(values[index])startRest(restTimer.seconds);
+      document.querySelector(`[data-series="${index}"][data-exercise="${id}"]`)?.focus({preventScroll:true});
+      toast(values[index]?'Série registrada. Respire e descanse no seu ritmo.':'Marcação da série removida.');
+    }
+    return;
+  }
   if(el.dataset.month) {calendarMonth=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()+Number(el.dataset.month),1);render();return;}
   if(el.dataset.date) {toggleDate(el.dataset.date);return;}
   if(el.dataset.deleteMeasure) {
@@ -309,26 +413,80 @@ document.addEventListener('click',async event=>{
     case 'premium':premiumModal();break;
     case 'integrations':integrationsModal();break;
     case 'toggle-today':toggleDate(today());break;
+    case 'start-guided':{
+      const info=currentSessionInfo();if(!info)return;
+      const session={date:today(),signature:info.signature,sets:Object.fromEntries(info.w.ids.map(id=>[id,Array(sets()).fill(false)])),finished:false};
+      rememberOpenExercises();
+      if(persist({...state,workoutSessions:{...state.workoutSessions,[info.key]:session}})){render();toast('Treino iniciado. Abra cada exercício e marque as séries realizadas.');}
+      break;
+    }
+    case 'finish-guided':{
+      const info=currentSessionInfo();if(!info?.session||info.count!==info.total)return;
+      const session={...info.session,finished:true};
+      rememberOpenExercises();
+      if(persist({...state,completed:[...new Set([...state.completed,today()])].sort(),workoutSessions:{...state.workoutSessions,[info.key]:session}})){stopRest();render();toast('Treino concluído e registrado no calendário. Bom trabalho!');}
+      break;
+    }
+    case 'rest-toggle':
+      if(restTimer.running){restTimer.remaining=Math.max(0,Math.ceil((restTimer.deadline-Date.now())/1000));stopRest();updateRestUI();}else startRest();
+      break;
+    case 'rest-reset':stopRest();restTimer.remaining=restTimer.seconds;updateRestUI();break;
+    case 'recipe-step-done':{
+      if(currentRecipe===null)return;
+      const checks=state.recipeChecks[currentRecipe]||{ingredients:[],steps:[]};
+      const entry={...checks,steps:[...new Set([...checks.steps,currentRecipeStep])].sort()};
+      if(persist({...state,recipeChecks:{...state.recipeChecks,[currentRecipe]:entry}})){
+        const finished=entry.steps.length===recipes[currentRecipe].steps.length;
+        if(!finished)currentRecipeStep=Math.min(currentRecipeStep+1,recipes[currentRecipe].steps.length-1);
+        document.querySelector('#recipe-step').innerHTML=recipeStepHTML(currentRecipe);
+        toast(finished?'Preparo concluído. Confira o cozimento antes de servir.':'Etapa marcada. Vamos ao próximo passo.');
+      }
+      break;
+    }
+    case 'recipe-reset':{
+      if(currentRecipe===null)return;
+      if(persist({...state,recipeChecks:{...state.recipeChecks,[currentRecipe]:{ingredients:[],steps:[]}}})){recipeModal(currentRecipe);toast('Checklist reiniciado.');}
+      break;
+    }
     case 'export':{
       const blob=new Blob([JSON.stringify({...state,exportedAt:new Date().toISOString(),note:'Fotos não incluídas.'},null,2)],{type:'application/json'});
       const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`evoluifit-registros-${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Exportação de registros solicitada. Fotos não estão incluídas.');break;
     }
-    case 'clear-all':openModal(`<div class="modal-inner">${modalHeader('Apagar todos os dados?')}<p>Seu perfil, medidas, calendário e todas as fotos serão apagados deste navegador. A ação não pode ser desfeita. Exporte seus registros primeiro se precisar.</p><div class="actions"><button class="btn danger" data-action="confirm-clear">Apagar tudo</button><button class="btn secondary" data-action="close-modal">Cancelar</button></div></div>`);break;
+    case 'clear-all':openModal(`<div class="modal-inner">${modalHeader('Apagar todos os dados?')}<p>Seu perfil, medidas, calendário, séries, favoritos, checklists e todas as fotos serão apagados deste navegador. A ação não pode ser desfeita. Exporte seus registros primeiro se precisar.</p><div class="actions"><button class="btn danger" data-action="confirm-clear">Apagar tudo</button><button class="btn secondary" data-action="close-modal">Cancelar</button></div></div>`);break;
     case 'confirm-clear':{
       el.disabled=true;
       try{await photoOperation('readwrite',s=>s.clear());}catch{toast('Não foi possível apagar o álbum. Seus outros dados foram preservados.');el.disabled=false;break;}
-      if(persist(initialState())){modal.close();navigate('inicio');toast('Perfil, medidas, calendário e fotos apagados.');}else el.disabled=false;
+      if(persist(initialState())){stopRest();restTimer.remaining=restTimer.seconds;recipeFilter='all';modal.close();navigate('inicio');toast('Perfil, medidas, calendário, séries, receitas favoritas e fotos apagados.');}else el.disabled=false;
       break;
     }
   }
 });
+document.addEventListener('change',event=>{
+  const input=event.target;
+  if(input.id==='rest-duration'){
+    restTimer.seconds=Number(input.value);stopRest();restTimer.remaining=restTimer.seconds;updateRestUI();return;
+  }
+  if(input.dataset.ingredient!==undefined){
+    const i=Number(input.dataset.recipeId),index=Number(input.dataset.ingredient);
+    if(!recipes[i]||!Number.isInteger(index)||index<0||index>=recipes[i].ingredients.length)return;
+    const checks=state.recipeChecks[i]||{ingredients:[],steps:[]};
+    const ingredients=input.checked?[...new Set([...checks.ingredients,index])].sort():checks.ingredients.filter(n=>n!==index);
+    if(persist({...state,recipeChecks:{...state.recipeChecks,[i]:{...checks,ingredients}}})){
+      input.closest('label').classList.toggle('checked',input.checked);
+      document.querySelector('#ingredient-count').textContent=ingredientProgress(i);
+    }else input.checked=!input.checked;
+  }
+});
+document.addEventListener('error',event=>{
+  const target=event.target.closest?.('video');if(target)target.closest('.guide-player')?.querySelector('.video-error')?.removeAttribute('hidden');
+},true);
 document.addEventListener('submit',async event=>{
   const form=event.target;if(!['profile-form','measurement-form','photo-form','compare-form'].includes(form.id))return;
   event.preventDefault();const data=new FormData(form);
   if(form.id==='profile-form') {
     const profile=Object.fromEntries(data);profile.age=Number(profile.age);
     if(!validProfile(profile)) {toast('Confira as opções do perfil e informe uma idade válida.');return;}
-    if(persist({...state,profile})){selectedDay=1;navigate('treinos');toast('Seu plano está pronto. Comece no seu ritmo.');}
+    if(persist({...state,profile})){selectedDay=1;openExercises=null;stopRest();restTimer.remaining=restTimer.seconds;navigate('treinos');toast('Seu plano está pronto. Comece no seu ritmo.');}
   }
   if(form.id==='measurement-form') {
     const m={date:data.get('date'),weight:Number(data.get('weight')),height:Number(data.get('height'))};
