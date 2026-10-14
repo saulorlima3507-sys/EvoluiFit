@@ -1,0 +1,2 @@
+[functions.evoluifit-account]
+verify_jwt = false
