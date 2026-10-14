@@ -1073,3 +1073,13 @@ footer span { font-size:10px; }
  .workout-choice .choice-description { font-size:11px; }
  .workout-choice .choice-state { margin-top:auto; padding-top:5px; font-size:11px; }
 }
+
+/* Approved green elephant identity, shared by desktop, mobile and browser icon. */
+.brand { gap:9px; }
+.brand img.brand-mark { display:block; width:48px; height:48px; padding:0; margin:0; border-radius:0; background:transparent; object-fit:contain; flex-shrink:0; mix-blend-mode:multiply; }
+.brand span.brand-name { font-size:23px; font-weight:700; letter-spacing:-1px; }
+.brand-name > span { font-weight:450; }
+.mobile-brand { gap:8px; }
+.mobile-brand > img { display:block; width:42px; height:42px; object-fit:contain; mix-blend-mode:multiply; }
+@media(min-width:601px) and (max-width:1100px) { .sidebar .brand img.brand-mark { width:52px; height:52px; } }
+@media(max-width:600px) { .mobile-brand { gap:7px; } .mobile-brand > img { width:40px; height:40px; } .mobile-brand strong { font-size:19px; } }
