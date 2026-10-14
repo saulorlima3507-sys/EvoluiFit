@@ -49,3 +49,13 @@ As receitas escritas são versões adaptadas do EvoluiFit, com possíveis difere
 Os índices, ingredientes e etapas das seis receitas anteriores foram preservados para manter o significado dos favoritos e checklists existentes. O carregamento dos registros agora valida os limites a partir do catálogo completo de 35 receitas, incluindo o salvamento e a restauração de favoritos/checklists das receitas novas. Nenhuma migração ou limpeza é executada.
 
 Testes no Chromium: 35 receitas completas, associação do player específico de cada receita, busca sem acentos, filtros, favoritas, checklists antigos e novos após recarregar, fechamento do player e layout móvel. O teste externo usa uma resposta simulada porque a rede do ambiente bloqueia o YouTube; não comprova reprodução externa.
+
+## Interface moderna e treino por etapas
+
+O início agora prioriza o treino do dia, com uma ação para montar, começar ou retomar o plano. Indicadores compactos e dois atalhos dão acesso a receitas e progresso. A navegação permanece com rótulos, usa uma barra inferior no celular e apresenta um menu claro no computador.
+
+Depois de começar, o treino mostra um exercício por vez, com o vídeo correspondente, execução, séries e botões Anterior/Próximo. Ver lista completa permite consultar todos os exercícios. Alterar dia ou modalidade, descanso e adaptações ficam em controles expansíveis. O cronômetro continua acessível e a conclusão depende de marcar todas as séries.
+
+As 35 receitas foram mantidas, com cartões mais visuais, busca, filtros, favoritas e os mesmos players e checklists. Peso, fotos e calendário estão acessíveis em Progresso. O QR ilustrativo de teste e as demais funções permanecem.
+
+Nenhuma chave de armazenamento ou estrutura dos registros foi alterada. A posição do exercício na tela é apenas um estado temporário da interface. Testes verificam avanço/retorno, alternativa de lista, preservação de séries e fotos, receitas e seis larguras entre 320 e 1440 px. Os testes externos do YouTube continuam limitados à integração com resposta simulada; a rede não permite conferir a reprodução externa.

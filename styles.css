@@ -667,3 +667,383 @@ noscript { display: block; padding: 25px; background: #fff0e9; }
 .recipe-emoji-art > span { font-size: 76px; line-height: 1; filter: drop-shadow(0 8px 8px #58704920); }
 .recipe-video-label { display: inline-block; margin-top: 5px; color: #37613c; font-size: 11px; font-weight: 650; }
 @media(max-width:600px) { .recipe-search-tools { grid-template-columns: minmax(0,1fr); gap: 12px; } .recipe-emoji-art > span { font-size: 49px; } }
+
+/* Modern, focused interface — shared across home, workouts, recipes and records. */
+:root { --bg:#f7f8fa; --card:#fff; --ink:#162d26; --muted:#66766e; --green:#173e31; --lime:#d6f77f; --line:#e7ece9; --radius:22px; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+body { font-size:15px; line-height:1.5; }
+[hidden] { display:none !important; }
+h1 { font-size:clamp(27px,3.2vw,38px); font-weight:730; letter-spacing:-1.5px; }
+h2 { font-size:23px; font-weight:700; letter-spacing:-.8px; }
+h3 { font-size:18px; font-weight:650; }
+.sidebar { width:218px; padding:32px 18px 22px; background:#fff; color:var(--ink); border-right:1px solid var(--line); }
+.brand { color:var(--green); font-size:25px; }
+.brand small { color:#66816d; background:#edf4ea; }
+.brand-mark { border-radius:12px; }
+.nav-label { color:#8b9890; margin:48px 14px 16px; font-size:10px; letter-spacing:1.5px; }
+nav { gap:9px; }
+.nav-item { color:#718178; font-size:14px; padding:15px 16px; min-height:53px; border-radius:14px; }
+.nav-item:hover { background:#f0f5f1; color:var(--green); }
+.nav-item.active { color:#fff; background:var(--green); box-shadow:0 5px 13px #193e3112; }
+.nav-item.active:after { background:var(--lime); width:6px; height:6px; }
+.nav-item.active .icon { color:var(--lime); }
+.local-note { margin:0 7px 20px; }
+.local-note strong,.local-note small,.settings-link { color:#708277; }
+.local-note > span { color:#6b965d; }
+.premium-side { color:#486651; background:#f4f7f1; border:0; font-size:12px; padding:16px; }
+.premium-side small { color:#7b8c7e; font-size:10px; line-height:1.5; }
+.premium-side > span { color:#4c6f42; }
+.premium-side:hover { background:#edf5e8; }
+.app-shell { margin-left:218px; }
+.topbar { height:78px; padding:0 40px; background:var(--bg); border:0; }
+.breadcrumb { font-size:12px; }
+.topbar-right { gap:12px; }
+.demo-tag { background:#fff; border:1px solid var(--line); color:#7a8b7e; font-size:10px; }
+.avatar { width:auto; min-width:84px; padding:0 15px; height:40px; background:#fff; border:1px solid var(--line); color:#355a44; font-size:12px; }
+main { max-width:1160px; padding:24px 40px 40px; }
+.page-intro { margin-bottom:28px; }
+.eyebrow { color:#7c9584; font-size:10px; letter-spacing:1.7px; font-weight:650; }
+.subtitle { font-size:14px; line-height:1.65; color:var(--muted); max-width:650px; }
+.date-chip { background:transparent; border:0; padding:8px 0 8px 12px; color:#7a8d7d; font-size:12px; }
+.btn { min-height:47px; padding:13px 21px; border-radius:12px; font-size:14px; font-weight:650; gap:11px; box-shadow:none; }
+.btn.lime { background:var(--lime); color:#1b3825; }
+.btn.secondary { background:#f5f8f4; color:#244b36; border:1px solid #e3ebe2; }
+.btn.subtle { background:#eaf1e6; }
+.btn:focus-visible { outline-offset:3px; }
+.text-button { font-size:12px; font-weight:600; }
+.card { border:1px solid var(--line); border-radius:var(--radius); box-shadow:none; padding:26px; }
+.notice { background:#eff5eb; border:0; border-radius:14px; color:#566c54; font-size:13px; line-height:1.7; padding:17px 20px; }
+.tag { font-size:10px; padding:6px 10px; border-radius:7px; font-weight:600; letter-spacing:.1px; }
+.field { font-size:13px; gap:9px; }
+.field input,.field select { background:#fff; border:1px solid #dfe7e1; border-radius:11px; min-height:48px; padding:12px 14px; font-size:15px; }
+.small { font-size:12px; line-height:1.7; }
+footer { font-size:10px; color:#8c9a91; padding:5px 40px 27px; }
+footer span { font-size:10px; }
+/* Home: one primary action, a small progress strip and two clear destinations. */
+.today-hero { display:grid; grid-template-columns:1.35fr 1fr; min-height:350px; background:#173e31; border-radius:28px; color:#fff; overflow:hidden; position:relative; }
+.today-hero-copy { padding:40px; z-index:1; }
+.hero-kicker { color:#c4e89b; font-size:10px; letter-spacing:1.8px; font-weight:650; }
+.today-hero h2 { font-size:clamp(32px,3.6vw,49px); line-height:1.13; letter-spacing:-1.7px; font-weight:650; margin:20px 0 18px; }
+.today-hero h2 em { color:var(--lime); font-style:normal; }
+.today-hero p { font-size:14px; color:#b4c9bb; line-height:1.7; max-width:380px; margin:0 0 26px; }
+.today-hero-art { position:relative; display:grid; place-items:center; background:radial-gradient(ellipse at 55% 50%,#396043,transparent 75%); overflow:hidden; }
+.today-hero-art > svg { position:relative; width:110%; max-width:380px; height:300px; z-index:1; transform:rotate(-5deg); }
+.hero-orbit { position:absolute; width:250px; height:250px; border:1px solid #d6f77f24; border-radius:50%; }
+.orbit-two { width:330px; height:330px; border-color:#d6f77f13; }
+.home-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:23px 0 39px; padding:21px 0; background:#fff; border:1px solid var(--line); border-radius:18px; }
+.home-metrics > div,.home-metrics > button { display:flex; align-items:center; justify-content:center; gap:13px; min-width:0; text-align:left; padding:0 13px; }
+.home-metrics > :not(:last-child) { border-right:1px solid var(--line); }
+.metric-symbol { width:42px; height:42px; border-radius:12px; background:#f0f5ed; color:#68885a; display:grid; place-items:center; flex-shrink:0; }
+.home-metrics strong { display:block; font-size:23px; letter-spacing:-.8px; font-weight:650; color:var(--green); }
+.home-metrics strong small { display:inline; font-size:13px; color:#99a69a; font-weight:450; }
+.home-metrics span > small { display:block; font-size:11px; color:#7d8e80; margin-top:3px; }
+.home-metrics .arrow { width:12px; height:12px; }
+.home-section-heading { margin-bottom:20px; }
+.home-section-heading .eyebrow { margin-bottom:7px; }
+.home-section-heading h2 { font-size:22px; }
+.home-destinations { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.destination-card { display:flex; gap:17px; align-items:center; text-align:left; padding:23px 21px; border:1px solid var(--line); background:#fff; border-radius:20px; min-width:0; }
+.destination-card:hover { border-color:#c4d7bc; box-shadow:0 5px 20px #173e3108; transform:translateY(-2px); }
+.destination-art { width:86px; height:90px; display:grid; place-items:center; flex-shrink:0; border-radius:17px; overflow:hidden; }
+.food-destination .food-art { width:86px; height:90px; }
+.progress-destination { background:#eaf1e4; color:#6f925d; }
+.progress-destination > .icon { width:42px; height:42px; }
+.destination-copy { display:block; min-width:0; }
+.destination-copy > small { font-size:8px; letter-spacing:1px; color:#8d9d8a; }
+.destination-copy > strong { display:block; font-size:18px; line-height:1.35; margin:6px 0; letter-spacing:-.5px; }
+.destination-copy > span { display:block; font-size:12px; color:#80907f; line-height:1.6; }
+.destination-card > .arrow { margin-left:auto; color:#779365; }
+.home-local-note { font-size:11px; color:#8c9b8d; margin-top:26px; display:flex; align-items:center; justify-content:center; gap:8px; }
+.home-local-note .icon { width:14px; height:14px; }
+/* Workouts: familiar mode controls, compact week and a focused exercise. */
+.training-mode-tabs { margin-bottom:22px; gap:5px; background:#edf0ed; border-radius:13px; padding:5px; width:fit-content; max-width:100%; }
+.training-mode-tabs button { font-size:12px; border:0; border-radius:9px; background:transparent; color:#819080; padding:11px 15px; }
+.training-mode-tabs button.active { background:#fff; color:var(--green); box-shadow:0 2px 5px #193e3108; }
+.workout-mode-selector { padding:0; margin:0 0 22px; border:0; background:transparent; display:flex; align-items:center; flex-wrap:wrap; gap:12px 18px; }
+.workout-mode-selector > span { font-size:13px; margin:0; }
+.workout-mode-selector > div { display:flex; gap:8px; }
+.workout-mode-selector button { background:#fff; border-color:#e0e7de; min-height:43px; padding:11px 17px; font-size:12px; border-radius:11px; }
+.workout-mode-selector button.active { background:#e8f3d9; border-color:#c4dbab; color:#315a2a; }
+.workout-mode-selector small { display:none; }
+.day-tabs { gap:8px; margin-bottom:27px; }
+.day-tab { background:transparent; border:1px solid #e0e7e0; color:#7a8a79; border-radius:13px; padding:12px 5px; }
+.day-tab.active { background:var(--green); border-color:var(--green); color:#fff; }
+.day-tab strong { font-size:12px; font-weight:600; }
+.day-tab small { font-size:9px; margin-top:4px; }
+.workout-heading { margin:23px 0 18px; }
+.workout-heading h2 { font-size:25px; }
+.workout-heading .subtitle { font-size:13px; margin-top:6px; }
+.session-card { padding:22px; margin:0 0 18px; border-radius:17px; }
+.session-card:not(.active-session) { background:#eaf2e0; border-color:transparent; color:var(--green); }
+.session-card h3 { font-size:18px; }
+.session-card p { font-size:12px; line-height:1.6; }
+.session-card:not(.active-session) .session-icon { background:#d5e8c0; color:#537c34; }
+.session-card:not(.active-session) .btn { background:var(--green); color:#fff; }
+.active-session { background:#fff; border-color:var(--line); }
+.session-progress h3 { font-size:20px; }
+.session-percent { font-size:27px; color:var(--green); }
+.rest-controls { padding:14px 0 0; margin-top:14px; gap:12px; }
+.rest-clock strong { font-size:25px; }
+.rest-controls .btn { min-height:39px; font-size:12px; padding:10px 13px; }
+.rest-select select { min-height:37px; font-size:12px; border-radius:8px; }
+.session-footer { margin-top:15px; }
+.session-footer p { font-size:11px; }
+.session-footer .btn { min-height:40px; font-size:12px; }
+.workout-preparation { margin:0 0 19px; font-size:12px; color:#7a8c76; }
+.workout-preparation > summary { display:flex; align-items:center; gap:7px; cursor:pointer; width:fit-content; }
+.workout-preparation .icon { width:17px; height:17px; }
+.workout-preparation p { margin-top:12px; padding:16px 18px; border-radius:12px; background:#eff4e9; line-height:1.8; }
+.guided-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:20px 0 12px; scroll-margin-top:20px; }
+.guided-toolbar > span { font-size:13px; color:#87957f; }
+.guided-toolbar strong { color:var(--green); }
+.exercise { border:1px solid var(--line); border-radius:19px; margin-bottom:12px; box-shadow:none; }
+.exercise summary { padding:21px 23px; }
+.exercise-info h3 { font-size:18px; }
+.exercise-info p { font-size:12px; }
+.exercise-number { background:#eef4e8; color:#71895b; width:38px; height:40px; font-size:12px; }
+.exercise-body { padding:0 24px 24px; }
+.exercise-body > p { font-size:14px; line-height:1.8; }
+.exercise-options { border-top:1px solid var(--line); margin-top:21px; padding-top:16px; }
+.exercise-options > summary { padding:0; font-size:12px; color:#6c8366; cursor:pointer; }
+.exercise-options > summary:after { display:none; }
+.exercise-options dl { margin-top:17px; font-size:12px; }
+.guide-player { background:transparent; border:0; padding:0; margin:0 0 20px; }
+.guide-caption { padding:0 0 10px; font-size:12px; }
+.guide-caption small { font-size:10px; color:#94a18f; }
+.exercise-video-screen { background:#1c4437; border-radius:15px; max-height:480px; }
+.load-exercise-video { background:radial-gradient(ellipse at 50% 30%,#345c46,#1a3b30); }
+.load-exercise-video .icon { padding:15px; box-sizing:content-box; width:28px; height:28px; border-radius:50%; background:#ffffff12; }
+.load-exercise-video strong { font-size:22px; font-weight:550; }
+.guide-disclaimer { font-size:10px; line-height:1.7; margin-top:9px; color:#8b9887; }
+.guide-player video { border-radius:14px; }
+.series-controls { border:0; margin-top:22px; padding:0; }
+.series-controls > span { font-size:12px; color:#6f826b; }
+.series-button { border-radius:11px; background:#f2f6ec; font-size:13px; min-height:45px; }
+.series-button.done { background:#dceec7; color:#315928; border-color:#a9c98c; }
+.guided-navigation { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:20px 0; }
+.guided-dots { display:flex; gap:3px; }
+.guided-dots button { width:20px; height:34px; display:grid; place-items:center; padding:0; }
+.guided-dots span { display:block; width:6px; height:6px; background:#d4dfd0; border-radius:100%; }
+.guided-dots .active span { width:17px; border-radius:5px; background:#78965e; }
+.workout-secondary { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-top:25px; color:#8b9985; }
+.workout-secondary small { font-size:10px; max-width:370px; }
+.rest-card { padding:43px 25px; text-align:center; }
+.rest-card p { max-width:440px; font-size:14px; line-height:1.8; margin:12px auto 0; color:var(--muted); }
+.rest-illustration { display:grid; place-items:center; width:70px; height:70px; border-radius:24px; background:#eaf3df; margin:0 auto 20px; color:#8ba460; }
+.rest-illustration .icon { width:32px; height:32px; }
+/* Recipes and personal records retain familiar controls with lighter hierarchy. */
+.cards-grid { gap:22px; }
+.recipe-card { border-radius:20px; background:#fff; display:flex; flex-direction:column; }
+.recipe-card .food-art { height:174px; min-height:0; border-radius:0; }
+.recipe-card .food-art svg { width:174px; height:155px; }
+.recipe-content { padding:21px; display:flex; flex-direction:column; flex:1; }
+.recipe-content h2 { font-size:19px; line-height:1.4; margin:13px 0 8px; }
+.recipe-content p { font-size:12px; line-height:1.7; margin-bottom:18px; }
+.recipe-content .btn { margin-top:auto; width:100%; font-size:13px; background:#f4f7ef; border:0; }
+.recipe-content .tag { font-size:9px; }
+.recipe-search-tools { margin-top:22px; }
+.recipe-filters button { font-size:13px; border-radius:12px; }
+.recipe-filters button.active { background:var(--green); }
+.recipe-video-label { color:#8a9c7e; font-size:10px; }
+.recipe-emoji-art { background:radial-gradient(ellipse at 50% 40%,#f5eedb,#eff2e5); }
+.recipe-emoji-art > span { font-size:70px; }
+.profile-grid { gap:24px; }
+.settings-card h2 { font-size:20px; }
+.settings-card p { font-size:13px; line-height:1.8; }
+.progress-tabs button { font-size:13px; border-radius:11px; }
+#modal { border:0; border-radius:24px; box-shadow:0 25px 100px #173e312b; }
+#modal::backdrop { background:#102b2580; backdrop-filter:blur(4px); }
+.modal-inner { padding:32px; }
+.modal-header h2 { font-size:25px; }
+.recipe-modal h3 { font-size:18px; }
+.ingredient-list li { font-size:14px; }
+.recipe-step > p { font-size:15px; }
+@media(max-width:1100px) and (min-width:601px) {
+  .sidebar { width:88px; padding:26px 12px; }
+  .sidebar .brand { justify-content:center; }
+  .brand-mark { margin:0; }
+  .sidebar .brand > :not(.brand-mark),.sidebar .brand small { display:none; }
+  .sidebar .brand { font-size:0; }
+  .nav-label { margin:40px 0 14px; font-size:0; }
+  .nav-item { padding:14px 0; justify-content:center; }
+  .nav-item > span,.nav-item.active:after { display:none; }
+  .sidebar-bottom { padding-top:20px; }
+  .sidebar-bottom .local-note,.sidebar-bottom .premium-side { display:none; }
+  .settings-link { padding:12px 0; text-align:center; font-size:10px; }
+  .app-shell { margin-left:88px; }
+  main { padding:22px 28px 35px; }
+  .topbar { padding:0 28px; }
+  .today-hero-copy { padding:30px; }
+  .today-hero-art > svg { width:270px; }
+  .home-destinations { gap:14px; }
+  .destination-card { padding:19px 15px; gap:12px; }
+  .destination-art,.food-destination .food-art { width:65px; height:75px; }
+  .destination-copy > strong { font-size:16px; }
+  .destination-copy > span { font-size:11px; }
+  .home-metrics { padding:18px 0; }
+  .metric-symbol { display:none; }
+}
+@media(max-width:768px) { .cards-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) {
+  body { font-size:14px; }
+  .sidebar { inset:auto 0 0; width:100%; padding:7px 5px calc(7px + env(safe-area-inset-bottom)); background:#fffffff5; border-top:1px solid #e6ece4; border-right:0; box-shadow:0 -4px 20px #193e3105; }
+  .sidebar .brand,.sidebar-bottom,.nav-label { display:none; }
+  .nav-item { min-height:54px; padding:8px 0 6px; font-size:10px; gap:5px; border-radius:12px; color:#8a9887; }
+  .nav-item.active { background:#edf4e4; color:#2c4c32; box-shadow:none; }
+  .nav-item.active .icon { color:#3d6138; }
+  .nav-item.active:after { display:none; }
+  .nav-item .icon { width:21px; height:21px; }
+  .app-shell { margin:0; padding-bottom:calc(84px + env(safe-area-inset-bottom)); }
+  .topbar { height:70px; padding:0 20px; }
+  .mobile-brand strong { font-size:20px; }
+  .demo-tag { display:none; }
+  .avatar { min-width:80px; font-size:11px; height:36px; padding:0 12px; }
+  main { padding:16px 19px 28px; }
+  .page-intro { margin-bottom:24px; }
+  h1 { font-size:29px; line-height:1.17; }
+  .eyebrow { font-size:9px; letter-spacing:1.3px; }
+  .subtitle { font-size:13px; margin-top:10px; }
+  .date-chip { display:none; }
+  .btn { font-size:13px; min-height:45px; padding:12px 17px; }
+  .today-hero { grid-template-columns:1fr; min-height:328px; border-radius:23px; }
+  .today-hero-copy { padding:29px 24px; }
+  .hero-kicker { font-size:8px; letter-spacing:1.5px; }
+  .today-hero h2 { font-size:33px; margin:20px 0 16px; max-width:270px; }
+  .today-hero p { font-size:12px; max-width:180px; margin-bottom:23px; }
+  .today-hero-art { position:absolute; width:48%; right:-15px; bottom:0; height:240px; opacity:.5; }
+  .today-hero-art > svg { position:absolute; width:220px; height:225px; max-width:none; right:-36px; bottom:-10px; }
+  .hero-orbit { width:190px; height:190px; right:-44px; }
+  .orbit-two { width:240px; height:240px; }
+  .today-hero .btn { position:relative; z-index:2; }
+  .home-metrics { padding:16px 0; margin:17px 0 29px; border-radius:16px; }
+  .home-metrics > div,.home-metrics > button { padding:0 9px; display:block; text-align:center; }
+  .metric-symbol { display:none; }
+  .home-metrics strong { font-size:19px; letter-spacing:-.6px; }
+  .home-metrics strong small { font-size:10px; }
+  .home-metrics span > small { font-size:9px; line-height:1.5; max-width:90px; margin:4px auto 0; }
+  .home-section-heading h2 { font-size:20px; }
+  .home-destinations { grid-template-columns:1fr; gap:12px; }
+  .destination-card { padding:18px; gap:16px; border-radius:17px; }
+  .destination-art,.food-destination .food-art { width:68px; height:74px; border-radius:13px; }
+  .destination-copy > strong { font-size:17px; }
+  .destination-copy > span { font-size:12px; }
+  .destination-copy > small { font-size:7px; }
+  .home-local-note { text-align:center; font-size:10px; align-items:flex-start; line-height:1.8; }
+  .home-local-note .icon { flex-shrink:0; margin-top:2px; }
+  .card { padding:22px; border-radius:18px; }
+  .notice { font-size:12px; padding:15px 17px; }
+  .field input,.field select { font-size:16px; }
+  .training-mode-tabs { width:100%; flex-wrap:nowrap; padding:4px; gap:2px; }
+  .training-mode-tabs button { padding:11px 7px; font-size:10px; gap:6px; }
+  .workout-mode-selector { display:block; margin-bottom:19px; }
+  .workout-mode-selector > span { display:block; font-size:12px; margin-bottom:10px; }
+  .workout-mode-selector button { flex:1; padding:11px 9px; font-size:12px; }
+  .day-tabs { gap:5px; margin-bottom:21px; }
+  .day-tab { padding:11px 2px; border-radius:11px; }
+  .day-tab strong { font-size:11px; }
+  .day-tab small { font-size:8px; }
+  .workout-heading h2 { font-size:23px; }
+  .workout-heading .subtitle { font-size:12px; }
+  .session-card { padding:18px; }
+  .session-card h3 { font-size:16px; }
+  .session-card p { font-size:11px; }
+  .session-progress h3 { font-size:18px; }
+  .rest-controls { flex-wrap:wrap; gap:10px; }
+  .rest-clock strong { font-size:23px; }
+  .session-footer { flex-direction:column; align-items:stretch; }
+  .session-footer .btn { width:100%; }
+  .guided-toolbar { gap:8px; }
+  .guided-toolbar > span,.guided-toolbar .text-button { font-size:11px; }
+  .exercise summary { padding:18px 15px; gap:10px; }
+  .exercise-info h3 { font-size:16px; line-height:1.4; }
+  .exercise-info p { font-size:10px; }
+  .exercise-number { width:30px; height:33px; border-radius:9px; font-size:10px; }
+  .sets { font-size:10px; }
+  .exercise-body { padding:0 16px 20px; }
+  .exercise-body > p { font-size:13px; line-height:1.8; }
+  .guide-caption { flex-wrap:wrap; gap:3px; font-size:11px; }
+  .guide-caption small { font-size:9px; }
+  .exercise-video-screen { border-radius:11px; }
+  .load-exercise-video { padding:14px; gap:8px; }
+  .load-exercise-video .icon { width:20px; height:20px; padding:9px; }
+  .load-exercise-video strong { font-size:15px; }
+  .guide-disclaimer { font-size:10px; }
+  .series-button { font-size:12px; min-height:43px; }
+  .guided-navigation { gap:7px; }
+  .guided-navigation .btn { padding:11px 14px; font-size:12px; }
+  .guided-dots { gap:1px; }
+  .guided-dots button { width:15px; }
+  .guided-dots .active span { width:12px; }
+  .workout-secondary { display:block; }
+  .workout-secondary .text-button { display:block; margin-top:12px; }
+  .recipe-card { display:flex; border-radius:16px; }
+  .cards-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .recipe-card .food-art { height:126px; min-height:0; }
+  .recipe-card .food-art svg { width:130px; height:120px; }
+  .recipe-content { padding:13px; }
+  .recipe-content .tag { font-size:7px; padding:5px 6px; }
+  .recipe-tag-row { gap:4px; }
+  .favorite-button { width:25px; height:25px; border-radius:8px; flex-shrink:0; }
+  .favorite-button .icon { width:14px; height:14px; }
+  .recipe-content h2 { font-size:15px; letter-spacing:-.35px; line-height:1.45; margin:10px 0 6px; }
+  .recipe-content p { font-size:10px; line-height:1.7; margin-bottom:12px; }
+  .recipe-content .btn { font-size:10px; min-height:39px; padding:9px 7px; gap:5px; border-radius:9px; }
+  .recipe-video-label { font-size:9px; }
+  .recipe-emoji-art > span { font-size:55px; }
+  .recipe-filters { gap:8px; }
+  .recipe-filters button { font-size:11px; padding:10px 12px; }
+  .recipe-search-tools { gap:12px; }
+  #recipe-count { font-size:11px; }
+  .progress-tabs button { font-size:12px; }
+  #modal { border-radius:21px; }
+  .modal-inner { padding:22px 18px; }
+  .modal-header h2 { font-size:22px; }
+  .recipe-modal h3 { font-size:17px; }
+  .ingredient-list li { font-size:13px; }
+  .recipe-step > p { font-size:14px; }
+  .recipe-step-actions { flex-wrap:wrap; gap:9px; }
+  .recipe-step-actions .btn { font-size:12px; }
+  footer { padding:3px 20px 20px; font-size:10px; }
+  footer span { font-size:9px; }
+}
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; animation:none !important; } }
+/* Focused sessions keep secondary controls one tap away. */
+.active-session,.active-session h3,.active-session .rest-controls,.active-session .session-footer { color:#254836; }
+.active-session .eyebrow { color:#718c60; }
+.active-session .session-progress p,.active-session .session-footer p { color:#7b8c76; }
+.active-session .rest-select { color:#6f8068; }
+.active-session .text-button { color:#587d40; }
+.active-session .session-footer .btn { background:#e8f2dd; color:#35562c; }
+.active-session .session-footer .btn:disabled { color:#6b7f5c; opacity:.65; }
+.workout-plan-options { border:1px solid var(--line); border-radius:13px; padding:13px 17px; background:#fff; margin-bottom:23px; }
+.workout-plan-options > summary { cursor:pointer; font-size:12px; color:#6c8465; }
+.workout-plan-options[open] > summary { margin-bottom:20px; }
+.workout-plan-options .day-tabs { margin-bottom:2px; }
+.rest-settings { margin-top:16px; border-top:1px solid var(--line); padding-top:12px; }
+.rest-settings > summary { display:flex; align-items:center; gap:11px; cursor:pointer; font-size:12px; color:#70866c; list-style:none; }
+.rest-settings > summary strong { font-size:20px; font-variant-numeric:tabular-nums; color:#31562c; }
+.rest-settings-hint { margin-left:auto; font-size:10px; color:#8b9a82; }
+.active-session .rest-controls { border:0; margin-top:9px; padding-top:5px; }
+.recipe-card { padding:0; }
+.recipe-guidance { margin:0 0 17px; color:#7e9079; font-size:12px; }
+.recipe-guidance > summary { cursor:pointer; width:fit-content; }
+.recipe-guidance p { margin-top:10px; font-size:12px; line-height:1.8; background:#edf4e7; padding:15px; border-radius:12px; }
+@media(max-width:600px) {
+ .recipe-search-tools { grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:10px; }
+ .recipe-search-tools .field { min-width:0; font-size:11px; }
+ .recipe-search-tools input,.recipe-search-tools select { width:100%; min-width:0; padding:11px; font-size:16px; }
+ .recipe-search-tools input::placeholder { font-size:11px; }
+ .session-footer p { display:none; }
+ .active-session .eyebrow { font-size:8px; margin-bottom:6px; }
+ .session-progress h3 { font-size:17px; }
+ .active-session .session-progress p { font-size:10px; }
+ .progress-tabs { flex-wrap:wrap; }
+ .progress-tabs button { flex:1; white-space:nowrap; padding:10px 8px; font-size:10px; }
+}
+@media(max-width:600px) {
+ .recipe-content p { font-size:12px; line-height:1.6; }
+ .recipe-content .btn { font-size:12px; min-height:44px; }
+ .recipe-video-label { font-size:10px; }
+ .favorite-button { width:31px; height:32px; }
+ .recipe-card .recipe-content { padding:12px; }
+ .recipe-card .recipe-content .tag { white-space:normal; line-height:1.35; }
+}
