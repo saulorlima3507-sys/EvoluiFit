@@ -1,0 +1,66 @@
+'use strict';
+const $ = id => document.getElementById(id);
+const signup = $('signup-form');
+const status = (message, error = false) => { $('account-status').textContent = message; $('account-status').dataset.error = String(error); };
+function selectTab(create) {
+  $('login-panel').hidden = create; $('signup-panel').hidden = !create;
+  $('tab-login').setAttribute('aria-pressed', String(!create)); $('tab-signup').setAttribute('aria-pressed', String(create)); status('');
+}
+function step(second) {
+  $('access-fields').hidden = second; $('access-fields').disabled = second;
+  $('profile-fields').hidden = !second; $('profile-fields').disabled = !second;
+  $('step-label').textContent = second ? 'PASSO 2 DE 2 • SOBRE VOCÊ' : 'PASSO 1 DE 2 • SEU ACESSO';
+  $('signup-title').textContent = second ? 'Seu plano começa com você.' : 'Vamos começar?';
+  $('signup-intro').textContent = second ? 'Conte um pouco sobre você para personalizar seu começo.' : 'Crie seu acesso ao EvoluiFit.';
+  status('');
+}
+function validCpf(value) {
+  const digits = value.replace(/\D/g, '');
+  if (!/^\d{11}$/.test(digits) || /^(\d)\1{10}$/.test(digits)) return false;
+  for (let size = 9; size <= 10; size++) {
+    let sum = 0;
+    for (let i = 0; i < size; i++) sum += Number(digits[i]) * (size + 1 - i);
+    const check = (sum * 10 % 11) % 10;
+    if (check !== Number(digits[size])) return false;
+  }
+  return true;
+}
+function ageFor(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const birth = new Date(value + 'T12:00:00'), today = new Date();
+  if (Number.isNaN(birth.getTime()) || birth > today) return null;
+  let age = today.getFullYear() - birth.getFullYear();
+  if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+  return age >= 0 && age <= 120 ? age : null;
+}
+$('tab-login').onclick = () => selectTab(false);
+$('tab-signup').onclick = () => selectTab(true);
+document.querySelector('[data-signup]').onclick = () => selectTab(true);
+for (const button of document.querySelectorAll('[data-password]')) button.onclick = () => {
+  const input = button.previousElementSibling, showing = input.type === 'password';
+  input.type = showing ? 'text' : 'password'; button.textContent = showing ? 'Ocultar' : 'Mostrar'; button.setAttribute('aria-label', showing ? 'Ocultar senha' : 'Mostrar senha');
+};
+$('next-step').onclick = () => {
+  const fields = signup.elements;
+  fields.phone.setCustomValidity(/^\d{10,11}$/.test(fields.phone.value.replace(/\D/g, '')) ? '' : 'Informe o celular com DDD (10 ou 11 dígitos).');
+  fields.confirmation.setCustomValidity(fields.password.value === fields.confirmation.value ? '' : 'As senhas precisam ser iguais.');
+  if (!signup.reportValidity()) return;
+  step(true); fields.cpf.focus();
+};
+for (const name of ['phone', 'password', 'confirmation', 'cpf', 'birthDate']) signup.elements[name].addEventListener('input', () => signup.elements[name].setCustomValidity(''));
+$('previous-step').onclick = () => step(false);
+const birth = signup.elements.birthDate;
+const now = new Date(); birth.max = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+birth.addEventListener('input', () => {const age = ageFor(birth.value); $('age-text').textContent = age === null ? 'Informe uma data de nascimento válida.' : `Sua idade: ${age} ${age === 1 ? 'ano' : 'anos'}.`;});
+let avatarUrl;
+function clearAvatar() {if(avatarUrl) URL.revokeObjectURL(avatarUrl); avatarUrl = undefined; $('avatar-preview').removeAttribute('src'); $('avatar-preview').hidden = true; $('avatar-default').hidden = false; $('remove-avatar').hidden = true; $('avatar').value = '';}
+$('avatar').onchange = () => {
+  const file = $('avatar').files[0]; if (!file) return;
+  if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {clearAvatar(); status('Escolha JPG, PNG ou WebP de até 5 MB.', true); return;}
+  if(avatarUrl) URL.revokeObjectURL(avatarUrl); avatarUrl = URL.createObjectURL(file);
+  $('avatar-preview').src = avatarUrl; $('avatar-preview').hidden = false; $('avatar-default').hidden = true; $('remove-avatar').hidden = false; status('');
+};
+$('remove-avatar').onclick = clearAvatar;
+$('login-form').onsubmit = event => {event.preventDefault(); const identifier = event.target.elements.identifier.value.trim(); if (!identifier.includes('@') && !validCpf(identifier)) {status('Informe um e-mail ou CPF válido.', true); return;} if (identifier.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)) {status('Informe um e-mail válido.', true); return;} status('Esta é a prévia da tela de entrada. O login será liberado quando a conexão segura com o Supabase estiver concluída.'); event.target.elements.password.value = '';};
+signup.onsubmit = event => {event.preventDefault(); if ($('profile-fields').disabled) { $('next-step').click(); return; } signup.elements.cpf.setCustomValidity(validCpf(signup.elements.cpf.value) ? '' : 'Confira os dígitos do CPF.'); birth.setCustomValidity(ageFor(birth.value) === null ? 'Confira a data de nascimento.' : ''); if (!signup.reportValidity()) return; status('Formulário conferido! Esta é uma prévia: sua conta ainda não foi criada e nenhum dado foi salvo ou enviado.'); signup.elements.password.value = ''; signup.elements.confirmation.value = '';};
+window.addEventListener('pagehide', () => {if(avatarUrl) URL.revokeObjectURL(avatarUrl);});
