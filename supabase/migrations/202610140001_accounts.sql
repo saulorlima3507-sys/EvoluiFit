@@ -1,5 +1,6 @@
--- EvoluiFit: execute uma vez no SQL Editor do projeto.
+-- EvoluiFit: instalação e atualização sem apagar os dados existentes.
 -- Não altera nem importa registros que já existem nos navegadores.
+rollback;
 begin;
 create schema if not exists evoluifit_private;
 revoke all on schema evoluifit_private from public, anon, authenticated;
@@ -23,7 +24,7 @@ end;
 $$;
 revoke all on function evoluifit_private.valid_cpf(text) from public, anon, authenticated;
 
-create table public.evoluifit_profiles (
+create table if not exists public.evoluifit_profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   nickname text not null check (char_length(trim(nickname)) between 2 and 40),
   gender text not null check (gender in ('homem','mulher')),
@@ -35,14 +36,17 @@ create table public.evoluifit_profiles (
   created_at timestamptz not null default now(),
   constraint own_avatar_path check (avatar_path is null or avatar_path = id::text || '/profile.webp')
 );
+alter table public.evoluifit_profiles add column if not exists nickname text check (char_length(trim(nickname)) between 2 and 40);
+alter table public.evoluifit_profiles add column if not exists gender text check (gender in ('homem','mulher'));
 alter table public.evoluifit_profiles enable row level security;
 revoke all on public.evoluifit_profiles from anon, authenticated;
 grant select on public.evoluifit_profiles to authenticated;
 grant all on public.evoluifit_profiles to service_role;
+drop policy if exists "Read own EvoluiFit profile" on public.evoluifit_profiles;
 create policy "Read own EvoluiFit profile" on public.evoluifit_profiles
   for select to authenticated using ((select auth.uid()) = id);
 
-create table evoluifit_private.account_identifiers (
+create table if not exists evoluifit_private.account_identifiers (
   user_id uuid primary key references public.evoluifit_profiles(id) on delete cascade,
   cpf text not null unique check (evoluifit_private.valid_cpf(cpf))
 );
@@ -78,18 +82,23 @@ revoke all on function public.evoluifit_email_for_cpf(text) from public, anon, a
 grant execute on function public.evoluifit_email_for_cpf(text) to service_role;
 
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
-values('evoluifit-avatars','evoluifit-avatars',false,2097152,array['image/webp']);
+values('evoluifit-avatars','evoluifit-avatars',false,2097152,array['image/webp'])
+on conflict(id) do update set public=false,file_size_limit=2097152,allowed_mime_types=array['image/webp'];
+drop policy if exists "Read own EvoluiFit avatar" on storage.objects;
 create policy "Read own EvoluiFit avatar" on storage.objects for select to authenticated
 using(bucket_id = 'evoluifit-avatars' and name = (select auth.uid())::text || '/profile.webp');
+drop policy if exists "Upload own EvoluiFit avatar" on storage.objects;
 create policy "Upload own EvoluiFit avatar" on storage.objects for insert to authenticated
 with check(bucket_id = 'evoluifit-avatars' and name = (select auth.uid())::text || '/profile.webp');
+drop policy if exists "Replace own EvoluiFit avatar" on storage.objects;
 create policy "Replace own EvoluiFit avatar" on storage.objects for update to authenticated
 using(bucket_id = 'evoluifit-avatars' and name = (select auth.uid())::text || '/profile.webp')
 with check(bucket_id = 'evoluifit-avatars' and name = (select auth.uid())::text || '/profile.webp');
+drop policy if exists "Delete own EvoluiFit avatar" on storage.objects;
 create policy "Delete own EvoluiFit avatar" on storage.objects for delete to authenticated
 using(bucket_id = 'evoluifit-avatars' and name = (select auth.uid())::text || '/profile.webp');
 -- Contadores privados para limitar tentativas no servidor.
-create table evoluifit_private.auth_limits (
+create table if not exists evoluifit_private.auth_limits (
   key text primary key check (char_length(key) <= 256),
   attempts integer not null,
   expires_at timestamptz not null
