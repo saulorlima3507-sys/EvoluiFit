@@ -1,6 +1,6 @@
 # EvoluiFit
 
-Site estático publicado pela branch `gh-pages`: https://saulorlima3507-sys.github.io/MEU-SITE-FITNESS/ .
+Site estático publicado pela branch `gh-pages`: https://saulorlima3507-sys.github.io/EvoluiFit/ .
 
 ## Calistenia / em casa e Academia
 
