@@ -595,3 +595,44 @@ noscript { display: block; padding: 25px; background: #fff0e9; }
   .recipe-step-actions .text-button:last-child { margin-left: auto; }
   .recipe-modal-footer { flex-wrap: wrap; }
 }
+
+/* Plain-language navigation and visible weekly choices. */
+.avatar { width: auto; min-width: 76px; padding: 0 12px; font-size: 11px; border: 1px solid #d0ddc1; }
+.training-mode-tabs, .progress-tabs { display: flex; gap: 10px; margin-bottom: 23px; flex-wrap: wrap; }
+.training-mode-tabs button, .progress-tabs button { display: flex; align-items: center; justify-content: center; gap: 9px; padding: 13px 18px; min-height: 46px; font-size: 12px; font-weight: 600; background: #fff; color: #526c40; border: 1px solid #dbe5cf; border-radius: 11px; }
+.training-mode-tabs button.active, .progress-tabs button.active { background: #173c2e; color: #e7f7d3; border-color: #173c2e; }
+.training-mode-tabs .icon, .progress-tabs .icon { width: 18px; height: 18px; }
+.schedule-help { font-size: 12px; color: #5d724d; line-height: 1.9; margin: 3px 0 16px; }
+.schedule-help span { margin-left: 12px; }
+.day-tabs { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); overflow: visible; gap: 8px; }
+.day-tab { padding: 13px 4px; text-align: center; white-space: normal; }
+.day-tab strong { display: block; font-size: 14px; font-weight: 650; }
+.day-tab small { display: block; font-size: 10px; margin-top: 7px; opacity: .8; }
+.movement-topics { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 20px; }
+.movement-topics button { padding: 12px 17px; background: #fff; color: #56753a; border: 1px solid #d9e5c9; border-radius: 100px; font-size: 12px; min-height: 44px; }
+.movement-topics button.active { background: #d1f96a; color: #21451e; border-color: #b3d956; font-weight: 650; }
+.movement-guide h2 { font-size: 25px; margin-top: 16px; }
+.movement-guide > .subtitle { max-width: 700px; }
+.movement-guide > ol { display: grid; gap: 17px; padding-left: 23px; max-width: 780px; margin: 27px 0; font-size: 14px; line-height: 1.9; color: #4f6940; }
+.movement-guide > ol li { padding-left: 7px; }
+.movement-guide .notice { margin-bottom: 0; }
+.movement-guide .btn { margin-top: 20px; }
+@media(max-width:600px) {
+  .avatar { min-width: 59px; height: 34px; padding: 0 9px; font-size: 9px; }
+  .demo-tag { font-size: 7px; }
+  .topbar-right { gap: 7px; }
+  .mobile-brand strong { font-size: 16px; }
+  .training-mode-tabs, .progress-tabs { flex-wrap: nowrap; gap: 8px; }
+  .training-mode-tabs button, .progress-tabs button { flex: 1; min-width: 0; padding: 12px 8px; font-size: 10px; gap: 6px; }
+  .training-mode-tabs .icon, .progress-tabs .icon { width: 16px; height: 16px; }
+  .schedule-help { font-size: 11px; }
+  .schedule-help span { display: block; margin-left: 0; }
+  .day-tabs { gap: 5px; }
+  .day-tab { padding: 12px 2px; border-radius: 9px; }
+  .day-tab strong { font-size: 11px; }
+  .day-tab small { font-size: 8px; margin-top: 6px; }
+  .movement-topics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .movement-topics button { padding: 12px 8px; font-size: 11px; border-radius: 10px; }
+  .movement-guide h2 { font-size: 22px; }
+  .movement-guide > ol { font-size: 12px; padding-left: 19px; gap: 15px; }
+}
