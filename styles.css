@@ -660,3 +660,10 @@ noscript { display: block; padding: 25px; background: #fff0e9; }
 .load-exercise-video span { font-size: 12px; }
 .exercise-video-screen iframe { width: 100%; height: 100%; border: 0; display: block; }
 @media(max-width:600px) { .workout-mode-selector button { flex: 1; padding: 12px 8px; font-size: 12px; } .load-exercise-video { gap: 7px; } .load-exercise-video .icon { width: 32px; height: 32px; } .load-exercise-video span { font-size: 10px; } }
+
+.recipe-search-tools { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 16px; margin: 20px 0 14px; }
+#recipe-count { margin: 0 0 20px; }
+.recipe-emoji-art { background: radial-gradient(circle at 50% 40%,#f7edce,#e7efdb); }
+.recipe-emoji-art > span { font-size: 76px; line-height: 1; filter: drop-shadow(0 8px 8px #58704920); }
+.recipe-video-label { display: inline-block; margin-top: 5px; color: #37613c; font-size: 11px; font-weight: 650; }
+@media(max-width:600px) { .recipe-search-tools { grid-template-columns: minmax(0,1fr); gap: 12px; } .recipe-emoji-art > span { font-size: 49px; } }

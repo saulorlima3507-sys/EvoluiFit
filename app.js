@@ -2,6 +2,44 @@
 
 const STORE = 'evoluifit-v1';
 const arrow = '<svg class="arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg>';
+const recipes = [
+  {name:'Bowl de frango e arroz',time:25,tag:'Almoço descomplicado',cost:'Ingredientes do dia a dia',servings:1,ingredients:['100 g de frango em cubos','½ xícara de arroz cozido','½ xícara de feijão cozido','½ cenoura ralada e folhas a gosto','1 colher de chá de óleo, limão e temperos'],steps:['Cozinhe o frango em frigideira com o óleo e temperos até ficar completamente cozido, sem partes rosadas.','Aqueça o arroz e o feijão. Lave as folhas e rale a cenoura.','Monte o bowl e finalize com limão.'],tip:'Troque o frango por 2 ovos bem cozidos ou grão-de-bico. A porção é uma sugestão; ajuste com orientação conforme sua necessidade.'},
+  {name:'Panqueca de banana e aveia',time:10,tag:'Café da manhã',cost:'Só 3 ingredientes principais',servings:1,ingredients:['1 banana madura','1 ovo','2 colheres de sopa de aveia','Canela a gosto e um pouco de óleo para untar'],steps:['Amasse a banana e misture o ovo e a aveia.','Unte uma frigideira e coloque a massa em fogo baixo.','Doure dos dois lados até a massa e o ovo estarem cozidos. Finalize com canela.'],tip:'Contém ovo. Para uma versão sem ovo, use 1 colher de sopa de chia hidratada em 3 colheres de sopa de água por 10 minutos. Use aveia certificada se precisar evitar glúten.'},
+  {name:'Lentilha com legumes',time:30,tag:'Opção vegetal',cost:'Rende bem, custa pouco',servings:2,ingredients:['½ xícara de lentilha seca, lavada','1 cenoura em cubos','½ cebola e 1 dente de alho','2 xícaras de água, ajustando se necessário','1 colher de chá de óleo e temperos'],steps:['Refogue a cebola e o alho com o óleo.','Adicione a lentilha, a cenoura e a água. Cozinhe por 20–25 minutos, até ficarem macias, acrescentando água se necessário.','Ajuste o tempero e sirva com arroz ou outro acompanhamento.'],tip:'Uma opção com leguminosas para variar a semana. Guarde a sobra em recipiente fechado na geladeira por até 3 dias e aqueça bem ao consumir.'},
+  {name:'Iogurte com fruta e aveia',time:5,tag:'Lanche rápido',cost:'Sem fogão',servings:1,ingredients:['1 pote de iogurte natural (170 g)','1 fruta da estação picada','2 colheres de sopa de aveia','Canela a gosto'],steps:['Lave e corte a fruta.','Misture o iogurte com a aveia.','Adicione a fruta e a canela. Consuma em seguida ou mantenha refrigerado.'],tip:'Contém leite. Use iogurte vegetal sem açúcar se precisar de alternativa. Escolha frutas da estação para economizar.'},
+  {name:'Omelete de legumes',time:15,tag:'Jantar prático',cost:'Aproveite o que tem',servings:1,ingredients:['2 ovos','½ tomate picado','2 colheres de sopa de cenoura ralada','1 colher de chá de óleo','Salsinha e temperos a gosto'],steps:['Lave os legumes. Bata os ovos e misture com os legumes e temperos.','Aqueça o óleo em frigideira e despeje a mistura.','Cozinhe em fogo baixo dos dois lados até os ovos firmarem por completo.'],tip:'Contém ovo. Sirva com arroz e salada para uma refeição mais completa. Nenhuma receita substitui um plano alimentar individual.'},
+  {name:'Salada de grão-de-bico',time:10,tag:'Fresca e fácil',cost:'Pode usar feijão no lugar',servings:2,ingredients:['1 xícara de grão-de-bico cozido','1 tomate e ½ pepino picados','½ cebola pequena','Suco de ½ limão','1 colher de chá de azeite e cheiro-verde'],steps:['Se usar grão-de-bico enlatado, escorra e enxágue.','Lave e pique os vegetais, misturando com o grão-de-bico.','Tempere com limão, azeite e cheiro-verde. Mantenha refrigerado até servir.'],tip:'Troque o grão-de-bico por feijão-fradinho cozido. Observe alergias e necessidades pessoais antes de escolher uma receita.'},
+{"name": "Crepioca com queijo", "time": 10, "category": "Café da manhã", "emoji": "🧀", "tag": "Café da manhã", "cost": "Ingredientes simples", "servings": 1, "ingredients": ["2 ovos", "2 colheres de sopa de goma de tapioca", "50 g de queijo minas", "1 pitada de sal"], "steps": ["Bata os ovos com a goma e o sal até misturar bem.", "Despeje em frigideira antiaderente em fogo baixo e cozinhe até firmar. Vire com cuidado.", "Acrescente o queijo, dobre e aqueça até o recheio ficar quente e o ovo completamente cozido."], "tip": "Contém ovo e leite. Ajuste a quantidade de queijo à sua preferência."},
+{"name": "Overnight oats de banana", "time": 5, "category": "Café da manhã", "emoji": "🍌", "tag": "Café da manhã", "cost": "Ingredientes simples", "servings": 1, "ingredients": ["3 colheres de sopa de aveia", "120 ml de leite", "1 banana", "1 colher de chá de chia", "Canela a gosto"], "steps": ["Misture aveia, leite e chia em um pote limpo com tampa.", "Leve à geladeira por pelo menos 6 horas para hidratar.", "Acrescente a banana fatiada e a canela na hora de servir."], "tip": "Tempo ativo: 5 minutos, mais 6 horas de geladeira. Contém leite; pode usar bebida vegetal. Use aveia certificada se precisar evitar glúten."},
+{"name": "Mingau de aveia", "time": 10, "category": "Café da manhã", "emoji": "🥣", "tag": "Café da manhã", "cost": "Ingredientes simples", "servings": 1, "ingredients": ["1 xícara de leite ou bebida vegetal", "¼ de xícara de aveia em flocos", "1 colher de sobremesa de mel, opcional", "1 pitada de canela"], "steps": ["Coloque o leite e a aveia em uma panela pequena.", "Cozinhe em fogo baixo, mexendo até engrossar e a aveia ficar macia.", "Desligue e finalize com canela e o mel, se usar."], "tip": "Contém leite quando feito com leite animal. Mel é opcional e não deve ser oferecido a menores de 1 ano."},
+{"name": "Vitamina de banana e aveia", "time": 5, "category": "Café da manhã", "emoji": "🥤", "tag": "Café da manhã", "cost": "Ingredientes simples", "servings": 2, "ingredients": ["2 bananas", "300 ml de leite gelado", "2 colheres de sopa de aveia em flocos"], "steps": ["Descasque e corte as bananas.", "Bata com o leite e a aveia no liquidificador até ficar homogêneo.", "Sirva em seguida, sem deixar fora da geladeira."], "tip": "Contém leite; pode usar bebida vegetal. A banana madura costuma dispensar açúcar."},
+{"name": "Tapioca com casquinha de queijo", "time": 10, "category": "Café da manhã", "emoji": "🧀", "tag": "Café da manhã", "cost": "Ingredientes simples", "servings": 1, "ingredients": ["3 colheres de sopa de goma de tapioca hidratada", "1 colher de sopa de parmesão ralado", "1 fatia de muçarela"], "steps": ["Distribua o parmesão em uma frigideira antiaderente em fogo baixo.", "Espalhe a goma por cima e espere unir e firmar.", "Adicione a muçarela, dobre e aqueça até derreter."], "tip": "Contém leite. Use goma de tapioca já hidratada, pronta para frigideira."},
+{"name": "Cuscuz com ovo", "time": 20, "category": "Café da manhã", "emoji": "🍳", "tag": "Café da manhã", "cost": "Ingredientes simples", "servings": 1, "ingredients": ["½ xícara de flocão de milho", "¼ de xícara de água, ajustando à embalagem", "1 ovo", "1 colher de chá de azeite", "Sal a gosto"], "steps": ["Hidrate o flocão com água e uma pitada de sal por cerca de 10 minutos.", "Coloque na cuscuzeira sem apertar e cozinhe no vapor conforme a embalagem, até ficar macio.", "Cozinhe o ovo no azeite até clara e gema firmarem e sirva junto do cuscuz."], "tip": "Contém ovo. Confira a água da cuscuzeira e evite contato com o vapor ao abrir."},
+{"name": "Pão de aveia de frigideira", "time": 15, "category": "Café da manhã", "emoji": "🍞", "tag": "Café da manhã", "cost": "Ingredientes simples", "servings": 1, "ingredients": ["1 ovo", "3 colheres de sopa de aveia em flocos finos", "1 colher de sopa de água", "½ colher de chá de fermento químico", "1 pitada de sal", "1 colher de chá de azeite para untar"], "steps": ["Misture ovo, aveia, água e sal. Acrescente o fermento por último.", "Unte uma frigideira pequena, despeje a massa e tampe em fogo baixo.", "Quando firmar, vire e cozinhe o outro lado até o centro ficar cozido."], "tip": "Contém ovo. Use aveia certificada se precisar evitar glúten. Não sirva com massa crua no centro."},
+{"name": "Patê de atum com iogurte", "time": 10, "category": "Lanches", "emoji": "🐟", "tag": "Lanches", "cost": "Ingredientes simples", "servings": 2, "ingredients": ["1 lata de atum ao natural, escorrida", "3 colheres de sopa de iogurte natural", "1 colher de sopa de cebola picada", "1 colher de chá de suco de limão", "Salsinha a gosto"], "steps": ["Escorra o atum e solte com um garfo.", "Misture com o iogurte, a cebola, o limão e a salsinha.", "Sirva com pão ou vegetais lavados e mantenha refrigerado até servir."], "tip": "Contém peixe e leite. Confira o rótulo do atum; não deixe o patê por longos períodos fora da geladeira."},
+{"name": "Sanduíche natural de frango", "time": 15, "category": "Lanches", "emoji": "🥪", "tag": "Lanches", "cost": "Ingredientes simples", "servings": 2, "ingredients": ["4 fatias de pão integral", "1 xícara de frango cozido e desfiado", "½ cenoura ralada", "2 colheres de sopa de iogurte natural", "Folhas de alface lavadas"], "steps": ["Misture o frango já cozido com a cenoura e o iogurte.", "Distribua a mistura em duas fatias de pão e acrescente a alface.", "Feche os sanduíches e sirva; mantenha refrigerado se não consumir na hora."], "tip": "Contém trigo e leite. O frango precisa estar completamente cozido e refrigerado antes da montagem."},
+{"name": "Wrap de frango com salada", "time": 20, "category": "Lanches", "emoji": "🌯", "tag": "Lanches", "cost": "Ingredientes simples", "servings": 2, "ingredients": ["2 tortilhas para wrap", "150 g de peito de frango em tiras", "½ cenoura ralada", "½ tomate picado", "Folhas de alface lavadas", "2 colheres de sopa de iogurte natural", "1 colher de chá de azeite e temperos"], "steps": ["Cozinhe as tiras de frango no azeite e nos temperos até ficarem completamente cozidas, sem partes rosadas.", "Aqueça as tortilhas rapidamente e distribua frango, cenoura, tomate e alface.", "Acrescente o iogurte, dobre as laterais e enrole para servir."], "tip": "Contém trigo e leite, conforme os rótulos. O tempo considera frango cortado em tiras pequenas."},
+{"name": "Pasta de grão-de-bico", "time": 10, "category": "Lanches", "emoji": "🫘", "tag": "Lanches", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["1 xícara de grão-de-bico cozido", "½ xícara de água do cozimento, adicionada aos poucos", "1 dente de alho pequeno", "¼ de cebola", "1 colher de sopa de azeite", "Sal e temperos a gosto"], "steps": ["Coloque o grão-de-bico já cozido no processador com alho, cebola e azeite.", "Bata e adicione a água do cozimento aos poucos, até obter uma pasta cremosa.", "Ajuste os temperos e sirva com pão ou legumes lavados."], "tip": "Tempo considera o grão-de-bico já cozido. Esta versão de pasta não leva tahine."},
+{"name": "Guacamole", "time": 10, "category": "Lanches", "emoji": "🥑", "tag": "Lanches", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["1 abacate médio maduro", "½ cebola picada", "1 tomate picado", "Suco de 1 limão", "Coentro, sal e pimenta a gosto"], "steps": ["Lave os vegetais e pique a cebola, o tomate e o coentro.", "Amasse levemente a polpa do abacate e misture com os vegetais.", "Acrescente o limão e os temperos e sirva em seguida."], "tip": "Prepare próximo de servir. Se precisar guardar, use recipiente tampado na geladeira."},
+{"name": "Salada de lentilha", "time": 30, "category": "Refeições", "emoji": "🥗", "tag": "Refeições", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["1 xícara de lentilha crua", "1 cenoura pequena em cubos", "2 tomates picados", "½ cebola roxa picada", "Suco de 1 limão", "1 colher de sopa de azeite e salsinha"], "steps": ["Cozinhe a lentilha em água até ficar macia, mas sem desmanchar; escorra e deixe esfriar.", "Cozinhe a cenoura até ficar macia e misture com lentilha, tomate e cebola.", "Tempere com limão, azeite e salsinha e sirva."], "tip": "O tempo pode variar conforme a lentilha. Lave os vegetais antes do preparo e refrigere até servir."},
+{"name": "Salada de feijão-fradinho", "time": 15, "category": "Refeições", "emoji": "🥗", "tag": "Refeições", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["2 xícaras de feijão-fradinho cozido e escorrido", "1 tomate picado", "½ pimentão verde picado", "½ cebola roxa picada", "Suco de 1 limão", "1 colher de sopa de azeite e cheiro-verde"], "steps": ["Use o feijão já cozido, frio e escorrido.", "Misture o tomate, o pimentão, a cebola e o cheiro-verde lavados e picados.", "Tempere com limão e azeite e sirva ou mantenha refrigerado."], "tip": "Tempo considera o feijão já cozido. É uma opção para variar a leguminosa da refeição."},
+{"name": "Abobrinha refogada", "time": 15, "category": "Acompanhamentos", "emoji": "🥒", "tag": "Acompanhamentos", "cost": "Ingredientes simples", "servings": 2, "ingredients": ["1 abobrinha média em cubos", "½ cebola picada", "1 dente de alho picado", "1 colher de chá de azeite", "Sal e cheiro-verde a gosto"], "steps": ["Lave e corte a abobrinha em cubos.", "Aqueça o azeite e refogue a cebola e o alho. Junte a abobrinha.", "Cozinhe mexendo até ficar macia; se necessário, adicione um pouco de água. Finalize com cheiro-verde."], "tip": "Evite cozinhar demais se preferir os cubos mais firmes. Combine com outros alimentos para montar sua refeição."},
+{"name": "Legumes assados", "time": 40, "category": "Acompanhamentos", "emoji": "🥕", "tag": "Acompanhamentos", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["1 cenoura em rodelas finas", "1 abobrinha em cubos", "1 pimentão em tiras", "½ cebola em pétalas", "1 colher de sopa de azeite", "Alho, sal e ervas a gosto"], "steps": ["Preaqueça o forno a 200 °C e lave e corte os vegetais.", "Distribua em assadeira, sem amontoar, e misture com azeite e temperos.", "Asse por cerca de 25–35 minutos, mexendo na metade, até ficarem macios."], "tip": "O tempo varia com o forno e o tamanho dos cortes. Corte a cenoura menor para cozinhar junto dos demais."},
+{"name": "Frango desfiado temperado", "time": 40, "category": "Refeições", "emoji": "🍗", "tag": "Refeições", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["600 g de peito de frango", "1 tomate picado", "1 cebola picada", "Água suficiente conforme o manual da panela", "Sal, salsinha e cebolinha a gosto"], "steps": ["Coloque frango, tomate, cebola, temperos e água na panela de pressão, respeitando os limites e o manual.", "Cozinhe por cerca de 15–20 minutos após atingir pressão, conforme o tamanho das peças. Desligue e espere a pressão sair completamente antes de abrir.", "Confira se o frango está completamente cozido e desfie com dois garfos. Misture ao caldo na consistência desejada."], "tip": "Nunca abra nem agite a panela enquanto estiver pressurizada. O tempo total inclui aquecimento e liberação de pressão."},
+{"name": "Peixe assado com batata", "time": 40, "category": "Refeições", "emoji": "🐟", "tag": "Refeições", "cost": "Ingredientes simples", "servings": 2, "ingredients": ["300 g de filé de peixe", "2 batatas pequenas em rodelas, pré-cozidas", "1 cebola em rodelas", "1 dente de alho", "Suco de ½ limão", "1 colher de sopa de azeite e ervas"], "steps": ["Preaqueça o forno a 200 °C. Tempere o peixe com limão, alho e ervas.", "Distribua cebola e batata pré-cozida na assadeira e coloque o peixe por cima. Regue com azeite.", "Asse por cerca de 20–25 minutos, até o peixe ficar opaco e se separar facilmente em lascas."], "tip": "Contém peixe. O tempo depende da espessura dos filés e do forno; não sirva peixe cru no centro."},
+{"name": "Arroz integral com legumes", "time": 45, "category": "Refeições", "emoji": "🍚", "tag": "Refeições", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["1 xícara de arroz integral", "3 xícaras de água quente, ajustando à embalagem", "1 cenoura picada", "½ chuchu picado", "½ xícara de milho e ervilhas", "½ cebola e 1 dente de alho", "1 colher de sopa de azeite e sal"], "steps": ["Refogue cebola e alho no azeite e acrescente o arroz.", "Adicione a água e o sal e cozinhe em fogo baixo conforme a embalagem.", "Acrescente cenoura e chuchu durante o cozimento. Quando tudo estiver macio, misture milho e ervilhas e aqueça."], "tip": "Confira o ponto do arroz antes de servir. A quantidade de água e o tempo variam por marca e panela."},
+{"name": "Macarrão com atum e tomate", "time": 20, "category": "Refeições", "emoji": "🍝", "tag": "Refeições", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["400 g de macarrão", "1 lata de atum escorrido", "1 sachê de molho de tomate, cerca de 300 g", "Alho, cebola e ervas a gosto", "1 colher de chá de azeite"], "steps": ["Cozinhe o macarrão em água conforme a embalagem.", "Refogue os temperos no azeite, acrescente molho e atum e aqueça bem.", "Escorra o macarrão e misture com o molho quente."], "tip": "Contém peixe e, em geral, trigo. Confira os rótulos e ajuste as porções às suas necessidades."},
+{"name": "Batata-doce com alho e páprica", "time": 40, "category": "Acompanhamentos", "emoji": "🍠", "tag": "Acompanhamentos", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["2 batatas-doces médias", "2 dentes de alho picados", "2 colheres de sopa de azeite", "1 colher de chá de páprica defumada", "Sal a gosto"], "steps": ["Preaqueça o forno a 200 °C. Lave bem e corte as batatas em pedaços de tamanho parecido.", "Misture com alho, azeite, páprica e sal e distribua em assadeira.", "Asse por cerca de 30–35 minutos, virando na metade, até os pedaços ficarem macios."], "tip": "O tempo varia conforme o tamanho dos pedaços. A casca pode ser mantida após boa lavagem."},
+{"name": "Sopa de abóbora", "time": 40, "category": "Refeições", "emoji": "🥣", "tag": "Refeições", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["600 g de abóbora em cubos", "1 cebola picada", "2 dentes de alho", "1 colher de sopa de azeite", "700 ml de água ou caldo caseiro", "Sal e ervas a gosto"], "steps": ["Refogue a cebola e o alho no azeite e acrescente a abóbora.", "Cubra com a água ou o caldo e cozinhe até a abóbora ficar bem macia.", "Bata com mixer fora do fogo, com cuidado, e aqueça novamente. Ajuste a água e os temperos."], "tip": "Versão do EvoluiFit preparada na panela; o vídeo de referência mostra uma variação assada. Evite bater líquidos muito quentes em liquidificador fechado."},
+{"name": "Sopa de legumes", "time": 35, "category": "Refeições", "emoji": "🥣", "tag": "Refeições", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["1 cenoura em cubos", "1 batata em cubos", "1 abobrinha em cubos", "½ cebola e 1 dente de alho", "1 colher de sopa de azeite", "1 litro de água ou caldo caseiro", "Sal e cheiro-verde"], "steps": ["Refogue a cebola e o alho no azeite.", "Adicione cenoura, batata e água e cozinhe até começarem a ficar macias.", "Junte a abobrinha, termine o cozimento e finalize com cheiro-verde. Ajuste a água se necessário."], "tip": "Combine com uma fonte de proteína para montar a refeição conforme sua necessidade. Sirva com cuidado: a sopa pode estar muito quente."},
+{"name": "Grão-de-bico crocante", "time": 40, "category": "Lanches", "emoji": "🫘", "tag": "Lanches", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["2 xícaras de grão-de-bico cozido e escorrido", "1 colher de sopa de azeite", "1 colher de chá de páprica", "Sal e cominho a gosto"], "steps": ["Preaqueça o forno a 200 °C. Seque muito bem o grão-de-bico cozido com pano limpo ou papel apropriado.", "Misture com azeite e temperos e espalhe em uma assadeira.", "Asse por cerca de 30–40 minutos, mexendo algumas vezes, até dourar. Deixe esfriar um pouco para ficar crocante."], "tip": "Tempo considera o grão-de-bico já cozido. Supervisione o final do forno para evitar queimar."},
+{"name": "Hambúrguer de lentilha", "time": 45, "category": "Refeições", "emoji": "🍔", "tag": "Refeições", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["1½ xícara de lentilha cozida e escorrida", "½ cebola picada", "1 dente de alho picado", "½ xícara de aveia em flocos finos, ajustando o ponto", "1 colher de sopa de azeite", "Sal, páprica e salsinha"], "steps": ["Amasse a lentilha já cozida, misture cebola, alho e temperos e acrescente aveia até conseguir modelar.", "Modele quatro discos e deixe firmar na geladeira por 15 minutos.", "Doure dos dois lados em frigideira com azeite, em fogo médio-baixo, até ficarem firmes e quentes por dentro."], "tip": "Tempo inclui 15 minutos para firmar. A aveia pode exigir ajuste conforme a umidade da lentilha."},
+{"name": "Bolinho de banana e aveia", "time": 30, "category": "Doces e sobremesas", "emoji": "🧁", "tag": "Doces e sobremesas", "cost": "Ingredientes simples", "servings": 6, "ingredients": ["2 bananas maduras", "1 ovo", "½ xícara de aveia em flocos finos", "1 colher de chá de fermento químico", "1 colher de chá de canela", "1 colher de chá de óleo para untar"], "steps": ["Preaqueça o forno a 180 °C. Amasse a banana e misture com ovo, aveia e canela.", "Acrescente o fermento por último e distribua em seis forminhas próprias para forno, untadas.", "Asse por cerca de 20–25 minutos, até firmar e o palito sair sem massa crua."], "tip": "Contém ovo. O rendimento é de seis bolinhos pequenos, não uma recomendação de porção individual."},
+{"name": "Cookies de banana e aveia", "time": 25, "category": "Doces e sobremesas", "emoji": "🍪", "tag": "Doces e sobremesas", "cost": "Ingredientes simples", "servings": 8, "ingredients": ["2 bananas maduras", "1 xícara de aveia em flocos", "Canela a gosto, opcional"], "steps": ["Preaqueça o forno a 180 °C. Amasse as bananas e misture a aveia até formar uma massa úmida que possa ser porcionada.", "Distribua cerca de oito porções pequenas em assadeira forrada com papel próprio para forno e achate levemente.", "Asse por cerca de 15–20 minutos, até firmar e dourar nas bordas. Deixe esfriar antes de retirar."], "tip": "São cookies de textura macia. O rendimento depende do tamanho das bananas e dos biscoitos."},
+{"name": "Creme de abacate com cacau", "time": 10, "category": "Doces e sobremesas", "emoji": "🥑", "tag": "Doces e sobremesas", "cost": "Ingredientes simples", "servings": 4, "ingredients": ["400 g de polpa de abacate maduro", "3 colheres de sopa de cacau em pó", "1 colher de sopa de mel, opcional", "Frutas lavadas para decorar"], "steps": ["Bata abacate e cacau com mixer ou processador até obter um creme homogêneo.", "Prove e acrescente mel, se desejar, misturando novamente.", "Distribua em potes, decore com frutas e sirva frio."], "tip": "Versão com menos cacau que a referência; ajuste ao seu paladar. Mel é opcional e não deve ser oferecido a menores de 1 ano."},
+{"name": "Pudim de chia com frutas", "time": 5, "category": "Doces e sobremesas", "emoji": "🍓", "tag": "Doces e sobremesas", "cost": "Ingredientes simples", "servings": 2, "ingredients": ["3 colheres de sopa de chia", "200 ml de leite ou bebida vegetal", "1 colher de chá de mel, opcional", "½ xícara de frutas lavadas e picadas"], "steps": ["Misture a chia ao leite e mexa novamente após cerca de 10 minutos, para desfazer os grumos.", "Tampe e mantenha na geladeira por pelo menos 4 horas, até hidratar completamente e engrossar.", "Misture novamente e sirva com as frutas e o mel, se usar."], "tip": "Tempo ativo: 5 minutos, mais 4 horas de geladeira. Contém leite quando preparado com leite animal. Não consuma a chia seca nesta receita."}
+];
+recipes.slice(0,6).forEach((r,i)=>{r.category=['Refeições','Café da manhã','Refeições','Lanches','Refeições','Refeições'][i];r.emoji=['🍲','🥞','🥣','🍓','🍳','🥗'][i];});
 const initialState = () => ({ profile: null, measurements: [], completed: [], workoutSessions: {}, favorites: [], recipeChecks: {} });
 let state = initialState();
 let storageAvailable = true;
@@ -31,6 +69,8 @@ let openExercises = null;
 let trainingMode = 'plan';
 let movementTopic = 'warmup';
 let recipeFilter = 'all';
+let recipeQuery = '';
+let recipeCategory = 'all';
 let currentRecipe = null;
 let currentRecipeStep = 0;
 const restTimer = {deadline:0,remaining:60,interval:null,running:false,seconds:60};
@@ -56,11 +96,11 @@ function restoreState(saved) {
     restored.measurements = [...records.values()].sort((a,b)=>a.date.localeCompare(b.date));
   }
   if (Array.isArray(saved.completed)) restored.completed = [...new Set(saved.completed.filter(dateIsValid))].sort();
-  if (Array.isArray(saved.favorites)) restored.favorites = [...new Set(saved.favorites.filter(i=>Number.isInteger(i)&&i>=0&&i<6))];
+  if (Array.isArray(saved.favorites)) restored.favorites = [...new Set(saved.favorites.filter(i=>Number.isInteger(i)&&i>=0&&i<recipes.length))];
   if (saved.recipeChecks && typeof saved.recipeChecks==='object') for (const [key,entry] of Object.entries(saved.recipeChecks)) {
-    if (/^[0-5]$/.test(key) && entry && typeof entry==='object') restored.recipeChecks[key] = {
-      ingredients:Array.isArray(entry.ingredients)?[...new Set(entry.ingredients.filter(i=>Number.isInteger(i)&&i>=0&&i<[5,4,5,4,5,5][Number(key)]))]:[],
-      steps:Array.isArray(entry.steps)?[...new Set(entry.steps.filter(i=>Number.isInteger(i)&&i>=0&&i<3))]:[],
+    if (/^(0|[1-9]\d*)$/.test(key) && Number(key)<recipes.length && entry && typeof entry==='object') restored.recipeChecks[key] = {
+      ingredients:Array.isArray(entry.ingredients)?[...new Set(entry.ingredients.filter(i=>Number.isInteger(i)&&i>=0&&i<recipes[Number(key)].ingredients.length))]:[],
+      steps:Array.isArray(entry.steps)?[...new Set(entry.steps.filter(i=>Number.isInteger(i)&&i>=0&&i<recipes[Number(key)].steps.length))]:[],
     };
   }
   if (saved.workoutSessions && typeof saved.workoutSessions==='object') for (const [key,entry] of Object.entries(saved.workoutSessions)) {
@@ -128,14 +168,7 @@ const templates = [
   {name:'Parte superior B',focus:'Costas, peito e estabilidade',ids:['pull','push','shoulder','deadbug']},
   {name:'Parte inferior B',focus:'Pernas, glúteos e controle',ids:['lunge','bridge','calf','plank']},
 ];
-const recipes = [
-  {name:'Bowl de frango e arroz',time:25,tag:'Almoço descomplicado',cost:'Ingredientes do dia a dia',servings:1,ingredients:['100 g de frango em cubos','½ xícara de arroz cozido','½ xícara de feijão cozido','½ cenoura ralada e folhas a gosto','1 colher de chá de óleo, limão e temperos'],steps:['Cozinhe o frango em frigideira com o óleo e temperos até ficar completamente cozido, sem partes rosadas.','Aqueça o arroz e o feijão. Lave as folhas e rale a cenoura.','Monte o bowl e finalize com limão.'],tip:'Troque o frango por 2 ovos bem cozidos ou grão-de-bico. A porção é uma sugestão; ajuste com orientação conforme sua necessidade.'},
-  {name:'Panqueca de banana e aveia',time:10,tag:'Café da manhã',cost:'Só 3 ingredientes principais',servings:1,ingredients:['1 banana madura','1 ovo','2 colheres de sopa de aveia','Canela a gosto e um pouco de óleo para untar'],steps:['Amasse a banana e misture o ovo e a aveia.','Unte uma frigideira e coloque a massa em fogo baixo.','Doure dos dois lados até a massa e o ovo estarem cozidos. Finalize com canela.'],tip:'Contém ovo. Para uma versão sem ovo, use 1 colher de sopa de chia hidratada em 3 colheres de sopa de água por 10 minutos. Use aveia certificada se precisar evitar glúten.'},
-  {name:'Lentilha com legumes',time:30,tag:'Opção vegetal',cost:'Rende bem, custa pouco',servings:2,ingredients:['½ xícara de lentilha seca, lavada','1 cenoura em cubos','½ cebola e 1 dente de alho','2 xícaras de água, ajustando se necessário','1 colher de chá de óleo e temperos'],steps:['Refogue a cebola e o alho com o óleo.','Adicione a lentilha, a cenoura e a água. Cozinhe por 20–25 minutos, até ficarem macias, acrescentando água se necessário.','Ajuste o tempero e sirva com arroz ou outro acompanhamento.'],tip:'Uma opção com leguminosas para variar a semana. Guarde a sobra em recipiente fechado na geladeira por até 3 dias e aqueça bem ao consumir.'},
-  {name:'Iogurte com fruta e aveia',time:5,tag:'Lanche rápido',cost:'Sem fogão',servings:1,ingredients:['1 pote de iogurte natural (170 g)','1 fruta da estação picada','2 colheres de sopa de aveia','Canela a gosto'],steps:['Lave e corte a fruta.','Misture o iogurte com a aveia.','Adicione a fruta e a canela. Consuma em seguida ou mantenha refrigerado.'],tip:'Contém leite. Use iogurte vegetal sem açúcar se precisar de alternativa. Escolha frutas da estação para economizar.'},
-  {name:'Omelete de legumes',time:15,tag:'Jantar prático',cost:'Aproveite o que tem',servings:1,ingredients:['2 ovos','½ tomate picado','2 colheres de sopa de cenoura ralada','1 colher de chá de óleo','Salsinha e temperos a gosto'],steps:['Lave os legumes. Bata os ovos e misture com os legumes e temperos.','Aqueça o óleo em frigideira e despeje a mistura.','Cozinhe em fogo baixo dos dois lados até os ovos firmarem por completo.'],tip:'Contém ovo. Sirva com arroz e salada para uma refeição mais completa. Nenhuma receita substitui um plano alimentar individual.'},
-  {name:'Salada de grão-de-bico',time:10,tag:'Fresca e fácil',cost:'Pode usar feijão no lugar',servings:2,ingredients:['1 xícara de grão-de-bico cozido','1 tomate e ½ pepino picados','½ cebola pequena','Suco de ½ limão','1 colher de chá de azeite e cheiro-verde'],steps:['Se usar grão-de-bico enlatado, escorra e enxágue.','Lave e pique os vegetais, misturando com o grão-de-bico.','Tempere com limão, azeite e cheiro-verde. Mantenha refrigerado até servir.'],tip:'Troque o grão-de-bico por feijão-fradinho cozido. Observe alergias e necessidades pessoais antes de escolher uma receita.'},
-];
+
 
 function persist(next) {
   try { localStorage.setItem(STORE, JSON.stringify(next)); state = next; storageAvailable = true; storageNotice = ''; return true; }
@@ -147,7 +180,7 @@ function toast(message) {
   clearTimeout(toastTimer); toastTimer = setTimeout(()=>el.classList.remove('show'),4500);
 }
 function openModal(content) { document.querySelectorAll('dialog video').forEach(v=>v.pause()); document.querySelector('#modal-content').innerHTML = content; if (!modal.open) modal.showModal(); }
-modal.addEventListener('close',()=>document.querySelectorAll('dialog video').forEach(v=>v.pause()));
+modal.addEventListener('close',()=>{document.querySelectorAll('dialog video').forEach(v=>v.pause());modal.querySelectorAll('iframe').forEach(frame=>frame.remove());});
 function modalHeader(title) { return `<div class="modal-top"><h2>${title}</h2><button data-action="close-modal" aria-label="Fechar janela">×</button></div>`; }
 function intro(eyebrow,title,sub) { return `<div class="page-intro"><div><p class="eyebrow">${eyebrow}</p><h1>${title}</h1><p class="subtitle">${sub}</p></div><div class="date-chip">${svgIcon('calendar')}${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long'})}</div></div>`; }
 function latest() { return [...state.measurements].sort((a,b)=>b.date.localeCompare(a.date))[0]; }
@@ -316,7 +349,398 @@ const exerciseVideos = {
     "author": "Goulart"
   }
 };
+const recipeVideos = {
+  "recipe-0": {
+    "id": "VSgq3JaXvCU",
+    "author": "Continente",
+    "title": "Descubra como fazer Bowl de Frango e Arroz",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=VSgq3JaXvCU",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-1": {
+    "id": "xYxOC0d5Rtc",
+    "author": "Saborear pt",
+    "title": "Como fazer PANQUECAS DE AVEIA E BANANA de forma rápida #shorts",
+    "short": true,
+    "source_url": "https://www.youtube.com/watch?v=xYxOC0d5Rtc",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-2": {
+    "id": "kH6104_b6Jc",
+    "author": "Sabores do Éden - Culinária Vegetariana",
+    "title": "Como fazer LENTILHA COM LEGUMES 💚",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=kH6104_b6Jc",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-3": {
+    "id": "H8ghGkCCdFw",
+    "author": "Culinária Infalível",
+    "title": "IOGURTE COM CHIA, AVEIA E FRUTAS SUPER SAUDÁVEL E SABOROSO! ÓTIMO PARA EMAGRECER",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=H8ghGkCCdFw",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-4": {
+    "id": "QFFl8VKPjDc",
+    "author": "Prapapá",
+    "title": "Prapapá - Como Fazer Omelete de Legumes",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=QFFl8VKPjDc",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-5": {
+    "id": "0oWP6UroeSQ",
+    "author": "Presunto Vegetariano",
+    "title": "Como fazer Salada de Grão de Bico",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=0oWP6UroeSQ",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-6": {
+    "id": "zKFD9-1HIxw",
+    "author": "TudoGostoso",
+    "title": "Crepioca — Receitas TudoGostoso",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=zKFD9-1HIxw",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-7": {
+    "id": "ZoBxQ4FuETs",
+    "author": "Filling Meals",
+    "title": "Banana Overnight Oats",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=ZoBxQ4FuETs",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-8": {
+    "id": "nY0SMJWM3Ig",
+    "author": "Marina Morais",
+    "title": "MINGAU DE AVEIA - Minhas 3 receitas preferidas | MARINA MORAIS",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=nY0SMJWM3Ig",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-9": {
+    "id": "99KITQWYSJ4",
+    "author": "Alcantara&Marinho Receitas",
+    "title": "VITAMINA DE BANANA COM AVEIA | Receita saudável  🍌🍌🍌",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=99KITQWYSJ4",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-10": {
+    "id": "_y-ND0ndU7k",
+    "author": "Panelaterapia",
+    "title": "Como Fazer Tapioca com Casquinha de Queijo - Receita Prática",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=_y-ND0ndU7k",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-11": {
+    "id": "QLiDz1ila9Q",
+    "author": "Abará da Ana",
+    "title": "CUSCUZ COM OVO",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=QLiDz1ila9Q",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-12": {
+    "id": "pmV9V6IpFxg",
+    "author": "Receitas Nestlé",
+    "title": "Pão de Aveia de Frigideira - Receitas Nestlé",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=pmV9V6IpFxg",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-13": {
+    "id": "0DDJ2qxNtXA",
+    "author": "Forno e Corrida",
+    "title": "Como fazer PATE DE ATUM Low Carb Com Iogurte Natural",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=0DDJ2qxNtXA",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-14": {
+    "id": "irwR0yiUb-0",
+    "author": "Easy and Healthy",
+    "title": "SANDUÍCHE NATURAL DE FRANGO - Volta às Aulas",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=irwR0yiUb-0",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-15": {
+    "id": "B9EyR6-Wm6w",
+    "author": "Continente",
+    "title": "- YouTube (https://www.youtube.com/watch?v=B9EyR6-Wm6w)",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=B9EyR6-Wm6w",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-16": {
+    "id": "BgpDOer9BNU",
+    "author": "VegTube",
+    "title": "Receita de Homus de Grão de Bico",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=BgpDOer9BNU",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-17": {
+    "id": "GSOuaf3kjpM",
+    "author": "CheffOtto",
+    "title": "GUACAMOLE!!! (#RECEITA PRA PREGUIÇOSO) #Shorts",
+    "short": true,
+    "source_url": "https://www.youtube.com/watch?v=GSOuaf3kjpM",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-18": {
+    "id": "tRmVS-shxiQ",
+    "author": "Presunto Vegetariano",
+    "title": "Salada de Lentilha - Sugestão para o Ano Novo",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=tRmVS-shxiQ",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-19": {
+    "id": "0PFneS6c2pk",
+    "author": "Alho na Panela",
+    "title": "COMECE A FAZER SALADA ASSIM  | SALADA DE FEIJÃO FRADINHO - Alho na Panela",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=0PFneS6c2pk",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-20": {
+    "id": "z7zKIC91V8s",
+    "author": "uduluiz",
+    "title": "Receita de abobrinha refogada simples e fácil com cebola e alho",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=z7zKIC91V8s",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-21": {
+    "id": "VtjycS-zlNo",
+    "author": "Chef Zeca",
+    "title": "Como fazer legumes no forno | Receita SAUDÁVEL | Acompanhamento LOW CARB para o dia a dia",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=VtjycS-zlNo",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-22": {
+    "id": "JVgzIdHodt0",
+    "author": "Comer, Treinar e Amar",
+    "title": "Frango Desfiado na Panela de Pressão - Comer, Treinar e Amar",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=JVgzIdHodt0",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-23": {
+    "id": "LG5ZzaTTL1E",
+    "author": "A. FERNANDES",
+    "title": "FILÉ DE PEIXE ASSADO NO FORNO !",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=LG5ZzaTTL1E",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-24": {
+    "id": "lW2UiSsYNJo",
+    "author": "Casinha da Lih",
+    "title": "ARROZ INTEGRAL COM LEGUMES",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=lW2UiSsYNJo",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-25": {
+    "id": "-kYMiy6uepE",
+    "author": "Claudia Oliveira Receitas",
+    "title": "MACARRÃO COM ATUM |RECEITA ECONÔMICA",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=-kYMiy6uepE",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-26": {
+    "id": "GuIYZyeDiUI",
+    "author": "Panelaterapia",
+    "title": "Batata Doce Assada com Alho e Páprica Defumada - Receita muito fácil",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=GuIYZyeDiUI",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-27": {
+    "id": "qAgDSEhhx6c",
+    "author": "Continente",
+    "title": "Como fazer Sopa de Abóbora | Sopas",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=qAgDSEhhx6c",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-28": {
+    "id": "eYFVLQJmDGk",
+    "author": "Tata Pereira",
+    "title": "SOPA DE LEGUMES, RÁPIDA E FÁCIL DE PREPARAR",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=eYFVLQJmDGk",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-29": {
+    "id": "lt0wXzhQE7I",
+    "author": "Marina Morais",
+    "title": "GRÃO DE BICO CROCANTE (para substituir o salgadinho de vez!) | Lanches Saudáveis | MARINA MORAIS",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=lt0wXzhQE7I",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-30": {
+    "id": "lsAKfOIO5Yk",
+    "author": "Continente",
+    "title": "Hambúrguer de Lentilhas: Receita Prática, Rápida e Saborosa",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=lsAKfOIO5Yk",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-31": {
+    "id": "mW8X0GJ-T08",
+    "author": "Mamãe Vida Saudável",
+    "title": "BOLINHO FIT DE BANANA E AVEIA { molhadinho} | Mamãe Vida Saudável # 187",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=mW8X0GJ-T08",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-32": {
+    "id": "Ma4CQa_rvGc",
+    "author": "RECEITAS DA TALI",
+    "title": "Cookies de Banana e Aveia - Receita de 2 Ingredientes",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=Ma4CQa_rvGc",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-33": {
+    "id": "Du-HzwsY6dA",
+    "author": "Comer, Treinar e Amar",
+    "title": "Receita | Mousse de Abacate com Cacau - Comer, Treinar e Amar",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=Du-HzwsY6dA",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  },
+  "recipe-34": {
+    "id": "YKAC0W72XMw",
+    "author": "Dani Faria Lima",
+    "title": "Como fazer pudim de chia? Café da Manhã, Sobremesa ou Lanche Saudável",
+    "short": false,
+    "source_url": "https://www.youtube.com/watch?v=YKAC0W72XMw",
+    "reference": true,
+    "provider": "youtube",
+    "checked": "2026-10-14",
+    "usage": "Player oficial do autor; sem download ou redistribuição. Reprodução sujeita às permissões do canal. Receita escrita é uma versão adaptada do EvoluiFit; ingredientes e porções podem variar."
+  }
+};
 function guidePlayer(file, title) {
+  if(file.startsWith('recipe-')) {
+    const clip=recipeVideos[file];if(!clip)return '';
+    return `<section class="guide-player recipe-video" data-clip="${file}"><div class="guide-caption"><span>${svgIcon('play')} Vídeo desta receita</span><small>${clip.short?'Shorts':'Preparo em vídeo'}</small></div><div class="exercise-video-screen"><button class="load-exercise-video" data-load-clip="${file}" aria-label="Assistir receita: ${escapeHTML(title)}">${svgIcon('play')}<strong>${escapeHTML(title)}</strong><span>Assistir ao preparo</span></button></div><p class="guide-disclaimer">Por ${escapeHTML(clip.author)} · <a href="${clip.source_url}" target="_blank" rel="noopener noreferrer">Abrir este vídeo no YouTube</a>. O player externo carrega quando você toca em Assistir e precisa de internet.</p><p class="guide-disclaimer">A receita escrita é a versão do EvoluiFit. O vídeo mostra uma referência do mesmo prato; ingredientes, quantidades e porções podem variar.</p></section>`;
+  }
   if (!file.startsWith('recipe-')) {
     const clip = exerciseVideos[file];
     if (!clip) return '';
@@ -523,9 +947,25 @@ function favoriteButton(i,large=false) {
   const saved=state.favorites.includes(i);
   return `<button class="${large?'btn secondary':'favorite-button'} ${saved?'is-favorite':''}" data-favorite="${i}" aria-pressed="${saved}" aria-label="${saved?'Remover dos favoritos:':'Favoritar:'} ${escapeHTML(recipes[i].name)}">${svgIcon('heart')}${large?(saved?'Salva nos favoritos':'Salvar receita'):''}</button>`;
 }
+const recipeCategories = ['Café da manhã','Refeições','Lanches','Acompanhamentos','Doces e sobremesas'];
+function recipeSearchText(text) { return text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
+function matchingRecipes() {
+  const query=recipeSearchText(recipeQuery.trim());
+  return recipes.map((r,i)=>({r,i})).filter(({r,i})=>(recipeFilter==='all'||state.favorites.includes(i))&&(recipeCategory==='all'||r.category===recipeCategory)&&(!query||recipeSearchText([r.name,...r.ingredients].join(' ')).includes(query)));
+}
+function recipeArt(r,i) {
+  return i<6?foodArt(i):`<div class="food-art recipe-emoji-art" aria-hidden="true"><span>${r.emoji}</span></div>`;
+}
+function recipeGrid() {
+  const cards=matchingRecipes();
+  return cards.length?`<div class="cards-grid">${cards.map(({r,i})=>`<article class="card recipe-card">${recipeArt(r,i)}<div class="recipe-content"><div class="recipe-tag-row"><span class="tag">${r.category}</span>${favoriteButton(i)}</div><h2>${r.name}</h2><p>${r.cost}<br>${r.time} min${[7,34].includes(i)?' + geladeira':''} · ${r.servings} ${r.servings===1?'porção':'porções'}<br><span class="recipe-video-label">▶ ${recipeVideos['recipe-'+i].short?'Shorts do preparo':'Vídeo do preparo'}</span></p><button class="btn secondary" data-recipe="${i}">Ver receita ${arrow}</button></div></article>`).join('')}</div>`:`<section class="card empty">${recipeFilter==='favorites'&&!state.favorites.length?'Ainda não há receitas favoritas. Toque no coração de uma receita para salvá-la.':'Nenhuma receita encontrada. Tente outro ingrediente ou categoria.'}</section>`;
+}
+function updateRecipeResults() {
+  const results=document.querySelector('#recipe-results');if(!results)return;
+  results.innerHTML=recipeGrid();document.querySelector('#recipe-count').textContent=`${matchingRecipes().length} de ${recipes.length} receitas`;
+}
 function recipesPage() {
-  const cards=recipes.map((r,i)=>({r,i})).filter(({i})=>recipeFilter==='all'||state.favorites.includes(i));
-  return `${intro('COMIDA DE VERDADE','Simples de fazer. Bom de comer.','Escolha uma receita, assista ao guia e prepare um passo de cada vez.')}<div class="notice">Porções são sugestões gerais, não uma prescrição alimentar. Verifique alergias e restrições; para necessidades individuais, procure um nutricionista.</div><div class="recipe-filters" aria-label="Filtro de receitas"><button data-recipe-filter="all" class="${recipeFilter==='all'?'active':''}" aria-pressed="${recipeFilter==='all'}">Todas as receitas <span>${recipes.length}</span></button><button data-recipe-filter="favorites" class="${recipeFilter==='favorites'?'active':''}" aria-pressed="${recipeFilter==='favorites'}">Minhas favoritas <span>${state.favorites.length}</span></button></div>${cards.length?`<div class="cards-grid">${cards.map(({r,i})=>`<article class="card recipe-card">${foodArt(i)}<div class="recipe-content"><div class="recipe-tag-row"><span class="tag">${r.tag}</span>${favoriteButton(i)}</div><h2>${r.name}</h2><p>${r.cost}<br>${r.time} min · ${r.servings} ${r.servings===1?'porção':'porções'}</p><button class="btn secondary" data-recipe="${i}">Ver receita ${arrow}</button></div></article>`).join('')}</div>`:'<section class="card empty">Ainda não há receitas favoritas.<br>Toque no coração de uma receita para salvá-la.</section>'}`;
+  return `${intro('35 RECEITAS PARA VARIAR','Simples de fazer. Bom de comer.','Cafés da manhã, refeições, lanches, acompanhamentos e doces. Cada receita tem vídeo e preparo passo a passo.')}<div class="notice">Porções são sugestões gerais, não uma prescrição alimentar. Verifique alergias e restrições; para necessidades individuais, procure um nutricionista.</div><div class="recipe-filters" aria-label="Filtro de receitas"><button data-recipe-filter="all" class="${recipeFilter==='all'?'active':''}" aria-pressed="${recipeFilter==='all'}">Todas as receitas <span>${recipes.length}</span></button><button data-recipe-filter="favorites" class="${recipeFilter==='favorites'?'active':''}" aria-pressed="${recipeFilter==='favorites'}">Minhas favoritas <span>${state.favorites.length}</span></button></div><div class="recipe-search-tools"><label class="field">Buscar receita ou ingrediente<input id="recipe-search" type="search" placeholder="Ex.: banana, frango, lentilha" value="${escapeHTML(recipeQuery)}"></label><label class="field">Categoria<select id="recipe-category"><option value="all">Todas as categorias</option>${recipeCategories.map(c=>`<option value="${c}" ${recipeCategory===c?'selected':''}>${c}</option>`).join('')}</select></label></div><p id="recipe-count" class="small muted" role="status">${matchingRecipes().length} de ${recipes.length} receitas</p><div id="recipe-results">${recipeGrid()}</div>`;
 }
 function recipeStepHTML(i) {
   const r=recipes[i],checked=state.recipeChecks[i]?.steps||[],done=checked.includes(currentRecipeStep);
@@ -646,7 +1086,7 @@ document.addEventListener('click',async event=>{
   const el=event.target.closest('button');if(!el)return;
   if(el.dataset.view) {if(el.dataset.view==='treinos')trainingMode='plan';navigate(el.dataset.view);return;}
   if(el.dataset.loadClip) {
-    const clip=exerciseVideos[el.dataset.loadClip];
+    const clip=exerciseVideos[el.dataset.loadClip]||recipeVideos[el.dataset.loadClip];
     if(!clip || clip.provider!=='youtube')return;
     const frame=document.createElement('iframe');
     frame.src=`https://www.youtube-nocookie.com/embed/${clip.id}?autoplay=1&playsinline=1&rel=0`;
@@ -765,6 +1205,8 @@ document.addEventListener('click',async event=>{
     }
   }
 });
+document.addEventListener('input',event=>{if(event.target.id==='recipe-search'){recipeQuery=event.target.value;updateRecipeResults();}});
+document.addEventListener('change',event=>{if(event.target.id==='recipe-category'){recipeCategory=event.target.value;updateRecipeResults();}});
 document.addEventListener('change',event=>{
   const input=event.target;
   if(input.id==='rest-duration'){

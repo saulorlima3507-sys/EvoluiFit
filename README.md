@@ -20,7 +20,7 @@ As demais demonstrações são incorporadas no player oficial do YouTube, a part
 
 O player externo só carrega após tocar em Assistir, dentro do exercício. Fechar o exercício encerra o player; o vídeo fica pausado. Antes do clique, nenhum serviço externo é carregado. A CSP do servidor local permite somente o domínio youtube-nocookie.com para frames; os registros não são enviados ao YouTube. O player tem política de referência própria para permitir a identificação da origem exigida pelo serviço.
 
-Os seis guias animados de receitas continuam disponíveis. Os vídeos antigos de academia com outras variações continuam preservados nos arquivos, mas não são usados para ilustrar exercícios diferentes.
+Os seis guias animados de receitas foram substituídos na interface por vídeos dos canais dos autores. Os arquivos antigos foram preservados no repositório. Os vídeos antigos de academia com outras variações continuam preservados nos arquivos, mas não são usados para ilustrar exercícios diferentes.
 
 ## Registros locais
 
@@ -37,3 +37,15 @@ Testes no Chromium cobrem as 22 associações exercício/modalidade, abertura do
 A rede do ambiente bloqueia o YouTube. Por isso, o teste dos embeds verifica a URL, a política de referência e o ciclo de abertura/fechamento usando uma resposta simulada; não constitui comprovação de reprodução dos vídeos externos. Títulos, autores e descrições foram consultados nas fontes. Há fallback para abrir o vídeo específico no YouTube. A implantação é acompanhada pelo GitHub Actions; github.io também é bloqueado no ambiente.
 
 A atualização da versão anterior foi testada comparando o conteúdo exato do localStorage e os bytes das fotos no IndexedDB, sem diferenças.
+
+## 35 receitas com vídeos
+
+A área Receitas tem 35 opções nas categorias Café da manhã, Refeições, Lanches, Acompanhamentos e Doces e sobremesas. Há busca por nome ou ingrediente, filtros de categoria e favoritas.
+
+Cada receita abre ingredientes, porções, tempo estimado, checklist, etapas marcáveis e um player do vídeo correspondente. Há Shorts e vídeos de preparo mais completos, sem duração inventada. Fontes e autores em [media/recipe-videos.json](media/recipe-videos.json). Os vídeos são incorporados pelo player oficial do YouTube, sem cópia ou redistribuição. Carregam apenas quando solicitado e são removidos ao fechar a janela. Há link para o vídeo específico no canal do autor.
+
+As receitas escritas são versões adaptadas do EvoluiFit, com possíveis diferenças de ingredientes, quantidades e porções em relação ao vídeo de referência; essa informação aparece junto ao player. Tempos ativos de overnight oats e pudim de chia indicam o tempo adicional de geladeira.
+
+Os índices, ingredientes e etapas das seis receitas anteriores foram preservados para manter o significado dos favoritos e checklists existentes. O carregamento dos registros agora valida os limites a partir do catálogo completo de 35 receitas, incluindo o salvamento e a restauração de favoritos/checklists das receitas novas. Nenhuma migração ou limpeza é executada.
+
+Testes no Chromium: 35 receitas completas, associação do player específico de cada receita, busca sem acentos, filtros, favoritas, checklists antigos e novos após recarregar, fechamento do player e layout móvel. O teste externo usa uma resposta simulada porque a rede do ambiente bloqueia o YouTube; não comprova reprodução externa.
