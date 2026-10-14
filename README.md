@@ -1,25 +1,39 @@
 # EvoluiFit
 
-Site estático publicado pela branch `gh-pages`: https://saulorlima3507-sys.github.io/MEU-SITE-FITNESS/ . Sem build ou dependências de produção.
+Site estático publicado pela branch `gh-pages`: https://saulorlima3507-sys.github.io/MEU-SITE-FITNESS/ .
 
-## Vídeos com pessoas reais
+## Calistenia / em casa e Academia
 
-Nove filmagens por Goulart, via wger.de, redistribuídas sob CC BY-SA 4.0. [Fontes, autoria, licença e adaptações](media/credits.json). As adaptações permanecem sob CC BY-SA 4.0: conversão para MP4/H.264, redimensionamento, remoção de áudio, capas e legendas separadas em português. Sem cortes ou alteração de velocidade. Acesso ao wger e às APIs confirmado em 14/10/2026.
+Em Treinos, escolha a modalidade. Cada exercício tem seu próprio vídeo dentro do cartão, junto das instruções, séries e repetições. O antigo botão para uma galeria genérica foi removido.
 
-Cobertura: agachamento com barra, supino com halteres, remada na polia, romeno com halteres, avanço com halteres, desenvolvimento com halteres, puxada assistida, hip thrust e panturrilha em pé. Cada player identifica diferenças em relação ao plano; a prescrição permanece igual.
+São 22 associações: 11 exercícios por modalidade. Prancha e dead bug usam a mesma demonstração nas duas modalidades, porque a execução é a mesma. As duas entradas de remada com mochila em casa também usam a mesma demonstração desse movimento.
 
-O catálogo consultado não forneceu filmagens adequadas para as versões em casa, prancha e dead bug. Esses exercícios exibem instruções escritas e aviso de indisponibilidade. As animações de treino foram removidas da publicação. Os seis guias animados de receitas permanecem.
+As instruções, equipamentos e versões fáceis/difíceis são específicos da modalidade. O seletor usa os valores existentes `gym: yes/no`, preservando as chaves de sessões e o histórico anterior. Alternar para a modalidade anterior permite retomar suas séries na mesma data.
+
+## Fontes e reprodução
+
+[Catálogo por exercício e modalidade](media/exercise-videos.json).
+
+Quatro vídeos locais de academia, por Goulart via wger.de, sob CC BY-SA 4.0: supino com halteres, remada na polia, romeno com halteres e desenvolvimento com halteres. [Créditos e adaptações](media/credits.json). Conversão para MP4/H.264, redimensionamento, remoção de áudio, capa e legendas separadas; adaptações sob CC BY-SA 4.0.
+
+As demais demonstrações são incorporadas no player oficial do YouTube, a partir dos canais dos autores. Não foram baixadas ou redistribuídas. Direitos permanecem com seus autores; reprodução depende das permissões do autor e da disponibilidade do serviço. Cada player tem o crédito e um link direto para o vídeo específico, caso a incorporação seja bloqueada. Há demonstrações em português e em inglês, com instruções da aplicação em português.
+
+O player externo só carrega após tocar em Assistir, dentro do exercício. Fechar o exercício encerra o player; o vídeo fica pausado. Antes do clique, nenhum serviço externo é carregado. A CSP do servidor local permite somente o domínio youtube-nocookie.com para frames; os registros não são enviados ao YouTube. O player tem política de referência própria para permitir a identificação da origem exigida pelo serviço.
+
+Os seis guias animados de receitas continuam disponíveis. Os vídeos antigos de academia com outras variações continuam preservados nos arquivos, mas não são usados para ilustrar exercícios diferentes.
 
 ## Registros locais
 
-Mantidos `evoluifit-v1` no localStorage e `evoluifit-photos` no IndexedDB, versão 1, coleção `photos`. Sem migração, limpeza ou envio de registros. Continue no mesmo endereço, navegador e perfil para acessar seus dados. Os vídeos são servidos pelo próprio site, sem player externo.
+Mantidos `evoluifit-v1` no localStorage e `evoluifit-photos` no IndexedDB, versão 1, coleção `photos`. Sem migração ou limpeza. Use o mesmo endereço, navegador e perfil para acessar seus dados.
+
+## QR ilustrativo
+
+Acesso vitalício → Testar pagamento com Pix abre uma simulação com QR que abre o próprio EvoluiFit. Não é Pix, não gera cobrança nem confirma pagamento.
 
 ## Validação
 
-No Chromium: reprodução e busca por trechos dos nove vídeos, legendas, treino guiado, persistência, navegação, layout responsivo e fotos. Teste de atualização comparou exatamente o conteúdo do localStorage, séries e bytes das fotos no IndexedDB, sem diferenças. O servidor local também validou requisições parciais de vídeo. O domínio github.io é bloqueado pela rede do ambiente de execução; a implantação é acompanhada pelo workflow Pages no GitHub Actions.
+Testes no Chromium cobrem as 22 associações exercício/modalidade, abertura do vídeo correto dentro de cada cartão, troca de modalidade, preservação de séries e layout em 320/390/768/1440 px. Os quatro vídeos locais tiveram reprodução e busca por trechos verificadas.
 
-## Acesso aos vídeos e tela de pagamento de teste
+A rede do ambiente bloqueia o YouTube. Por isso, o teste dos embeds verifica a URL, a política de referência e o ciclo de abertura/fechamento usando uma resposta simulada; não constitui comprovação de reprodução dos vídeos externos. Títulos, autores e descrições foram consultados nas fontes. Há fallback para abrir o vídeo específico no YouTube. A implantação é acompanhada pelo GitHub Actions; github.io também é bloqueado no ambiente.
 
-Em Treinos, a opção **Vídeos com pessoas reais** abre as nove demonstrações em qualquer plano, inclusive em casa. Os exercícios sem filmagem têm um botão para essa biblioteca, mantendo a identificação de que os vídeos disponíveis usam equipamentos de academia.
-
-Em Acesso vitalício, **Testar pagamento com Pix** abre uma simulação com QR ilustrativo. Esse QR abre o próprio site EvoluiFit; não contém Pix, não gera cobrança nem confirma pagamento. Nenhum registro ou acesso é alterado.
+A atualização da versão anterior foi testada comparando o conteúdo exato do localStorage e os bytes das fotos no IndexedDB, sem diferenças.

@@ -112,8 +112,8 @@ const exercises = {
   row:{name:'Remada',gym:'Remada na polia baixa',body:'Remada com mochila',muscles:'Dorsais, parte média das costas e bíceps',reps:'8–12',how:'Incline o tronco com coluna neutra, apoie uma mão em um suporte firme e puxe uma mochila bem fechada em direção ao quadril. Na polia, sente com o tronco estável e puxe sem balançar o corpo.',easy:'Use mochila vazia ou carga leve e amplitude confortável.',hard:'Aumente a carga ou faça remada invertida apenas em barra própria, segura e fixa.',alternative:'Academia: polia baixa. Em casa sem barra: mochila; com barra própria: remada invertida. Não use mesas ou portas improvisadas.'},
   hinge:{name:'Movimento de quadril',gym:'Levantamento romeno com halteres',body:'Bom dia sem carga',muscles:'Posteriores de coxa, glúteos e estabilizadores do tronco',reps:'10–12',how:'Com joelhos levemente flexionados, empurre o quadril para trás mantendo a coluna neutra. Sinta alongar a parte de trás das coxas e volte contraindo os glúteos. No romeno, mantenha os halteres perto das pernas.',easy:'Treine sem carga e com amplitude menor.',hard:'Use carga moderada ou faça a variação unilateral com apoio.',alternative:'Academia: romeno com halteres. Calistenia: movimento de quadril sem carga.'},
   plank:{name:'Prancha',gym:'Prancha no solo',body:'Prancha no solo',muscles:'Abdômen, glúteos e estabilizadores dos ombros',reps:'20–40 s',how:'Apoie antebraços abaixo dos ombros e mantenha corpo alinhado. Contraia levemente glúteos e abdômen, respire continuamente e encerre a série antes de perder a postura.',easy:'Apoie os joelhos ou faça na parede.',hard:'Aumente o tempo até 40 segundos ou alterne elevar um pé sem girar o quadril.',alternative:'O mesmo exercício funciona na academia e em casa.'},
-  lunge:{name:'Avanço para trás',gym:'Avanço com halteres',body:'Avanço sem carga',muscles:'Quadríceps, glúteos e equilíbrio',reps:'8–10 / lado',how:'Dê um passo para trás e flexione os dois joelhos. Mantenha o pé da frente inteiro no chão. Volte empurrando o chão com a perna da frente e alterne os lados.',easy:'Segure em um apoio firme e reduza a profundidade.',hard:'Acrescente halteres ou pause por 2 segundos na posição baixa.',alternative:'Academia: halteres ao lado do corpo. Calistenia: sem carga, usando apoio se necessário.'},
-  shoulder:{name:'Empurrar vertical',gym:'Desenvolvimento com halteres',body:'Flexão inclinada de ombros',muscles:'Ombros e tríceps',reps:'6–10',how:'Com halteres, comece à altura dos ombros e empurre acima da cabeça sem arquear a lombar. Na versão com peso corporal, apoie as mãos no chão, eleve o quadril e flexione os cotovelos com cuidado, aproximando a cabeça do chão.',easy:'Use halteres leves. Em casa, faça flexão inclinada em bancada firme, sem elevar o quadril.',hard:'Aumente a carga ou eleve gradualmente o quadril na flexão, mantendo controle.',alternative:'Academia: desenvolvimento com halteres. Calistenia: flexão inclinada, progredindo para pike no solo.'},
+  lunge:{name:'Avanço para trás',gym:'Avanço para trás com halteres',body:'Avanço sem carga',muscles:'Quadríceps, glúteos e equilíbrio',reps:'8–10 / lado',how:'Dê um passo para trás e flexione os dois joelhos. Mantenha o pé da frente inteiro no chão. Volte empurrando o chão com a perna da frente e alterne os lados.',easy:'Segure em um apoio firme e reduza a profundidade.',hard:'Acrescente halteres ou pause por 2 segundos na posição baixa.',alternative:'Academia: halteres ao lado do corpo. Calistenia: sem carga, usando apoio se necessário.'},
+  shoulder:{name:'Empurrar vertical',gym:'Desenvolvimento com halteres',body:'Flexão de ombros (pike)',muscles:'Ombros e tríceps',reps:'6–10',how:'Com halteres, comece à altura dos ombros e empurre acima da cabeça sem arquear a lombar. Na versão com peso corporal, apoie as mãos no chão, eleve o quadril e flexione os cotovelos com cuidado, aproximando a cabeça do chão.',easy:'Use halteres leves. Em casa, faça flexão inclinada em bancada firme, sem elevar o quadril.',hard:'Aumente a carga ou eleve gradualmente o quadril na flexão, mantendo controle.',alternative:'Academia: desenvolvimento com halteres. Calistenia: flexão inclinada, progredindo para pike no solo.'},
   pull:{name:'Puxada',gym:'Puxada na polia alta',body:'Remada com mochila',muscles:'Dorsais, bíceps e parte média das costas',reps:'8–12',how:'Na polia, puxe a barra até a parte superior do peito, mantendo o tronco estável, e retorne devagar. Sem equipamento, incline o tronco com coluna neutra e puxe uma mochila bem fechada até o quadril.',easy:'Use pouca carga na polia ou mochila leve.',hard:'Barra fixa assistida; diminua a assistência gradualmente em uma barra própria e bem fixada.',alternative:'Academia: puxada na polia. Em casa: remada com mochila; se houver barra própria, barra fixa assistida.'},
   bridge:{name:'Ponte de glúteos',gym:'Ponte de glúteos com carga leve',body:'Ponte de glúteos no solo',muscles:'Glúteos e posteriores de coxa',reps:'12–15',how:'Deite de costas, joelhos flexionados e pés no chão. Eleve o quadril até alinhar tronco e coxas, sem hiperestender a lombar. Desça devagar.',easy:'Use menor amplitude e os dois pés apoiados.',hard:'Pause 2 segundos no topo ou faça uma perna por vez com controle.',alternative:'Academia: adicione carga leve protegida sobre o quadril com orientação. Calistenia: peso corporal.'},
   deadbug:{name:'Dead bug',gym:'Dead bug no solo',body:'Dead bug no solo',muscles:'Abdômen e controle do tronco',reps:'8–10 / lado',how:'Deite de costas com braços para cima e joelhos a 90°. Estenda devagar braço e perna opostos, sem afastar a lombar do chão. Volte e alterne.',easy:'Mova só os braços ou só uma perna de cada vez.',hard:'Estenda mais a perna e faça movimentos mais lentos.',alternative:'O mesmo exercício funciona na academia e em casa.'},
@@ -198,18 +198,130 @@ function dashboard() {
 function profileForm() {
   const p=state.profile || {goal:'fat',level:'beginner',days:'3',gym:'no',age:''};
   const option=(value,label,current)=>`<option value="${value}" ${String(current)===value?'selected':''}>${label}</option>`;
-  return `<form id="profile-form"><div class="form-grid"><label class="field">Qual é seu objetivo?<select name="goal">${Object.entries(goalNames).map(([k,v])=>option(k,v,p.goal)).join('')}</select></label><label class="field">Sua experiência com treinos<select name="level">${Object.entries(levelNames).map(([k,v])=>option(k,v,p.level)).join('')}</select></label><label class="field">Dias disponíveis por semana<select name="days">${[2,3,4,5].map(n=>option(String(n),`${n} dias`,p.days)).join('')}</select><small>Em planos de 5 dias, um dia é de recuperação ativa.</small></label><label class="field">Você tem acesso à academia?<select name="gym">${option('no','Não, vou treinar em casa',p.gym)}${option('yes','Sim, tenho acesso',p.gym)}</select></label><label class="field full">Idade (em anos)<input name="age" type="number" min="1" max="120" step="1" required value="${escapeHTML(p.age)}" placeholder="Ex.: 28"><small>A idade evita o uso de referências adultas de IMC para menores. Menores de 18 anos precisam de orientação profissional e acompanhamento responsável.</small></label></div><div class="actions"><button class="btn" type="submit">${state.profile?'Salvar meu plano':'Criar meu plano'} ${arrow}</button></div></form>`;
+  return `<form id="profile-form"><div class="form-grid"><label class="field">Qual é seu objetivo?<select name="goal">${Object.entries(goalNames).map(([k,v])=>option(k,v,p.goal)).join('')}</select></label><label class="field">Sua experiência com treinos<select name="level">${Object.entries(levelNames).map(([k,v])=>option(k,v,p.level)).join('')}</select></label><label class="field">Dias disponíveis por semana<select name="days">${[2,3,4,5].map(n=>option(String(n),`${n} dias`,p.days)).join('')}</select><small>Em planos de 5 dias, um dia é de recuperação ativa.</small></label><label class="field">Onde você quer treinar?<select name="gym">${option('no','Calistenia / em casa',p.gym)}${option('yes','Academia',p.gym)}</select></label><label class="field full">Idade (em anos)<input name="age" type="number" min="1" max="120" step="1" required value="${escapeHTML(p.age)}" placeholder="Ex.: 28"><small>A idade evita o uso de referências adultas de IMC para menores. Menores de 18 anos precisam de orientação profissional e acompanhamento responsável.</small></label></div><div class="actions"><button class="btn" type="submit">${state.profile?'Salvar meu plano':'Criar meu plano'} ${arrow}</button></div></form>`;
 }
 function profilePage() {
   if (!state.profile) return `${intro('VAMOS COMEÇAR','Um plano com o seu ritmo.','Conte um pouco sobre você. Dá para mudar suas escolhas depois.')}<div class="onboard"><section class="onboard-aside"><div><p class="eyebrow">SEU PONTO DE PARTIDA</p><h2>A evolução começa<br>com um passo.</h2><p>Sem pressa, sem promessas milagrosas. Encontre uma rotina possível para o seu dia a dia.</p></div><strong>01 ${arrow}</strong></section><section class="card">${profileForm()}</section></div><section class="card settings-card" style="margin-top:20px"><h2>Dados e acesso</h2><p>Seus dados ficam somente neste navegador, sem sincronização nem backup automático. Pessoas com acesso a este perfil do navegador podem ver os registros. Limpar dados do navegador remove seu histórico e fotos.</p><p>Preço planejado: R$ 24,99 por acesso vitalício, em uma única compra. Esta demonstração é gratuita e não realiza cobrança.</p><div class="actions"><button class="btn secondary" data-action="export">Exportar registros</button><button class="btn danger" data-action="clear-all">Apagar todos os dados</button><button class="btn subtle" data-action="premium">Ver demonstração</button><button class="text-button" data-action="integrations">Próximas integrações ${arrow}</button></div></section>`;
   return `${intro('DO SEU JEITO','Meu plano e meus dados','Mude os dias de treino e cuide dos seus registros.')}<div class="profile-grid"><section class="card">${profileForm()}</section><div class="stack"><section class="card settings-card"><h2>Seu espaço é local</h2><p>Perfil, medidas, calendário, séries e receitas salvas ficam no localStorage. Fotos ficam no IndexedDB, apenas neste navegador. Nenhum dado é enviado a um servidor.</p><p>Não há sincronização, login ou backup automático. Quem usa este perfil do navegador pode acessar os dados. Isso não é um cofre criptografado. Evite dispositivos compartilhados.</p><p>Limpar dados do navegador ou usar modo privado pode apagar registros e fotos. Você pode baixar uma cópia dos registros (sem fotos), em um arquivo JSON.</p><div class="actions"><button class="btn secondary" data-action="export">Exportar registros</button><button class="btn danger" data-action="clear-all">Apagar todos os dados</button></div></section><section class="card settings-card"><span class="tag">ACESSO PLANEJADO</span><h2 style="margin-top:12px">Uma compra. Sua jornada.</h2><p>R$ 24,99 por acesso vitalício, em uma única compra. A demonstração está aberta, sem cobrança.</p><button class="btn" data-action="premium">Ver demonstração ${arrow}</button></section><section class="card settings-card"><h2>Próximas integrações</h2><p>Pagamento, aplicativo e anúncios são etapas futuras. Nenhum serviço de publicidade está conectado.</p><button class="text-button" data-action="integrations">Entender o que falta ${arrow}</button></section></div></div>`;
 }
+const exerciseVideos = {
+  "squat-home": {
+    "provider": "youtube",
+    "id": "GvrvBJYaOSM",
+    "author": "Nuffield Health"
+  },
+  "push-home": {
+    "provider": "youtube",
+    "id": "WDIpL0pjun0",
+    "author": "National Academy of Sports Medicine (NASM)"
+  },
+  "row-home": {
+    "provider": "youtube",
+    "id": "mrYBMjhm2hw",
+    "author": "Fábrica de Musas Oficial"
+  },
+  "hinge-home": {
+    "provider": "youtube",
+    "id": "Kdeq15AvUVU",
+    "author": "PLT4M"
+  },
+  "plank-home": {
+    "provider": "youtube",
+    "id": "xhk1JkbF2lg",
+    "author": "National Academy of Sports Medicine (NASM)"
+  },
+  "lunge-home": {
+    "provider": "youtube",
+    "id": "U7Nrwyu6Uqo",
+    "author": "John Rusin"
+  },
+  "shoulder-home": {
+    "provider": "youtube",
+    "id": "Tq1nYz7U5os",
+    "author": "FitnessFAQs"
+  },
+  "pull-home": {
+    "provider": "youtube",
+    "id": "mrYBMjhm2hw",
+    "author": "Fábrica de Musas Oficial"
+  },
+  "bridge-home": {
+    "provider": "youtube",
+    "id": "tqp5XQPpTxY",
+    "author": "PureGym"
+  },
+  "deadbug-home": {
+    "provider": "youtube",
+    "id": "g_BYB0R-4Ws",
+    "author": "Children’s Hospital Colorado"
+  },
+  "calf-home": {
+    "provider": "youtube",
+    "id": "fQiMiUHWubw",
+    "author": "John Rusin"
+  },
+  "squat-gym": {
+    "provider": "youtube",
+    "id": "Xjo_fY9Hl9w",
+    "author": "Live Lean TV Daily Exercises"
+  },
+  "plank-gym": {
+    "provider": "youtube",
+    "id": "xhk1JkbF2lg",
+    "author": "National Academy of Sports Medicine (NASM)"
+  },
+  "lunge-gym": {
+    "provider": "youtube",
+    "id": "gd2gU83tk5w",
+    "author": "Red Dot Fitness"
+  },
+  "pull-gym": {
+    "provider": "youtube",
+    "id": "GL3h256d6JM",
+    "author": "Live Lean TV Daily Exercises"
+  },
+  "bridge-gym": {
+    "provider": "youtube",
+    "id": "LXBF7dU9e7g",
+    "author": "Group HIIT"
+  },
+  "deadbug-gym": {
+    "provider": "youtube",
+    "id": "g_BYB0R-4Ws",
+    "author": "Children’s Hospital Colorado"
+  },
+  "calf-gym": {
+    "provider": "youtube",
+    "id": "ADIDoYt_ko4",
+    "author": "OPEX Fitness"
+  },
+  "push-gym": {
+    "provider": "local",
+    "exercise": 75,
+    "author": "Goulart"
+  },
+  "row-gym": {
+    "provider": "local",
+    "exercise": 512,
+    "author": "Goulart"
+  },
+  "hinge-gym": {
+    "provider": "local",
+    "exercise": 507,
+    "author": "Goulart"
+  },
+  "shoulder-gym": {
+    "provider": "local",
+    "exercise": 567,
+    "author": "Goulart"
+  }
+};
 function guidePlayer(file, title) {
   if (!file.startsWith('recipe-')) {
-    const demos = {"squat-gym": "Agachamento com barra — variação do agachamento; a posição da carga difere do goblet.", "push-gym": "Supino com halteres.", "row-gym": "Remada sentada na polia, pegada fechada.", "hinge-gym": "Levantamento romeno com halteres.", "lunge-gym": "Avanço com halteres — observe a direção do passo; o plano orienta o passo para trás.", "shoulder-gym": "Desenvolvimento com halteres.", "pull-gym": "Barra fixa assistida na máquina — alternativa à puxada na polia alta, com equipamento diferente.", "bridge-gym": "Hip thrust com banco e carga — variação da ponte; o plano começa no solo.", "calf-gym": "Elevação de panturrilhas em pé — confira o equipamento e ajuste a carga com orientação."};
-    const label = demos[file];
-    if (!label) return '<div class="notice"><p>Ainda não há filmagem deste exercício na versão do seu plano. As demonstrações disponíveis são de academia.</p><button class="btn secondary" data-training-mode="videos">Ver os 9 vídeos disponíveis</button></div>';
-    return `<section class="guide-player"><div class="guide-caption"><span>${svgIcon('play')} Demonstração com pessoa real</span><small>Sem áudio · Arquivo local</small></div><video controls playsinline preload="none" poster="media/${file}.jpg" aria-label="Demonstração: ${escapeHTML(title)}"><source src="media/${file}.mp4" type="video/mp4"><track kind="captions" src="media/${file}.vtt" srclang="pt-BR" label="Português" default>Seu navegador não reproduz este vídeo. Use as instruções escritas abaixo.</video><p class="guide-disclaimer">${escapeHTML(label)} A demonstração não altera o exercício nem a carga do seu plano. Adapte a técnica com orientação profissional.</p><p class="guide-disclaimer">Vídeo: Goulart, via <a href="https://wger.de/en/exercise/${{"squat-gym": 257, "push-gym": 75, "row-gym": 512, "hinge-gym": 507, "lunge-gym": 205, "shoulder-gym": 567, "pull-gym": 477, "bridge-gym": 294, "calf-gym": 622}[file]}/view/" target="_blank" rel="noopener noreferrer">wger</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>. Adaptado para MP4, sem áudio, com redimensionamento e legendas pelo EvoluiFit. <a href="media/credits.json" target="_blank" rel="noopener">Fontes e créditos</a>.</p><p class="video-error" hidden role="status">Não foi possível carregar o vídeo. As instruções escritas continuam disponíveis.</p></section>`;
+    const clip = exerciseVideos[file];
+    if (!clip) return '';
+    if (clip.provider === 'youtube') return `<section class="guide-player" data-clip="${file}"><div class="guide-caption"><span>${svgIcon('play')} Vídeo deste exercício</span><small>${file.endsWith('-home')?'Calistenia / em casa':'Academia'}</small></div><div class="exercise-video-screen"><button class="load-exercise-video" data-load-clip="${file}" aria-label="Assistir: ${escapeHTML(title)}">${svgIcon('play')}<strong>${escapeHTML(title)}</strong><span>Assistir demonstração com pessoa real</span></button></div><p class="guide-disclaimer">Por ${escapeHTML(clip.author)} · Ao assistir, você carrega o player do YouTube e seus serviços. Requer internet. <a href="https://www.youtube.com/watch?v=${clip.id}" target="_blank" rel="noopener noreferrer">Abrir este vídeo no YouTube</a>.</p></section>`;
+    return `<section class="guide-player" data-clip="${file}"><div class="guide-caption"><span>${svgIcon('play')} Vídeo deste exercício</span><small>Academia · Arquivo local</small></div><video controls playsinline preload="none" poster="media/${file}.jpg" aria-label="Demonstração: ${escapeHTML(title)}"><source src="media/${file}.mp4" type="video/mp4"><track kind="captions" src="media/${file}.vtt" srclang="pt-BR" label="Português" default>Seu navegador não reproduz este vídeo.</video><p class="guide-disclaimer">Goulart, via <a href="https://wger.de/en/exercise/${clip.exercise}/view/" target="_blank" rel="noopener noreferrer">wger</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>. Convertido para MP4, sem áudio, com redimensionamento e legendas. <a href="media/credits.json" target="_blank" rel="noopener">Créditos</a>.</p><p class="video-error" hidden role="status">Não foi possível carregar o vídeo. Consulte as instruções abaixo.</p></section>`;
   }
   return `<section class="guide-player"><div class="guide-caption"><span>${svgIcon('play')} Vídeo: guia animado</span><small>15 s · Sem áudio · Arquivo local</small></div><video controls playsinline preload="none" poster="media/${file}.jpg" aria-label="Guia animado: ${escapeHTML(title)}"><source src="media/${file}.mp4" type="video/mp4"><track kind="captions" src="media/${file}.vtt" srclang="pt-BR" label="Português" default>Seu navegador não reproduz este vídeo. Use as instruções escritas abaixo.</video><p class="guide-disclaimer">Animação esquemática, não uma filmagem. Use junto às instruções escritas; a técnica deve ser adaptada com orientação profissional.</p><p class="video-error" hidden role="status">Não foi possível carregar o vídeo. As instruções escritas continuam disponíveis.</p></section>`;
 }
@@ -247,25 +359,156 @@ function startRest(seconds=restTimer.remaining||restTimer.seconds) {
   },250);
 }
 function trainingModeTabs() {
-  return `<div class="training-mode-tabs" aria-label="O que você quer fazer?"><button data-training-mode="plan" class="${trainingMode==='plan'?'active':''}" aria-pressed="${trainingMode==='plan'}">${svgIcon('calendar')} Meu treino da semana</button><button data-training-mode="learn" class="${trainingMode==='learn'?'active':''}" aria-pressed="${trainingMode==='learn'}">${svgIcon('play')} Aprender movimentos</button><button data-training-mode="videos" class="${trainingMode==='videos'?'active':''}" aria-pressed="${trainingMode==='videos'}">${svgIcon('play')} Vídeos com pessoas reais</button></div>`;
+  return `<div class="training-mode-tabs" aria-label="O que você quer fazer?"><button data-training-mode="plan" class="${trainingMode==='plan'?'active':''}" aria-pressed="${trainingMode==='plan'}">${svgIcon('calendar')} Meu treino da semana</button><button data-training-mode="learn" class="${trainingMode==='learn'?'active':''}" aria-pressed="${trainingMode==='learn'}">${svgIcon('play')} Aprender movimentos</button></div>`;
 }
 function movementLibrary() {
   const topics={warmup:{label:'Aquecimento',title:'Prepare o corpo antes do treino',intro:'Comece devagar. Aquecer ajuda a entrar no ritmo do treino, sem precisar cansar.',steps:['Caminhe ou marche em ritmo confortável por 5–8 minutos.','Movimente braços, ombros e quadris dentro de uma amplitude confortável.','Pratique uma série fácil dos exercícios do dia, sem carga ou com carga leve.'],note:'O aquecimento não substitui orientação para lesões. Evite movimentos rápidos ou amplitudes que causem dor.'},running:{label:'Corrida',title:'Corrida: conforto antes de velocidade',intro:'Estas orientações são gerais. Se você está começando, alterne caminhada e trotes curtos em vez de forçar o ritmo.',steps:['Antes de correr, caminhe e aumente o ritmo aos poucos.','Mantenha o olhar em frente, ombros relaxados e braços em movimento confortável.','Use passos naturais e um ritmo que permita conversar. Não force um tipo de pisada ou uma cadência fixa.','Ao terminar, reduza o ritmo e caminhe. Aumente o tempo de corrida aos poucos, em sessões futuras.'],note:'Dor persistente, tontura ou mal-estar são motivos para parar. Problemas de saúde e retorno após lesão exigem avaliação profissional.'},stretch:{label:'Alongamento',title:'Alongue sem forçar',intro:'Alongar é opcional e deve ser confortável. Prefira alongamentos leves depois do treino ou em outro momento do dia.',steps:['Escolha uma posição estável e apoie-se, se precisar.','Alongue até uma tensão leve, sem dor. Respire normalmente e não faça movimentos de impulso.','Mantenha por cerca de 15–30 segundos e solte devagar. Reduza o tempo ou a amplitude se houver desconforto.'],note:'Não force articulações nem use o alongamento para tratar uma dor sem avaliação. Antes de correr ou treinar força, priorize aquecimento leve.'},strength:{label:'Fortalecimento',title:'Aprenda os exercícios do seu plano',intro:'Comece pela versão mais fácil e priorize o controle. Só aumente a dificuldade quando conseguir executar sem dor.',steps:['Abra um exercício para ver a execução, os músculos e as alternativas.','Faça as séries indicadas para o seu nível. Descanse entre elas e mantenha a respiração.','Interrompa antes de perder a postura. Não é necessário chegar ao limite.'],note:'Escolha apenas equipamentos e apoios firmes. Procure ajuda profissional para ajustar técnica e carga.'}};
   const topic=topics[movementTopic];
   return `<div class="movement-topics" aria-label="Assuntos para aprender">${Object.entries(topics).map(([id,t])=>`<button data-movement-topic="${id}" class="${movementTopic===id?'active':''}" aria-pressed="${movementTopic===id}">${t.label}</button>`).join('')}</div><section class="card movement-guide"><span class="tag">${topic.label}</span><h2>${topic.title}</h2><p class="subtitle">${topic.intro}</p><ol>${topic.steps.map(step=>`<li>${step}</li>`).join('')}</ol><div class="notice">${topic.note}</div>${movementTopic==='strength'?`<button class="btn" data-training-mode="plan">Ver meu treino da semana ${arrow}</button>`:''}</section>`;
 }
-function realVideoLibrary() {
-  const clips = [
-    ['squat','Agachamento com barra'], ['push','Supino com halteres'],
-    ['row','Remada na polia'], ['hinge','Levantamento romeno com halteres'],
-    ['lunge','Avanço com halteres'], ['shoulder','Desenvolvimento com halteres'],
-    ['pull','Puxada assistida na máquina'], ['bridge','Hip thrust'],
-    ['calf','Elevação de panturrilhas em pé']
-  ];
-  return `${intro('BIBLIOTECA DE VÍDEOS','Vídeos com pessoas reais','9 demonstrações de academia, disponíveis para todos os planos.')} ${trainingModeTabs()}<div class="notice"><strong>Seu plano continua igual.</strong> Estes vídeos mostram exercícios com equipamentos de academia. Ainda não temos filmagens das versões em casa, prancha e dead bug. Confira a variação descrita em cada vídeo.</div><div class="exercise-list">${clips.map(([id,title],i)=>`<details class="exercise" ${i===0?'open':''}><summary><span class="exercise-number">${String(i+1).padStart(2,'0')}</span><div class="exercise-info"><h3>${title}</h3><p>Vídeo com pessoa real · Academia</p></div></summary><div class="exercise-body">${guidePlayer(id+'-gym',title)}</div></details>`).join('')}</div>`;
+const exerciseInstructions = {
+  "home": {
+    "squat": {
+      "how": "Com os pés em uma largura confortável, flexione quadris e joelhos e desça até onde consegue controlar. Mantenha os pés apoiados e volte a ficar em pé.",
+      "easy": "Sente e levante de uma cadeira firme apoiada na parede.",
+      "hard": "Faça a descida mais lenta, sem perder o equilíbrio.",
+      "equipment": "Peso corporal; cadeira firme opcional."
+    },
+    "push": {
+      "how": "Apoie as mãos um pouco além da largura dos ombros, mantenha o corpo alinhado, flexione os cotovelos e empurre o chão. Respire durante o movimento.",
+      "easy": "Faça na parede ou com as mãos em uma bancada firme.",
+      "hard": "Reduza a altura do apoio, progredindo até o chão com controle.",
+      "equipment": "Peso corporal e apoio firme para a versão mais fácil."
+    },
+    "row": {
+      "how": "Feche bem a mochila e segure suas alças resistentes. Incline o tronco a partir do quadril, mantenha a coluna neutra e puxe a mochila em direção ao quadril. Desça devagar.",
+      "easy": "Comece com a mochila vazia ou leve.",
+      "hard": "Aumente a carga aos poucos, mantendo o tronco estável.",
+      "equipment": "Mochila bem fechada, com alças resistentes e carga estável."
+    },
+    "hinge": {
+      "how": "Em pé, com joelhos levemente flexionados, leve o quadril para trás e incline o tronco sem arredondar as costas. Volte a ficar em pé com controle.",
+      "easy": "Use uma amplitude pequena e treine sem carga.",
+      "hard": "Faça a descida mais lenta, mantendo o controle.",
+      "equipment": "Peso corporal, sem equipamento."
+    },
+    "plank": {
+      "how": "Apoie os antebraços abaixo dos ombros e mantenha o corpo alinhado. Contraia suavemente abdômen e glúteos e respire durante a posição.",
+      "easy": "Apoie os joelhos ou reduza o tempo.",
+      "hard": "Aumente o tempo gradualmente até 40 segundos, mantendo a postura.",
+      "equipment": "Chão estável; colchonete opcional."
+    },
+    "lunge": {
+      "how": "Dê um passo para trás, flexione os joelhos e mantenha o pé da frente inteiro no chão. Empurre o chão com a perna da frente para voltar. Alterne os lados.",
+      "easy": "Segure em um apoio firme e reduza a profundidade.",
+      "hard": "Pause brevemente na posição baixa, sem perder o equilíbrio.",
+      "equipment": "Peso corporal; apoio firme opcional."
+    },
+    "shoulder": {
+      "how": "Apoie as mãos no chão e eleve o quadril, formando um V invertido. Flexione os cotovelos para aproximar a cabeça do chão e empurre para voltar, com controle.",
+      "easy": "Reduza a amplitude. Se precisar, pratique flexão com mãos em bancada firme antes de progredir para o pike.",
+      "hard": "Aumente gradualmente a amplitude apenas com boa técnica. O vídeo também mostra progressões.",
+      "equipment": "Peso corporal e chão firme; bancada firme na preparação mais fácil."
+    },
+    "pull": {
+      "how": "Feche bem a mochila e segure suas alças resistentes. Incline o tronco a partir do quadril, mantenha a coluna neutra e puxe a mochila em direção ao quadril. Retorne devagar.",
+      "easy": "Use mochila vazia ou carga leve.",
+      "hard": "Aumente a carga aos poucos, sem balançar o tronco.",
+      "equipment": "Mochila bem fechada; sem polia ou aparelho de academia."
+    },
+    "bridge": {
+      "how": "Deite de costas com joelhos flexionados e pés no chão. Eleve o quadril até alinhar tronco e coxas, sem arquear a lombar, e desça devagar.",
+      "easy": "Faça uma amplitude menor com os dois pés apoiados.",
+      "hard": "Pause por 2 segundos no topo, mantendo a respiração.",
+      "equipment": "Chão estável; colchonete opcional."
+    },
+    "deadbug": {
+      "how": "Deite de costas com braços para cima e joelhos a 90°. Estenda devagar braço e perna opostos sem perder o apoio da lombar. Volte e alterne.",
+      "easy": "Mova só os braços ou uma perna de cada vez.",
+      "hard": "Estenda mais a perna e faça o movimento mais lento.",
+      "equipment": "Chão estável; colchonete opcional."
+    },
+    "calf": {
+      "how": "Em pé, use um apoio firme se precisar. Eleve os calcanhares sem rolar os tornozelos para fora, pause brevemente e desça com controle.",
+      "easy": "Use os dois pés e uma amplitude confortável.",
+      "hard": "Faça com uma perna por vez, usando apoio.",
+      "equipment": "Peso corporal e apoio firme opcional."
+    }
+  },
+  "gym": {
+    "squat": {
+      "how": "Segure um halter junto ao peito com as duas mãos. Flexione quadris e joelhos, mantendo os pés apoiados, desça com controle e volte a ficar em pé.",
+      "easy": "Use um halter leve e uma amplitude confortável.",
+      "hard": "Aumente a carga gradualmente quando conseguir manter a técnica.",
+      "equipment": "Um halter."
+    },
+    "push": {
+      "how": "Deite em um banco firme com os pés estabilizados. Segure os halteres ao lado do peito e empurre para cima sem perder o alinhamento. Desça devagar.",
+      "easy": "Comece com halteres leves.",
+      "hard": "Aumente a carga aos poucos, mantendo a execução.",
+      "equipment": "Banco firme e dois halteres."
+    },
+    "row": {
+      "how": "Sente na polia baixa com os pés apoiados e o tronco estável. Puxe a pegada fechada em direção ao abdômen e retorne com controle, sem balançar o corpo.",
+      "easy": "Use uma carga leve.",
+      "hard": "Aumente a carga mantendo o tronco estável.",
+      "equipment": "Polia baixa com pegada fechada."
+    },
+    "hinge": {
+      "how": "Segure os halteres perto das pernas. Com joelhos levemente flexionados, leve o quadril para trás e incline o tronco com coluna neutra. Retorne com controle.",
+      "easy": "Pratique sem carga antes de usar halteres leves.",
+      "hard": "Aumente a carga gradualmente, sem arredondar as costas.",
+      "equipment": "Dois halteres."
+    },
+    "plank": {
+      "how": "Apoie os antebraços abaixo dos ombros e mantenha o corpo alinhado. Contraia suavemente abdômen e glúteos e respire durante a posição.",
+      "easy": "Apoie os joelhos ou reduza o tempo.",
+      "hard": "Aumente o tempo gradualmente até 40 segundos, mantendo a postura.",
+      "equipment": "Chão estável; colchonete opcional."
+    },
+    "lunge": {
+      "how": "Segure os halteres ao lado do corpo. Dê um passo para trás, flexione os joelhos e mantenha o pé da frente apoiado. Empurre com a perna da frente para voltar e alterne.",
+      "easy": "Comece sem carga ou com halteres leves.",
+      "hard": "Aumente a carga aos poucos, preservando o equilíbrio.",
+      "equipment": "Dois halteres."
+    },
+    "shoulder": {
+      "how": "Comece com os halteres à altura dos ombros. Empurre acima da cabeça sem arquear a lombar e retorne devagar. Mantenha o tronco estável.",
+      "easy": "Use halteres leves e amplitude confortável.",
+      "hard": "Aumente gradualmente a carga com controle.",
+      "equipment": "Dois halteres; banco com encosto opcional."
+    },
+    "pull": {
+      "how": "Sente na polia alta, ajuste o apoio das pernas e segure a barra. Puxe em direção à parte superior do peito e retorne devagar, sem jogar o tronco para trás.",
+      "easy": "Use uma carga leve.",
+      "hard": "Aumente a carga mantendo o controle.",
+      "equipment": "Polia alta com barra."
+    },
+    "bridge": {
+      "how": "Deite de costas no solo com joelhos flexionados e pés apoiados. Posicione uma carga leve e protegida sobre o quadril com orientação, eleve o quadril e desça devagar.",
+      "easy": "Comece sem carga.",
+      "hard": "Aumente a carga aos poucos ou pause brevemente no topo.",
+      "equipment": "Colchonete e carga leve protegida sobre o quadril."
+    },
+    "deadbug": {
+      "how": "Deite de costas com braços para cima e joelhos a 90°. Estenda devagar braço e perna opostos sem perder o apoio da lombar. Volte e alterne.",
+      "easy": "Mova só os braços ou uma perna de cada vez.",
+      "hard": "Estenda mais a perna e faça o movimento mais lento.",
+      "equipment": "Chão estável; colchonete opcional."
+    },
+    "calf": {
+      "how": "Segure um halter e mantenha a outra mão em um apoio firme. Eleve e abaixe os calcanhares com controle. O vídeo demonstra em um degrau; use apenas uma superfície própria e estável.",
+      "easy": "Comece no chão, com os dois pés e sem carga.",
+      "hard": "Use uma perna por vez ou aumente a carga gradualmente.",
+      "equipment": "Halter e apoio firme; degrau próprio é opcional."
+    }
+  }
+};
+function exerciseForMode(id, gym) { return {...exercises[id], ...exerciseInstructions[gym==='yes'?'gym':'home'][id]}; }
+function workoutModeSelector() {
+  return `<section class="workout-mode-selector" aria-label="Modalidade de treino"><span>Onde você vai treinar?</span><div><button data-workout-mode="no" aria-pressed="${state.profile.gym==='no'}" class="${state.profile.gym==='no'?'active':''}">Calistenia / em casa</button><button data-workout-mode="yes" aria-pressed="${state.profile.gym==='yes'}" class="${state.profile.gym==='yes'?'active':''}">Academia</button></div><small>Escolha a modalidade para ver os exercícios e os vídeos correspondentes. Seu histórico fica preservado.</small></section>`;
 }
 function trainingPage() {
-  if(trainingMode==='videos') return realVideoLibrary();
   if(trainingMode==='learn')return `${intro('APRENDA NO SEU RITMO','Como se movimentar melhor','Aquecimento, corrida, alongamento e força, com explicações simples.')} ${trainingModeTabs()}${movementLibrary()}`;
   if(!state.profile) return `${intro('TREINOS','Monte seu primeiro treino','Conte seu objetivo e os dias disponíveis. Nós organizamos sua semana.')} ${trainingModeTabs()}<section class="card empty"><p>Você pode treinar em casa ou na academia.</p><button class="btn" data-view="perfil" style="margin-top:20px">Montar meu plano ${arrow}</button></section>`;
   const p=state.profile, routine=plan(), w=routine[selectedDay];
@@ -273,7 +516,7 @@ function trainingPage() {
   const safety=p.age<18?'<div class="notice warning">Para menores de 18 anos, esta rotina é apenas uma visão geral. Procure um profissional para adaptar volume, técnica e progressão à idade, com acompanhamento de um responsável. Não siga metas de perda de peso sem orientação.</div>':'';
   const goalText = p.goal==='fat'?'Se for confortável, complemente com 10–20 minutos de caminhada leve após o treino. O gasto energético e a perda de gordura variam; não há resultado garantido.':p.goal==='muscle'?'Priorize a execução. Só aumente a carga ou a dificuldade quando completar as séries com controle e sem dor.':'Priorize regularidade, técnica e um esforço que permita recuperar bem entre as sessões.';
   const done=state.completed.includes(today());
-  return `${intro('SEU PLANO SEMANAL','Seu treino, passo a passo',`${goalNames[p.goal]} · ${levelNames[p.level]} · ${p.days} dias · ${p.gym==='yes'?'Academia':'Em casa'}`)}${trainingModeTabs()}${safety}<p class="schedule-help">1. Escolha o dia abaixo. <span>2. Comece o treino.</span> <span>3. Abra os exercícios e marque suas séries.</span></p><div class="day-tabs" aria-label="Dias de treino">${tabs}</div>${!w?`<section class="card rest-card"><span style="font-size:42px">☀</span><h2>${weekdays[selectedDay]}: descanso</h2><p>Deixe seu corpo recuperar. Se desejar, faça uma caminhada confortável ou mobilidade leve, sem forçar. Escolha acima um dia com a indicação Treino para ver os exercícios.</p></section>`:`<div class="workout-heading"><div><p class="eyebrow">${weekdays[selectedDay]}</p><h2>${w.name}</h2><p class="subtitle">${w.active?'20–30 minutos leves':`${sets()} séries por exercício · 60–90 s de descanso · cerca de 30–50 min`}</p></div><button class="btn ${done?'subtle':''}" data-action="toggle-today">${done?'✓ Hoje concluído':'Marcar treino de hoje'}</button></div>${w.active?`<section class="card"><h3>Um dia para recuperar em movimento</h3><p class="subtitle">Caminhe ou pedale em ritmo confortável por 20–30 minutos, permitindo conversar sem ficar ofegante. Faça 5 minutos de mobilidade suave. Reduza o tempo se estiver começando e interrompa se houver dor ou tontura.</p></section>`:`${sessionPanel(w)}<div class="notice"><strong>Antes de começar:</strong> aqueça por 5–8 minutos com caminhada e movimentos leves. Faça uma série fácil de cada exercício para praticar. Termine com 2–3 repetições ainda possíveis; não é necessário chegar à falha. Interrompa diante de dor, tontura ou mal-estar.</div><div class="exercise-list">${w.ids.map((id,i)=>{const e=exercises[id];return `<details class="exercise" data-exercise="${id}" ${(openExercises?openExercises.has(id):i===0)?'open':''}><summary><span class="exercise-number">${String(i+1).padStart(2,'0')}</span><div class="exercise-info"><h3>${p.gym==='yes'?e.gym:e.body}</h3><p>${e.muscles}</p></div><span class="sets">${sets()} × ${e.reps}</span></summary><div class="exercise-body">${guidePlayer(`${id}-${p.gym==='yes'?'gym':'home'}`,p.gym==='yes'?e.gym:e.body)}<p>${e.how}</p><dl><dt>Mais fácil</dt><dd>${e.easy}</dd><dt>Mais difícil</dt><dd>${e.hard}</dd><dt>Alternativa</dt><dd>${e.alternative}</dd></dl>${seriesControls(id)}</div></details>`;}).join('')}</div><div class="notice" style="margin-top:20px">${goalText}</div>`}`}
+  return `${intro('SEU PLANO SEMANAL','Seu treino, passo a passo',`${goalNames[p.goal]} · ${levelNames[p.level]} · ${p.days} dias · ${p.gym==='yes'?'Academia':'Calistenia / em casa'}`)}${trainingModeTabs()}${workoutModeSelector()}${safety}<p class="schedule-help">1. Escolha o dia abaixo. <span>2. Comece o treino.</span> <span>3. Abra os exercícios e marque suas séries.</span></p><div class="day-tabs" aria-label="Dias de treino">${tabs}</div>${!w?`<section class="card rest-card"><span style="font-size:42px">☀</span><h2>${weekdays[selectedDay]}: descanso</h2><p>Deixe seu corpo recuperar. Se desejar, faça uma caminhada confortável ou mobilidade leve, sem forçar. Escolha acima um dia com a indicação Treino para ver os exercícios.</p></section>`:`<div class="workout-heading"><div><p class="eyebrow">${weekdays[selectedDay]}</p><h2>${w.name}</h2><p class="subtitle">${w.active?'20–30 minutos leves':`${sets()} séries por exercício · 60–90 s de descanso · cerca de 30–50 min`}</p></div><button class="btn ${done?'subtle':''}" data-action="toggle-today">${done?'✓ Hoje concluído':'Marcar treino de hoje'}</button></div>${w.active?`<section class="card"><h3>Um dia para recuperar em movimento</h3><p class="subtitle">Caminhe ou pedale em ritmo confortável por 20–30 minutos, permitindo conversar sem ficar ofegante. Faça 5 minutos de mobilidade suave. Reduza o tempo se estiver começando e interrompa se houver dor ou tontura.</p></section>`:`${sessionPanel(w)}<div class="notice"><strong>Antes de começar:</strong> aqueça por 5–8 minutos com caminhada e movimentos leves. Faça uma série fácil de cada exercício para praticar. Termine com 2–3 repetições ainda possíveis; não é necessário chegar à falha. Interrompa diante de dor, tontura ou mal-estar.</div><div class="exercise-list">${w.ids.map((id,i)=>{const e=exerciseForMode(id,p.gym);return `<details class="exercise" data-exercise="${id}" ${(openExercises?openExercises.has(id):i===0)?'open':''}><summary><span class="exercise-number">${String(i+1).padStart(2,'0')}</span><div class="exercise-info"><h3>${p.gym==='yes'?e.gym:e.body}</h3><p>${e.muscles}</p></div><span class="sets">${sets()} × ${e.reps}</span></summary><div class="exercise-body">${guidePlayer(`${id}-${p.gym==='yes'?'gym':'home'}`,p.gym==='yes'?e.gym:e.body)}<p>${e.how}</p><dl><dt>Mais fácil</dt><dd>${e.easy}</dd><dt>Mais difícil</dt><dd>${e.hard}</dd><dt>Equipamento</dt><dd>${e.equipment}</dd></dl>${seriesControls(id)}</div></details>`;}).join('')}</div><div class="notice" style="margin-top:20px">${goalText}</div>`}`}
   <p class="small muted" style="margin-top:18px">O treino guiado e o botão de marcação registram a data de hoje, independentemente do dia consultado. Para outras datas, use o calendário. Mudar meu plano recalcula a rotina, preservando seus registros. O cronômetro é reiniciado ao recarregar a página.</p>`;
 }
 function favoriteButton(i,large=false) {
@@ -392,9 +635,34 @@ function pixTestModal() {
 function integrationsModal() {
   openModal(`<div class="modal-inner">${modalHeader('O que vem depois')}<h3>Pagamento no site</h3><p>Escolher um provedor (ex.: Mercado Pago ou Stripe), criar um backend seguro com credenciais fora do navegador, usar checkout hospedado e verificar webhooks assinados para confirmar o pagamento de R$ 24,99. O servidor precisa validar moeda, valor e identificador da transação, evitar duplicação, tratar reembolsos e controlar o acesso associado a uma conta real.</p><h3>Pagamento no aplicativo</h3><p>Este projeto é um site responsivo. Um aplicativo distribuído pelas lojas precisará de empacotamento e, para vender acesso digital, integração com os sistemas de compra da Apple e Google conforme as regras vigentes. Será necessário validar recibos no servidor e restaurar compras. Regras e preços das lojas devem ser revisados antes da publicação.</p><h3>Contas e sincronização</h3><p>Exigem autenticação real, banco de dados, armazenamento privado de imagens, controle de acesso, exclusão, política de privacidade e consentimento. Esta demonstração usa apenas dados locais, sem sincronização.</p><h3>Meta e divulgação</h3><p>Nenhum anúncio, campanha, Pixel ou SDK está conectado. Futuramente: configurar conta comercial e conta de anúncios, revisar políticas, consentimento para rastreamento e integrar Pixel e/ou Conversions API para eventos permitidos. No app, avaliar o SDK e permissões da plataforma. Nunca enviar fotos corporais, peso, IMC ou outros dados de saúde em eventos publicitários.</p></div>`);
 }
+document.addEventListener('toggle', event=>{
+  const detail=event.target;
+  if(!detail.matches?.('details.exercise') || detail.open)return;
+  detail.querySelectorAll('video').forEach(video=>video.pause());
+  const player=detail.querySelector('.guide-player[data-clip]');
+  if(player?.querySelector('iframe'))player.outerHTML=guidePlayer(player.dataset.clip,detail.querySelector('h3').textContent);
+},true);
 document.addEventListener('click',async event=>{
   const el=event.target.closest('button');if(!el)return;
   if(el.dataset.view) {if(el.dataset.view==='treinos')trainingMode='plan';navigate(el.dataset.view);return;}
+  if(el.dataset.loadClip) {
+    const clip=exerciseVideos[el.dataset.loadClip];
+    if(!clip || clip.provider!=='youtube')return;
+    const frame=document.createElement('iframe');
+    frame.src=`https://www.youtube-nocookie.com/embed/${clip.id}?autoplay=1&playsinline=1&rel=0`;
+    frame.title=el.querySelector('strong').textContent;
+    frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+    frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';
+    el.closest('.exercise-video-screen').replaceChildren(frame);return;
+  }
+  if(el.dataset.workoutMode) {
+    const gym=el.dataset.workoutMode;if(!state.profile||!['yes','no'].includes(gym)||gym===state.profile.gym)return;
+    if(persist({...state,profile:{...state.profile,gym}})){
+      rememberOpenExercises();stopRest();restTimer.remaining=restTimer.seconds;await render();
+      document.querySelector(`[data-workout-mode="${gym}"]`)?.focus({preventScroll:true});
+    }
+    return;
+  }
   if(el.dataset.trainingMode){trainingMode=el.dataset.trainingMode;render();return;}
   if(el.dataset.movementTopic){movementTopic=el.dataset.movementTopic;render();return;}
   if(el.dataset.day!==undefined) {selectedDay=Number(el.dataset.day);openExercises=null;render();return;}
