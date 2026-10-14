@@ -1047,3 +1047,29 @@ footer span { font-size:10px; }
  .recipe-card .recipe-content { padding:12px; }
  .recipe-card .recipe-content .tag { white-space:normal; line-height:1.35; }
 }
+/* Training modality is a primary choice, visible even during a guided workout. */
+.workout-mode-selector.prominent-mode-selector { display:block; padding:0; margin:0 0 27px; }
+.prominent-mode-selector h2 { font-size:20px; letter-spacing:-.5px; margin:0 0 7px; }
+.prominent-mode-selector > p { font-size:13px; color:#73836d; margin-bottom:16px; line-height:1.6; }
+.prominent-mode-selector .workout-choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.prominent-mode-selector .workout-choice { display:grid; grid-template-columns:46px minmax(0,1fr); gap:7px 14px; position:relative; padding:21px; margin:0; min-height:152px; text-align:left; border:2px solid #dfe7de; border-radius:18px; background:#fff; color:#35503b; }
+.prominent-mode-selector .workout-choice:hover { border-color:#97b67b; background:#f5f8f0; }
+.prominent-mode-selector .workout-choice.active { background:#eaf5d9; border-color:#689d3a; color:#224827; box-shadow:0 3px 12px #3153280a; }
+.workout-choice .choice-icon { grid-row:1 / 4; width:46px; height:46px; display:grid; place-items:center; border-radius:13px; color:#68865b; background:#f0f5e9; }
+.workout-choice.active .choice-icon { background:#d5eab9; color:#3d6b26; }
+.workout-choice .choice-icon .icon { width:25px; height:25px; }
+.workout-choice strong { font-size:21px; line-height:1.3; letter-spacing:-.5px; }
+.workout-choice .choice-description { color:#7b8b73; font-size:12px; font-weight:400; line-height:1.6; }
+.workout-choice .choice-state { color:#6b845b; font-size:11px; margin-top:5px; font-weight:650; }
+.workout-choice.active .choice-state { color:#365f25; }
+@media(max-width:600px) {
+ .workout-mode-selector.prominent-mode-selector { margin-bottom:23px; }
+ .prominent-mode-selector h2 { font-size:19px; }
+ .prominent-mode-selector > p { font-size:12px; margin-bottom:13px; }
+ .prominent-mode-selector .workout-choices { gap:10px; }
+ .prominent-mode-selector .workout-choice { display:flex; flex-direction:column; align-items:flex-start; padding:16px 13px; gap:10px; min-height:211px; border-radius:16px; }
+ .workout-choice .choice-icon { width:39px; height:39px; border-radius:11px; }
+ .workout-choice strong { font-size:18px; letter-spacing:-.4px; }
+ .workout-choice .choice-description { font-size:11px; }
+ .workout-choice .choice-state { margin-top:auto; padding-top:5px; font-size:11px; }
+}
