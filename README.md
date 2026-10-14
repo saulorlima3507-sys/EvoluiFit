@@ -17,3 +17,9 @@ Mantidos `evoluifit-v1` no localStorage e `evoluifit-photos` no IndexedDB, vers�
 ## Validação
 
 No Chromium: reprodução e busca por trechos dos nove vídeos, legendas, treino guiado, persistência, navegação, layout responsivo e fotos. Teste de atualização comparou exatamente o conteúdo do localStorage, séries e bytes das fotos no IndexedDB, sem diferenças. O servidor local também validou requisições parciais de vídeo. O domínio github.io é bloqueado pela rede do ambiente de execução; a implantação é acompanhada pelo workflow Pages no GitHub Actions.
+
+## Acesso aos vídeos e tela de pagamento de teste
+
+Em Treinos, a opção **Vídeos com pessoas reais** abre as nove demonstrações em qualquer plano, inclusive em casa. Os exercícios sem filmagem têm um botão para essa biblioteca, mantendo a identificação de que os vídeos disponíveis usam equipamentos de academia.
+
+Em Acesso vitalício, **Testar pagamento com Pix** abre uma simulação com QR ilustrativo. Esse QR abre o próprio site EvoluiFit; não contém Pix, não gera cobrança nem confirma pagamento. Nenhum registro ou acesso é alterado.
