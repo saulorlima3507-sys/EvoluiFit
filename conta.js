@@ -61,6 +61,43 @@ $('avatar').onchange = () => {
   $('avatar-preview').src = avatarUrl; $('avatar-preview').hidden = false; $('avatar-default').hidden = true; $('remove-avatar').hidden = false; status('');
 };
 $('remove-avatar').onclick = clearAvatar;
-$('login-form').onsubmit = event => {event.preventDefault(); const identifier = event.target.elements.identifier.value.trim(); if (!identifier.includes('@') && !validCpf(identifier)) {status('Informe um e-mail ou CPF válido.', true); return;} if (identifier.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)) {status('Informe um e-mail válido.', true); return;} status('Esta é a prévia da tela de entrada. O login será liberado quando a conexão segura com o Supabase estiver concluída.'); event.target.elements.password.value = '';};
-signup.onsubmit = event => {event.preventDefault(); if ($('profile-fields').disabled) { $('next-step').click(); return; } signup.elements.cpf.setCustomValidity(validCpf(signup.elements.cpf.value) ? '' : 'Confira os dígitos do CPF.'); birth.setCustomValidity(ageFor(birth.value) === null ? 'Confira a data de nascimento.' : ''); if (!signup.reportValidity()) return; status('Formulário conferido! Esta é uma prévia: sua conta ainda não foi criada e nenhum dado foi salvo ou enviado.'); signup.elements.password.value = ''; signup.elements.confirmation.value = '';};
+let busy = false;
+function loading(form, active) {
+  busy = active;
+  for (const button of form.querySelectorAll('button')) button.disabled = active;
+  for (const button of document.querySelectorAll('.tabs button')) button.disabled = active;
+}
+$('login-form').onsubmit = async event => {
+  event.preventDefault(); if (busy) return;
+  const form = event.target, identifier = form.elements.identifier.value.trim();
+  if ((!identifier.includes('@') && !validCpf(identifier)) || (identifier.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier))) {status('Informe um e-mail ou CPF válido.', true);return;}
+  loading(form,true); status('Entrando…');
+  try {await EvoluiAuth.login({identifier,password:form.elements.password.value}); await EvoluiAuth.readProfile(); form.elements.password.value='';location.replace('index.html');}
+  catch (error) {status(error.message,true);}
+  finally {loading(form,false);}
+};
+signup.onsubmit = async event => {
+  event.preventDefault();if(busy)return;
+  if ($('profile-fields').disabled) {$('next-step').click();return;}
+  signup.elements.cpf.setCustomValidity(validCpf(signup.elements.cpf.value)?'':'Confira os dígitos do CPF.');
+  birth.setCustomValidity(ageFor(birth.value) === null?'Confira a data de nascimento.':'');
+  if(!signup.reportValidity())return;
+  const names=['email','phone','password','cpf','birthDate','weight','height','nickname','gender'];
+  const input=Object.fromEntries(names.map(name=>[name,signup.elements[name].value]));
+  input.nickname=input.nickname.trim();
+  if(input.nickname.length<2){status('Informe um apelido de pelo menos 2 caracteres.',true);return;}
+  const file=$('avatar').files[0];loading(signup,true);status('Criando sua conta…');
+  try {
+    const result=await EvoluiAuth.signup(input);
+    signup.elements.password.value='';signup.elements.confirmation.value='';
+    if(result.registered){selectTab(false);$('login-form').elements.identifier.value=input.email;status(result.message);return;}
+    const account=await EvoluiAuth.readProfile();
+    if(file){
+      try{await EvoluiAuth.avatar(file,account.user.id);}
+      catch(error){status(error.message);const button=document.createElement('button');button.type='button';button.className='primary';button.textContent='Continuar para o site';button.onclick=()=>location.replace('index.html');$('account-status').appendChild(button);return;}
+    }
+    clearAvatar();location.replace('index.html');
+  } catch(error){status(error.message,true);}
+  finally {loading(signup,false);}
+};
 window.addEventListener('pagehide', () => {if(avatarUrl) URL.revokeObjectURL(avatarUrl);});
