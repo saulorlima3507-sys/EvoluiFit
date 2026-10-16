@@ -4,7 +4,15 @@ if (!window.EvoluiAccount) { location.replace('conta.html'); throw new Error('Co
 const accountId = window.EvoluiAccount.user.id;
 const STORE = 'evoluifit-v1:' + accountId;
 const PHOTO_STORE = 'evoluifit-photos:' + accountId;
-function accountAge() { const birth=new Date(window.EvoluiAccount.profile.birth_date+'T12:00:00'), now=new Date();let age=now.getFullYear()-birth.getFullYear();if(now.getMonth()<birth.getMonth()||(now.getMonth()===birth.getMonth()&&now.getDate()<birth.getDate()))age--;return age; }
+function accountAge() {
+  const value=window.EvoluiAccount.profile.birth_date;
+  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;
+  const [year,month,day]=value.split('-').map(Number), now=new Date();
+  const birth=new Date(year,month-1,day,12);
+  if(birth.getFullYear()!==year||birth.getMonth()!==month-1||birth.getDate()!==day||birth>now)return null;
+  const age=now.getFullYear()-year-(now.getMonth()+1<month||(now.getMonth()+1===month&&now.getDate()<day)?1:0);
+  return age>=0&&age<=120?age:null;
+}
 const arrow = '<svg class="arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg>';
 const recipes = [
   {name:'Bowl de frango e arroz',time:25,tag:'Almoço descomplicado',cost:'Ingredientes do dia a dia',servings:1,ingredients:['100 g de frango em cubos','½ xícara de arroz cozido','½ xícara de feijão cozido','½ cenoura ralada e folhas a gosto','1 colher de chá de óleo, limão e temperos'],steps:['Cozinhe o frango em frigideira com o óleo e temperos até ficar completamente cozido, sem partes rosadas.','Aqueça o arroz e o feijão. Lave as folhas e rale a cenoura.','Monte o bowl e finalize com limão.'],tip:'Troque o frango por 2 ovos bem cozidos ou grão-de-bico. A porção é uma sugestão; ajuste com orientação conforme sua necessidade.'},
@@ -52,7 +60,7 @@ try {
   const saved = JSON.parse(localStorage.getItem(STORE) || 'null');
   if (saved) {
     state = restoreState(saved);
-    if (JSON.stringify({...initialState(),...saved}) !== JSON.stringify(state)) storageNotice = 'Há registros locais inválidos. Os registros válidos foram recuperados; os dados originais permanecem no navegador até você salvar uma alteração.';
+    if (JSON.stringify({...initialState(),...saved,...(saved.profile?{profile:{...saved.profile,age:accountAge()}}:{})}) !== JSON.stringify(state)) storageNotice = 'Há registros locais inválidos. Os registros válidos foram recuperados; os dados originais permanecem no navegador até você salvar uma alteração.';
   }
 } catch {
   storageNotice = 'Não foi possível ler os registros locais. Você pode recomeçar ou apagar os dados em Meu plano. O conteúdo original ainda não foi alterado.';
@@ -72,11 +80,9 @@ let view = 'inicio';
 let selectedDay = new Date().getDay();
 const resumableSession=Object.values(state.workoutSessions).filter(s=>s.date===localDate(new Date())&&!s.finished).at(-1);
 if(resumableSession)selectedDay=Number(resumableSession.signature.split('|')[0]);
+let calendarDate=localDate(new Date());
 let calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-let photos = [];
 let photoDb;
-let photoError = false;
-let pageToken = 0;
 let openExercises = null;
 let guidedIndex = null;
 let showWorkoutList = false;
@@ -101,7 +107,8 @@ function validProfile(p) {
 function restoreState(saved) {
   const restored = initialState();
   if (!saved || typeof saved !== 'object') return restored;
-  if (validProfile(saved.profile)) restored.profile = {goal:saved.profile.goal,level:saved.profile.level,days:String(saved.profile.days),gym:saved.profile.gym,age:Number(saved.profile.age)};
+  const savedProfile=saved.profile?{...saved.profile,age:accountAge()}:null;
+  if (validProfile(savedProfile)) restored.profile = {goal:savedProfile.goal,level:savedProfile.level,days:String(savedProfile.days),gym:savedProfile.gym,age:savedProfile.age};
   // Called before UI constants initialize: use localDate directly, not today().
   const dateIsValid = s => typeof s==='string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && localDate(new Date(`${s}T12:00:00`))===s && s>='1900-01-01' && s<=localDate(new Date());
   if (Array.isArray(saved.measurements)) {
@@ -232,18 +239,19 @@ function dashboard() {
   return `${intro('SEU ESPAÇO. SEU RITMO.',`Que bom ter você aqui, ${escapeHTML(window.EvoluiAccount.profile.nickname)}.`,'Um treino, uma boa refeição, um passo de cada vez.')}
   <section class="today-hero"><div class="today-hero-copy"><span class="hero-kicker">${p?'SEU TREINO DE HOJE':'VAMOS COMEÇAR?'}</span><h2>${!p?'Seu ritmo.<br>Seu primeiro passo.':!w?'Hoje, recarregue<br>as energias.':w.active?'Movimento leve.<br>Corpo renovado.':'Um pouco hoje.<br><em>Mais forte amanhã.</em>'}</h2><p>${!p?'Escolha onde quer treinar. A gente organiza o caminho.':w&&!w.active?`${w.ids.length} exercícios · ${sets()} séries · ${p.gym==='yes'?'Academia':'Calistenia / em casa'}`:'Descansar também faz parte. Seu plano continua aqui para quando precisar.'}</p><button class="btn lime" ${p?'data-action="begin-today"':'data-view="perfil"'}>${action} ${arrow}</button></div><div class="today-hero-art" aria-hidden="true">${athleteArt}<span class="hero-orbit orbit-one"></span><span class="hero-orbit orbit-two"></span></div></section>
   <div class="home-metrics"><div><span class="metric-symbol">${svgIcon('train')}</span><span><strong>${weekCount()}<small> / ${p?.days||'—'}</small></strong><small>Treinos nesta semana</small></span></div><div><span class="metric-symbol">${svgIcon('weight')}</span><span><strong>${m?decimal(m.weight)+' kg':'Seu começo'}</strong><small>${m?'Último peso registrado':'Registre sua evolução'}</small></span></div><button data-view="calendario"><span class="metric-symbol">${svgIcon('calendar')}</span><span><strong>${state.completed.length} <small>dias</small></strong><small>Seu calendário ${arrow}</small></span></button></div>
+  <div class="home-charts"><section class="card" aria-labelledby="home-weight-heading"><div class="section-header"><h2 id="home-weight-heading">Evolução do peso</h2><button class="text-button" data-view="evolucao">Ver histórico ${arrow}</button></div><p class="small muted">Peso em kg, de acordo com seus registros.</p>${chart(500,180)}</section><section class="card" aria-labelledby="home-training-heading"><h2 id="home-training-heading">Treinos por semana</h2><p class="small muted">Últimas 8 semanas · dias com treino concluído.</p>${weeklyChart()}</section></div>
   <div class="section-header home-section-heading"><div><p class="eyebrow">CUIDE DE VOCÊ</p><h2>O que vamos fazer agora?</h2></div></div>
-  <div class="home-destinations"><button class="destination-card" data-view="receitas"><span class="destination-art food-destination">${foodArt(1)}</span><span class="destination-copy"><small>COMIDA SEM COMPLICAÇÃO</small><strong>Uma receita para hoje</strong><span>35 ideias com vídeo e passo a passo.</span></span>${arrow}</button><button class="destination-card" data-view="evolucao"><span class="destination-art progress-destination">${svgIcon('chart')}</span><span class="destination-copy"><small>CADA PASSO CONTA</small><strong>Veja sua evolução</strong><span>Peso, fotos e seu histórico em um lugar.</span></span>${arrow}</button></div>
+  <div class="home-destinations"><button class="destination-card" data-view="receitas"><span class="destination-art food-destination">${foodArt(1)}</span><span class="destination-copy"><small>COMIDA SEM COMPLICAÇÃO</small><strong>Uma receita para hoje</strong><span>35 ideias com vídeo e passo a passo.</span></span>${arrow}</button><button class="destination-card" data-view="evolucao"><span class="destination-art progress-destination">${svgIcon('chart')}</span><span class="destination-copy"><small>CADA PASSO CONTA</small><strong>Veja sua evolução</strong><span>Peso, treinos e seu histórico em um lugar.</span></span>${arrow}</button></div>
   <p class="home-local-note">${svgIcon('check')} Seus registros ficam neste navegador. Seu ritmo é o que importa.</p>`;
 }
 function profileForm() {
-  const p=state.profile || {goal:'fat',level:'beginner',days:'3',gym:'no',age:accountAge()};
+  const p={...(state.profile || {goal:'fat',level:'beginner',days:'3',gym:'no'}),age:accountAge()};
   const option=(value,label,current)=>`<option value="${value}" ${String(current)===value?'selected':''}>${label}</option>`;
-  return `<form id="profile-form"><div class="form-grid"><label class="field">Qual é seu objetivo?<select name="goal">${Object.entries(goalNames).map(([k,v])=>option(k,v,p.goal)).join('')}</select></label><label class="field">Sua experiência com treinos<select name="level">${Object.entries(levelNames).map(([k,v])=>option(k,v,p.level)).join('')}</select></label><label class="field">Dias disponíveis por semana<select name="days">${[2,3,4,5].map(n=>option(String(n),`${n} dias`,p.days)).join('')}</select><small>Em planos de 5 dias, um dia é de recuperação ativa.</small></label><label class="field">Onde você quer treinar?<select name="gym">${option('no','Calistenia / em casa',p.gym)}${option('yes','Academia',p.gym)}</select></label><label class="field full">Idade (em anos)<input name="age" type="number" min="1" max="120" step="1" readonly required value="${escapeHTML(p.age)}" placeholder="Ex.: 28"><small>A idade evita o uso de referências adultas de IMC para menores. Menores de 18 anos precisam de orientação profissional e acompanhamento responsável.</small></label></div><div class="actions"><button class="btn" type="submit">${state.profile?'Salvar meu plano':'Criar meu plano'} ${arrow}</button></div></form>`;
+  return `<form id="profile-form"><div class="form-grid"><label class="field">Qual é seu objetivo?<select name="goal">${Object.entries(goalNames).map(([k,v])=>option(k,v,p.goal)).join('')}</select></label><label class="field">Sua experiência com treinos<select name="level">${Object.entries(levelNames).map(([k,v])=>option(k,v,p.level)).join('')}</select></label><label class="field">Dias disponíveis por semana<select name="days">${[2,3,4,5].map(n=>option(String(n),`${n} dias`,p.days)).join('')}</select><small>Em planos de 5 dias, um dia é de recuperação ativa.</small></label><label class="field">Onde você quer treinar?<select name="gym">${option('no','Calistenia / em casa',p.gym)}${option('yes','Academia',p.gym)}</select></label><label class="field full">Idade (em anos)<input name="age" type="number" min="1" max="120" step="1" readonly required value="${p.age===null?'':p.age}" aria-describedby="plan-age-help"><small id="plan-age-help">${p.age===null?'Não foi possível conferir a data de nascimento do cadastro.':`${p.age} anos · calculados pela data de nascimento do cadastro.`} A idade evita o uso de referências adultas de IMC para menores. Menores de 18 anos precisam de orientação profissional e acompanhamento responsável.</small></label></div><div class="actions"><button class="btn" type="submit">${state.profile?'Salvar meu plano':'Criar meu plano'} ${arrow}</button></div></form>`;
 }
 function profilePage() {
-  if (!state.profile) return `${intro('VAMOS COMEÇAR','Um plano com o seu ritmo.','Conte um pouco sobre você. Dá para mudar suas escolhas depois.')}<div class="onboard"><section class="onboard-aside"><div><p class="eyebrow">SEU PONTO DE PARTIDA</p><h2>A evolução começa<br>com um passo.</h2><p>Sem pressa, sem promessas milagrosas. Encontre uma rotina possível para o seu dia a dia.</p></div><strong>01 ${arrow}</strong></section><section class="card">${profileForm()}</section></div><section class="card settings-card" style="margin-top:20px"><h2>Dados e acesso</h2><p>Treinos, receitas salvas, medidas e fotos de progresso ficam neste navegador, separados por conta. Seu cadastro e sua foto de perfil ficam no Supabase. Não há backup automático do histórico local.</p><p>Preço planejado: R$ 24,99 por acesso vitalício, em uma única compra. Esta demonstração é gratuita e não realiza cobrança.</p><div class="actions"><button class="btn secondary" data-action="export">Exportar registros</button><button class="btn danger" data-action="clear-all">Apagar todos os dados</button><button class="btn subtle" data-action="premium">Ver demonstração</button><button class="text-button" data-action="integrations">Próximas integrações ${arrow}</button></div></section>`;
-  return `${intro('DO SEU JEITO','Meu plano e meus dados','Mude os dias de treino e cuide dos seus registros.')}<div class="profile-grid"><section class="card">${profileForm()}</section><div class="stack"><section class="card settings-card"><h2>Seu espaço é local</h2><p>Perfil, medidas, calendário, séries e receitas salvas ficam no localStorage. Fotos ficam no IndexedDB, apenas neste navegador. Esses registros não têm sincronização automática. Seu cadastro e sua foto de perfil ficam na sua conta no Supabase.</p><p>Seus registros são separados por conta neste navegador. Saia da conta ao usar um dispositivo compartilhado. Não há backup automático dos treinos e das fotos de progresso.</p><p>Limpar dados do navegador ou usar modo privado pode apagar registros e fotos. Você pode baixar uma cópia dos registros (sem fotos), em um arquivo JSON.</p><div class="actions"><button class="btn secondary" data-action="export">Exportar registros</button><button class="btn danger" data-action="clear-all">Apagar todos os dados</button></div></section><section class="card settings-card"><span class="tag">ACESSO PLANEJADO</span><h2 style="margin-top:12px">Uma compra. Sua jornada.</h2><p>R$ 24,99 por acesso vitalício, em uma única compra. A demonstração está aberta, sem cobrança.</p><button class="btn" data-action="premium">Ver demonstração ${arrow}</button></section><section class="card settings-card"><h2>Próximas integrações</h2><p>Pagamento, aplicativo e anúncios são etapas futuras. Nenhum serviço de publicidade está conectado.</p><button class="text-button" data-action="integrations">Entender o que falta ${arrow}</button></section></div></div>`;
+  if (!state.profile) return `${intro('VAMOS COMEÇAR','Um plano com o seu ritmo.','Conte um pouco sobre você. Dá para mudar suas escolhas depois.')}<div class="onboard"><section class="onboard-aside"><div><p class="eyebrow">SEU PONTO DE PARTIDA</p><h2>A evolução começa<br>com um passo.</h2><p>Sem pressa, sem promessas milagrosas. Encontre uma rotina possível para o seu dia a dia.</p></div><strong>01 ${arrow}</strong></section><section class="card">${profileForm()}</section></div><section class="card settings-card" style="margin-top:20px"><h2>Dados e acesso</h2><p>Treinos, receitas salvas e medidas ficam neste navegador, separados por conta. Seu cadastro e sua foto de perfil ficam no Supabase. Não há backup automático do histórico local.</p><p>Preço planejado: R$ 24,99 por acesso vitalício, em uma única compra. Esta demonstração é gratuita e não realiza cobrança.</p><div class="actions"><button class="btn secondary" data-action="export">Exportar registros</button><button class="btn danger" data-action="clear-all">Apagar todos os dados</button><button class="btn subtle" data-action="premium">Ver demonstração</button><button class="text-button" data-action="integrations">Próximas integrações ${arrow}</button></div></section>`;
+  return `${intro('DO SEU JEITO','Meu plano e meus dados','Mude os dias de treino e cuide dos seus registros.')}<div class="profile-grid"><section class="card">${profileForm()}</section><div class="stack"><section class="card settings-card"><h2>Seu espaço é local</h2><p>Perfil, medidas, calendário, séries e receitas salvas ficam no localStorage. Esses registros não têm sincronização automática. Seu cadastro e sua foto de perfil ficam na sua conta no Supabase.</p><p>Seus registros são separados por conta neste navegador. Saia da conta ao usar um dispositivo compartilhado. Não há backup automático dos treinos e das medidas.</p><p>Limpar dados do navegador ou usar modo privado pode apagar os registros locais. Você pode baixar uma cópia dos registros (sem fotos), em um arquivo JSON.</p><div class="actions"><button class="btn secondary" data-action="export">Exportar registros</button><button class="btn danger" data-action="clear-all">Apagar todos os dados</button></div></section><section class="card settings-card"><span class="tag">ACESSO PLANEJADO</span><h2 style="margin-top:12px">Uma compra. Sua jornada.</h2><p>R$ 24,99 por acesso vitalício, em uma única compra. A demonstração está aberta, sem cobrança.</p><button class="btn" data-action="premium">Ver demonstração ${arrow}</button></section><section class="card settings-card"><h2>Próximas integrações</h2><p>Pagamento, aplicativo e anúncios são etapas futuras. Nenhum serviço de publicidade está conectado.</p><button class="text-button" data-action="integrations">Entender o que falta ${arrow}</button></section></div></div>`;
 }
 const exerciseVideos = {
   "squat-home": {
@@ -948,13 +956,13 @@ function exerciseCard(id,index,p,info,focused,current) {
 function trainingPage() {
   if(trainingMode==='learn')return `${intro('APRENDA NO SEU RITMO','Movimente-se com confiança.','Orientações simples para cuidar do seu corpo.')} ${trainingModeTabs()}${movementLibrary()}`;
   if(!state.profile)return `${intro('SEU PRIMEIRO PASSO','Um treino com a sua cara.','Em casa ou na academia. Você escolhe, a gente organiza.')} ${trainingModeTabs()}<section class="card empty"><p>Escolha seus dias, sua experiência e onde quer treinar.</p><button class="btn" data-view="perfil" style="margin-top:20px">Montar meu plano ${arrow}</button></section>`;
-  const p=state.profile,routine=plan(),w=routine[selectedDay],info=w&&!w.active?currentSessionInfo(w):null;
+  const p={...state.profile,age:accountAge()},routine=plan(),w=routine[selectedDay],info=w&&!w.active?currentSessionInfo(w):null;
   const focused=Boolean(info?.session&&!info.session.finished&&!showWorkoutList);
   const firstIncomplete=info?Math.max(0,w.ids.findIndex(id=>(info.session?.sets[id]||[]).filter(Boolean).length<sets())):0;
   const current=Math.min(Math.max(guidedIndex??firstIncomplete,0),(w?.ids.length||1)-1);
   const tabs=[1,2,3,4,5,6,0].map(d=>`<button class="day-tab ${selectedDay===d?'active':''}" data-day="${d}" aria-label="${weekdays[d]}${routine[d]?' ·':''}" aria-pressed="${selectedDay===d}"><strong>${weekdays[d].slice(0,3)}</strong><small>${routine[d]?'Treino':'Livre'}</small></button>`).join('');
   const safety=p.age<18?'<div class="notice warning">Para menores de 18 anos, esta rotina é apenas uma visão geral. Procure um profissional para adaptar volume, técnica e progressão à idade, com acompanhamento de um responsável. Não siga metas de perda de peso sem orientação.</div>':'';
-  return `${intro('UM PASSO DE CADA VEZ','Seu treino. Sem complicação.',`${p.gym==='yes'?'Academia':'Calistenia / em casa'} · ${p.days} dias por semana`)}${workoutModeSelector()}${focused?`${trainingModeTabs()}<details class="workout-plan-options"><summary>Escolher dia de treino</summary><div class="day-tabs" aria-label="Dias de treino">${tabs}</div></details>`:`${trainingModeTabs()}<div class="day-tabs" aria-label="Dias de treino">${tabs}</div>`}${safety}
+  return `${intro('UM PASSO DE CADA VEZ','Seu treino. Sem complicação.',`${p.gym==='yes'?'Academia':'Calistenia / em casa'} · ${p.days} dias por semana${p.age===null?'':` · ${p.age} anos`}`)}${workoutModeSelector()}${focused?`${trainingModeTabs()}<details class="workout-plan-options"><summary>Escolher dia de treino</summary><div class="day-tabs" aria-label="Dias de treino">${tabs}</div></details>`:`${trainingModeTabs()}<div class="day-tabs" aria-label="Dias de treino">${tabs}</div>`}${safety}
   ${!w?`<section class="card rest-card"><span class="rest-illustration">${svgIcon('sun')}</span><h2>${weekdays[selectedDay]}: descanso</h2><p>Descanse ou faça uma caminhada confortável. Escolha um dia de treino acima para ver seu plano.</p></section>`:w.active?`<section class="card rest-card"><span class="rest-illustration">${svgIcon('sun')}</span><h2>Recuperação ativa</h2><p>Caminhe ou pedale por 20–30 minutos leves, em um ritmo que permita conversar. Reduza o tempo se precisar e interrompa diante de dor ou mal-estar.</p><button class="btn secondary" data-action="toggle-today" style="margin-top:20px">${state.completed.includes(today())?'✓ Hoje concluído':'Marcar treino de hoje'}</button></section>`:`<div class="workout-heading"><div><p class="eyebrow">${weekdays[selectedDay]}</p><h2>${w.name}</h2><p class="subtitle">${w.ids.length} exercícios · ${sets()} séries · 60–90 s de descanso</p></div></div>${sessionPanel(w)}<details class="workout-preparation"><summary>${svgIcon('sun')} Antes de começar</summary><p>Aqueça por 5–8 minutos com caminhada e movimentos leves. Faça uma série fácil para praticar. Termine com 2–3 repetições ainda possíveis e interrompa diante de dor, tontura ou mal-estar.</p></details>${info.session&&!info.session.finished?`<div class="guided-toolbar"><span>Exercício <strong>${current+1}</strong> de ${w.ids.length}</span><button class="text-button" data-action="workout-list">${showWorkoutList?'Voltar ao passo a passo':'Ver lista completa'}</button></div>`:''}<div class="exercise-list ${focused?'guided-list':''}">${w.ids.map((id,i)=>exerciseCard(id,i,p,info,focused,current)).join('')}</div>${focused?`<div class="guided-navigation"><button class="btn secondary" data-guided-step="${current-1}" ${current===0?'disabled':''}>← Anterior</button><div class="guided-dots" aria-label="Exercícios">${w.ids.map((id,i)=>`<button data-guided-step="${i}" class="${i===current?'active':''}" aria-label="Ir para exercício ${i+1}" aria-pressed="${i===current}"><span></span></button>`).join('')}</div><button class="btn" data-guided-step="${current+1}" ${current===w.ids.length-1?'disabled':''}>Próximo ${arrow}</button></div>`:''}<div class="workout-secondary"><small>As séries e a conclusão do treino são registradas na data de hoje.</small><button class="text-button" data-action="toggle-today">${state.completed.includes(today())?'✓ Hoje concluído':'Marcar treino de hoje'}</button></div>`}`;
 }
 function favoriteButton(i,large=false) {
@@ -996,10 +1004,10 @@ function bmiCard() {
   const m=latest(), value=bmi(m), age=state.profile?.age;
   return `<section class="card"><h2>IMC: uma referência geral</h2>${m?`<div class="bmi-value">${decimal(value)}</div><p class="small muted">Peso ÷ altura² · ${decimal(m.weight)} kg / ${decimal(m.height)} cm</p><p class="small" style="margin-top:12px">${!age?'Informe sua idade em Meu plano para saber se a referência adulta é aplicável. Nenhuma classificação foi aplicada.':age<18?'Menores de 18 anos: não usamos classificação adulta. A interpretação depende de idade e sexo nas curvas de crescimento e deve ser feita por um profissional.':`${bmiLabel(value)} para adultos. Faixa geral: 18,5–24,9.`}</p>`:'<p class="subtitle">Registre peso e altura para calcular.</p>'}<p class="small muted" style="margin-top:12px">IMC não é diagnóstico: não diferencia músculo e gordura e tem limitações, por exemplo na gestação e em atletas. Não use o número como uma meta isolada.</p>${!age?`<button class="text-button" data-view="perfil">Informar idade ${arrow}</button>`:''}</section>`;
 }
-function progressTabs() {return `<div class="progress-tabs" aria-label="Acompanhar meu progresso"><button class="${view==='evolucao'?'active':''}" data-view="evolucao" ${view==='evolucao'?'aria-current="page"':''}>${svgIcon('weight')} Peso e altura</button><button class="${view==='fotos'?'active':''}" data-view="fotos" ${view==='fotos'?'aria-current="page"':''}>${svgIcon('photo')} Minhas fotos</button><button data-view="calendario" aria-label="Ver calendário">${svgIcon('calendar')} Calendário</button></div>`;}
+function progressTabs() {return `<div class="progress-tabs" aria-label="Acompanhar meu progresso"><button class="active" data-view="evolucao" aria-current="page">${svgIcon('weight')} Peso e altura</button><button data-view="calendario" aria-label="Ver calendário">${svgIcon('calendar')} Calendário</button></div>`;}
 function progressPage() {
   const m=latest();
-  return `${intro('MEU PROGRESSO','Veja o que mudou','Registre peso e altura ou acompanhe suas fotos, sem pressão.')} ${progressTabs()}<div class="split-grid"><div class="stack"><section class="card"><h2>Novo registro</h2><p class="subtitle" style="margin-bottom:20px">Peso e altura na data escolhida.</p><form id="measurement-form"><div class="form-grid"><label class="field full">Data<input type="date" name="date" min="1900-01-01" max="${today()}" value="${today()}" required></label><label class="field">Peso (kg)<input type="number" name="weight" min="1" max="500" step="0.1" placeholder="Ex.: 72,5" required></label><label class="field">Altura (cm)<input type="number" name="height" min="30" max="280" step="0.1" value="${m?m.height:''}" placeholder="Ex.: 170" required></label></div><button class="btn" style="margin-top:20px" type="submit">Salvar registro ${arrow}</button><p class="small muted" style="margin-top:12px">Um registro por data. Salvar na mesma data atualiza o registro existente.</p></form></section>${bmiCard()}</div><div class="stack"><section class="card"><div class="section-header"><h2>Gráfico de evolução</h2><span class="tag">${state.measurements.length} registros</span></div><div class="chart-legend"><i></i> Peso corporal (kg)</div>${chart(550,220)}</section><section class="card"><div class="section-header"><h2>Seu histórico</h2><button class="text-button" data-action="export">Exportar ${arrow}</button></div>${state.measurements.length?`<div class="table-wrap"><table><caption class="visually-hidden">Histórico de peso e altura por data</caption><thead><tr><th scope="col">Data</th><th scope="col">Peso</th><th scope="col">Altura</th><th scope="col">Ação</th></tr></thead><tbody>${[...state.measurements].sort((a,b)=>b.date.localeCompare(a.date)).map(r=>`<tr><td>${displayDate(r.date)}</td><td>${decimal(r.weight)} kg</td><td>${decimal(r.height)} cm</td><td><button class="delete-btn" data-delete-measure="${escapeHTML(r.date)}" aria-label="Excluir registro de ${displayDate(r.date)}">Excluir</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Nada registrado ainda.<br>Seu primeiro registro é seu ponto de partida.</div>'}</section></div></div>`;
+  return `${intro('MEU PROGRESSO','Veja o que mudou','Registre peso e altura e acompanhe sua evolução, sem pressão.')} ${progressTabs()}<div class="split-grid"><div class="stack"><section class="card"><h2>Novo registro</h2><p class="subtitle" style="margin-bottom:20px">Peso e altura na data escolhida.</p><form id="measurement-form"><div class="form-grid"><label class="field full">Data<input type="date" name="date" min="1900-01-01" max="${today()}" value="${today()}" required></label><label class="field">Peso (kg)<input type="number" name="weight" min="1" max="500" step="0.1" placeholder="Ex.: 72,5" required></label><label class="field">Altura (cm)<input type="number" name="height" min="30" max="280" step="0.1" value="${m?m.height:''}" placeholder="Ex.: 170" required></label></div><button class="btn" style="margin-top:20px" type="submit">Salvar registro ${arrow}</button><p class="small muted" style="margin-top:12px">Um registro por data. Salvar na mesma data atualiza o registro existente.</p></form></section>${bmiCard()}</div><div class="stack"><section class="card"><div class="section-header"><h2>Gráfico de evolução</h2><span class="tag">${state.measurements.length} registros</span></div><div class="chart-legend"><i></i> Peso corporal (kg)</div>${chart(550,220)}</section><section class="card"><div class="section-header"><h2>Seu histórico</h2><button class="text-button" data-action="export">Exportar ${arrow}</button></div>${state.measurements.length?`<div class="table-wrap"><table><caption class="visually-hidden">Histórico de peso e altura por data</caption><thead><tr><th scope="col">Data</th><th scope="col">Peso</th><th scope="col">Altura</th><th scope="col">Ação</th></tr></thead><tbody>${[...state.measurements].sort((a,b)=>b.date.localeCompare(a.date)).map(r=>`<tr><td>${displayDate(r.date)}</td><td>${decimal(r.weight)} kg</td><td>${decimal(r.height)} cm</td><td><button class="delete-btn" data-delete-measure="${escapeHTML(r.date)}" aria-label="Excluir registro de ${displayDate(r.date)}">Excluir</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Nada registrado ainda.<br>Seu primeiro registro é seu ponto de partida.</div>'}</section></div></div>`;
 }
 
 function openPhotoDb() {
@@ -1022,58 +1030,61 @@ async function photoOperation(mode,action) {
     tx.oncomplete=()=>resolve(value);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('Não salvo'));
   });
 }
-async function loadPhotos() { photos = (await photoOperation('readonly',store=>store.getAll())).filter(p=>p && typeof p.id==='string' && validDate(p.date) && p.blob instanceof Blob).sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id)); }
-let photoUrls=[];
-let comparisonUrls=[];
-function releaseComparison() {comparisonUrls.forEach(u=>URL.revokeObjectURL(u));comparisonUrls=[];}
-function releasePhotos() {photoUrls.forEach(u=>URL.revokeObjectURL(u));photoUrls=[];releaseComparison();}
-function photoUrl(blob,comparison=false) {const url=URL.createObjectURL(blob);(comparison?comparisonUrls:photoUrls).push(url);return url;}
-function photosPage() {
-  return `${intro('MEU PROGRESSO','Suas fotos, lado a lado','Guarde e compare fotos de datas diferentes, neste navegador.')} ${progressTabs()}<div class="notice">Fotos ficam só neste navegador, sem envio a servidor e sem sincronização. Não há backup nem criptografia própria. Pessoas com acesso a este perfil do navegador podem vê-las. Evite dispositivos compartilhados.</div>${photoError?'<div class="notice warning">Não foi possível abrir o armazenamento de fotos. Verifique as permissões e o espaço do navegador; tente novamente em uma janela normal.</div>':''}<section class="card" style="margin-bottom:22px"><form id="photo-form"><div class="form-grid"><label class="field">Data da foto<input type="date" name="date" required min="1900-01-01" max="${today()}" value="${today()}"></label><label class="field">Escolha uma foto<input name="photo" type="file" accept="image/jpeg,image/png,image/webp" required ${photoError?'disabled':''}><small>JPEG, PNG ou WebP, até 10 MB. Redimensionamos para até 1200 px e removemos metadados da imagem ao salvar.</small></label></div><div class="actions"><button class="btn" type="submit" ${photoError?'disabled':''}>Salvar foto no navegador</button><span class="small muted">Não é enviada para ninguém.</span></div></form></section>${photos.length>=2?`<section class="card" style="margin-bottom:22px"><h2>Compare dois momentos</h2><form id="compare-form" style="margin-top:20px"><div class="form-grid">${['before','after'].map((name,i)=>`<label class="field">${i?'Depois':'Antes'}<select name="${name}">${photos.map((p,j)=>`<option value="${escapeHTML(p.id)}" ${j===(i?photos.length-1:0)?'selected':''}>${displayDate(p.date)} · Foto ${j+1}</option>`).join('')}</select></label>`).join('')}</div><button class="btn secondary" type="submit" style="margin-top:18px">Comparar fotos</button></form><div id="comparison"></div></section>`:''}<div class="section-header"><h2>Seu álbum privado local</h2><span class="tag">${photos.length} fotos</span></div>${photos.length?`<div class="photo-grid">${photos.map(p=>`<article class="card photo-card"><img src="${photoUrl(p.blob)}" alt="Foto corporal registrada em ${displayDate(p.date)}"><div class="photo-meta"><span>${displayDate(p.date)}</span><button class="delete-btn" data-delete-photo="${escapeHTML(p.id)}">Apagar foto</button></div></article>`).join('')}</div>`:'<section class="card empty">Seu álbum está vazio.<br>Adicione uma foto quando se sentir confortável.</section>'}`;
+function weekStart(date) {
+  const start=new Date(`${date}T12:00:00`);start.setDate(start.getDate()-(start.getDay()+6)%7);return start;
 }
-async function prepareImage(file) {
-  if(!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 10*1024*1024 || !file.size) throw new Error('Escolha JPEG, PNG ou WebP de até 10 MB.');
-  const url=URL.createObjectURL(file);
-  try {
-    const img = new Image(); img.src=url; await img.decode();
-    const scale=Math.min(1,1200/Math.max(img.naturalWidth,img.naturalHeight));
-    const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
-    const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
-    return await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Não foi possível processar a imagem.')),'image/jpeg',.85));
-  } finally { URL.revokeObjectURL(url); }
+function weekSummary(date) {
+  const start=weekStart(date),end=new Date(start);end.setDate(end.getDate()+6);
+  return {start:localDate(start),end:localDate(end),count:state.completed.filter(day=>day>=localDate(start)&&day<=localDate(end)).length,goal:state.profile?Number(state.profile.days):null};
+}
+function weeklyChart() {
+  const anchor=weekStart(today());
+  const weeks=Array.from({length:8},(_,i)=>{const start=new Date(anchor);start.setDate(start.getDate()-(7-i)*7);return weekSummary(localDate(start));});
+  const width=500,height=180,left=30,bottom=145,top=20,step=56,bar=30,max=Math.max(1,...weeks.map(w=>w.count));
+  return `<svg class="mini-chart weekly-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Treinos concluídos por semana nas últimas oito semanas"><line x1="${left}" x2="${width-10}" y1="${bottom}" y2="${bottom}" stroke="#dce7d2"/>${weeks.map((w,i)=>{const x=left+step*i+8,h=w.count/max*(bottom-top);return `<g><title>Semana de ${displayDate(w.start)} a ${displayDate(w.end)}: ${w.count} treinos concluídos</title><rect x="${x}" y="${bottom-h}" width="${bar}" height="${h}" rx="5" fill="${i===7?'#244d35':'#a8c577'}"/><text x="${x+bar/2}" y="${bottom-h-7}" text-anchor="middle" fill="#49653a" font-size="11">${w.count}</text><text x="${x+bar/2}" y="${height-12}" text-anchor="middle" fill="#718164" font-size="10">${displayDate(w.start).slice(0,5)}</text></g>`;}).join('')}</svg><details class="chart-data"><summary>Ver valores por semana</summary><ul>${weeks.map(w=>`<li>${displayDate(w.start)} a ${displayDate(w.end)}: <strong>${w.count} ${w.count===1?'treino':'treinos'}</strong></li>`).join('')}</ul></details>`;
+}
+function calendarDayDetails(date) {
+  const sessions=Object.values(state.workoutSessions).filter(session=>session.date===date);
+  const completed=state.completed.includes(date),measurement=state.measurements.find(m=>m.date===date);
+  const sessionCards=sessions.map(session=>{
+    const [,gym,level,list]=session.signature.split('|');
+    const ids=list.split(',').filter(id=>exercises[id]);
+    const template=templates.find(t=>t.ids.join(',')===ids.join(','));
+    const plannedSets={beginner:2,intermediate:3,advanced:4}[level];
+    return `<article class="day-session"><div class="section-header"><h3>${escapeHTML(template?.name||'Treino registrado')}</h3><span class="tag">${session.finished?'FINALIZADO':'EM ANDAMENTO'}</span></div><p class="small muted">${gym==='yes'?'Academia':'Calistenia / em casa'} · ${escapeHTML(levelNames[level])}</p><ul class="day-exercises">${ids.map(id=>{const exercise=exerciseForMode(id,gym),checked=(session.sets[id]||[]).filter(Boolean).length;return `<li><span>${escapeHTML(gym==='yes'?exercise.gym:exercise.body)}</span><strong>${checked} de ${plannedSets} séries</strong></li>`;}).join('')}</ul>${session.finished&&!completed?'<p class="small muted">A sessão foi finalizada; este dia está desmarcado no calendário.</p>':''}</article>`;
+  }).join('');
+  const manual=completed&&!sessions.some(s=>s.finished)?'<div class="notice"><strong>Treino registrado manualmente</strong><p>Conclusão marcada neste dia. Não há detalhes de exercícios concluídos salvos para esse registro.</p></div>':'';
+  return `<section id="calendar-day-details" class="card calendar-day-details" aria-labelledby="day-detail-title"><div class="section-header"><div><p class="eyebrow">ATIVIDADES DO DIA</p><h2 id="day-detail-title" tabindex="-1">${displayDate(date)}</h2></div><span class="tag">${completed?'DIA CONCLUÍDO':'SEM CONCLUSÃO'}</span></div>${sessionCards}${manual}${measurement?`<div class="day-measurement"><strong>Peso registrado</strong><span>${decimal(measurement.weight)} kg · ${decimal(measurement.height)} cm</span></div>`:''}${!sessions.length&&!completed&&!measurement?'<p class="empty day-empty">Nenhuma atividade registrada nesta data.</p>':''}<button class="btn secondary" data-calendar-toggle="${date}">${completed?'Desmarcar conclusão deste dia':'Marcar treino deste dia como concluído'}</button></section>`;
 }
 function calendarPage() {
-  const year=calendarMonth.getFullYear(),month=calendarMonth.getMonth();const first=(calendarMonth.getDay()+6)%7;const days=new Date(year,month+1,0).getDate();
-  const routine=plan();
+  const year=calendarMonth.getFullYear(),month=calendarMonth.getMonth(),first=(calendarMonth.getDay()+6)%7,days=new Date(year,month+1,0).getDate();
+  const routine=plan(),week=weekSummary(calendarDate);
   const cells=Array.from({length:first},()=>'<div aria-hidden="true"></div>').concat(Array.from({length:days},(_,i)=>{
-    const d=new Date(year,month,i+1),s=localDate(d),done=state.completed.includes(s),planned=state.profile&&routine[d.getDay()];
-    return `<button class="calendar-cell ${done?'done':''} ${s===today()?'today':''}" data-date="${s}" ${s>today()?'disabled':''} aria-label="${displayDate(s)}${done?', treino concluído':planned?', treino planejado':', sem registro'}" aria-pressed="${done}"><span>${i+1}${done?' ✓':''}</span><small>${done?'CONCLUÍDO':planned?'PLANEJADO':''}</small></button>`;
+    const date=localDate(new Date(year,month,i+1)),done=state.completed.includes(date),planned=state.profile&&routine[new Date(year,month,i+1).getDay()];
+    return `<button class="calendar-cell ${done?'done':''} ${date===today()?'today':''} ${date===calendarDate?'selected-date':''}" data-date="${date}" ${date>today()?'disabled':''} aria-label="${displayDate(date)}${done?', treino concluído':planned?', treino planejado':', sem registro'}. Ver atividades" aria-pressed="${date===calendarDate}" aria-controls="calendar-day-details"><span>${i+1}${done?' ✓':''}</span><small>${done?'FEITO':planned?'TREINO':''}</small></button>`;
   })).join('');
-  const count=state.completed.filter(d=>d.startsWith(`${year}-${String(month+1).padStart(2,'0')}`)).length;
-  return `${intro('CONSISTÊNCIA EM VISTA','Cada treino tem seu lugar.','Toque em uma data para marcar ou desmarcar um treino concluído.')}<section class="card"><div class="calendar-controls"><button data-month="-1" aria-label="Mês anterior">‹</button><h2 style="text-transform:capitalize">${calendarMonth.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</h2><button data-month="1" aria-label="Próximo mês">›</button></div><div class="calendar-grid">${['SEG','TER','QUA','QUI','SEX','SÁB','DOM'].map(s=>`<div class="calendar-weekday">${s}</div>`).join('')}${cells}</div><div class="calendar-legend"><span><i></i>Treino concluído</span><span>Planejado: rotina atual</span><span>Datas futuras desativadas</span></div></section><div class="notice" style="margin-top:22px"><strong>${count} ${count===1?'treino concluído':'treinos concluídos'}</strong> neste mês. Você pode registrar movimento em dias de descanso; o calendário guarda a data, não os exercícios realizados.</div>`;
+  const count=state.completed.filter(date=>date.startsWith(`${year}-${String(month+1).padStart(2,'0')}`)).length;
+  return `${intro('CONSISTÊNCIA EM VISTA','Cada treino tem seu lugar.','Toque em uma data para ver as atividades e os detalhes dos treinos.')}<section class="card weekly-summary" aria-label="Resumo semanal"><div><p class="eyebrow">RESUMO DA SEMANA</p><h2>${week.count}${week.goal?` de ${week.goal}`:''} ${week.count===1&&!week.goal?'treino concluído':'treinos concluídos'}</h2><p class="subtitle">${displayDate(week.start)} a ${displayDate(week.end)}</p></div>${week.goal?`<progress value="${Math.min(week.count,week.goal)}" max="${week.goal}" aria-label="${week.count} de ${week.goal} treinos concluídos"></progress>`:'<button class="btn secondary" data-view="perfil">Definir minha meta</button>'}<small>Cada dia concluído conta como um treino no resumo.</small></section><section class="card"><div class="calendar-controls"><button data-month="-1" aria-label="Mês anterior">‹</button><h2 style="text-transform:capitalize">${calendarMonth.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</h2><button data-month="1" aria-label="Próximo mês">›</button></div><div class="calendar-grid">${['SEG','TER','QUA','QUI','SEX','SÁB','DOM'].map(day=>`<div class="calendar-weekday">${day}</div>`).join('')}${cells}</div><div class="calendar-legend"><span><i></i>Treino concluído</span><span>Planejado: rotina atual</span><span>Datas futuras desativadas</span></div></section>${calendarDayDetails(calendarDate)}<div class="notice" style="margin-top:22px"><strong>${count} ${count===1?'treino concluído':'treinos concluídos'}</strong> neste mês.</div>`;
 }
 const navItems=[['inicio','Início','home'],['treinos','Treinos','train'],['receitas','Receitas','food'],['evolucao','Progresso','chart'],['calendario','Calendário','calendar']];
 function renderNavigation() {
-  const activeView=view==='fotos'?'evolucao':view;
+  const activeView=view;
   document.querySelector('#navigation').innerHTML=navItems.map(([id,label,icon])=>`<button class="nav-item ${activeView===id?'active':''}" data-view="${id}" aria-label="${label}" title="${label}" ${activeView===id?'aria-current="page"':''}>${svgIcon(icon)}<span>${label}</span></button>`).join('');
-  document.querySelector('#page-label').textContent=view==='fotos'?'Progresso / Fotos':navItems.find(n=>n[0]===view)?.[1]||'Meu plano e dados';
+  document.querySelector('#page-label').textContent=navItems.find(n=>n[0]===view)?.[1]||'Meu plano e dados';
 }
 async function render() {
-  const token=++pageToken;releasePhotos();renderNavigation();main.dataset.view=view;
-  if(view==='fotos') {
-    main.innerHTML='<div class="empty">Abrindo seu álbum local…</div>';
-    try {await loadPhotos();photoError=false;}catch{photoError=true;photos=[];photoDb=undefined;}
-    if(token!==pageToken) return;
-  }
-  const pages={inicio:dashboard,perfil:profilePage,treinos:trainingPage,receitas:recipesPage,evolucao:progressPage,fotos:photosPage,calendario:calendarPage};
+  if(state.profile)state.profile.age=accountAge();
+  renderNavigation();main.dataset.view=view;
+  const pages={inicio:dashboard,perfil:profilePage,treinos:trainingPage,receitas:recipesPage,evolucao:progressPage,calendario:calendarPage};
   main.innerHTML=(!storageAvailable?'<div class="notice warning">O armazenamento local está indisponível. Seus registros não poderão ser salvos. Verifique as permissões do navegador antes de começar.</div>':'')+(storageNotice?`<div class="notice warning">${escapeHTML(storageNotice)}</div>`:'')+pages[view]();
   updateRestUI();
 }
 function navigate(next) {
-  if(!['inicio','perfil','treinos','receitas','evolucao','fotos','calendario'].includes(next)) next='inicio';
+  if(next==='fotos')next='evolucao';
+  if(!['inicio','perfil','treinos','receitas','evolucao','calendario'].includes(next)) next='inicio';
   view=next;if(location.hash!==`#${next}`) location.hash=next;else render();
 }
-window.addEventListener('hashchange',()=>{view=location.hash.slice(1);if(!['inicio','perfil','treinos','receitas','evolucao','fotos','calendario'].includes(view))view='inicio';render();window.scrollTo(0,0);main.focus({preventScroll:true});});
+window.addEventListener('hashchange',()=>{view=location.hash.slice(1);if(view==='fotos')view='evolucao';if(!['inicio','perfil','treinos','receitas','evolucao','calendario'].includes(view))view='inicio';render();window.scrollTo(0,0);main.focus({preventScroll:true});});
 
 function toggleDate(date) {
   if(!validDate(date)) return;
@@ -1087,7 +1098,7 @@ function pixTestModal() {
   openModal(`<div class="modal-inner premium-modal">${modalHeader('Pix de teste')}<span class="tag">SIMULAÇÃO · SEM CONFIRMAÇÃO DE PAGAMENTO</span><div class="price"><small>R$</small> 24,99</div><p>Valor demonstrativo do acesso vitalício.</p><figure class="test-qr"><img src="media/qr-test.svg" width="264" height="264" alt="QR ilustrativo de teste que abre o site EvoluiFit"><figcaption>QR ilustrativo: abre o EvoluiFit. Não é Pix e não realiza pagamento.</figcaption></figure><div class="notice"><strong>Somente teste da tela</strong><p>Nenhuma cobrança foi criada. Este QR serve apenas para testar a exibição e a leitura.</p></div><p>Esta tela não confirma pagamentos nem altera seu acesso ou seus registros.</p><button class="btn secondary" data-action="premium">Voltar</button></div>`);
 }
 function integrationsModal() {
-  openModal(`<div class="modal-inner">${modalHeader('O que vem depois')}<h3>Pagamento no site</h3><p>Escolher um provedor (ex.: Mercado Pago ou Stripe), criar um backend seguro com credenciais fora do navegador, usar checkout hospedado e verificar webhooks assinados para confirmar o pagamento de R$ 24,99. O servidor precisa validar moeda, valor e identificador da transação, evitar duplicação, tratar reembolsos e controlar o acesso associado a uma conta real.</p><h3>Pagamento no aplicativo</h3><p>Este projeto é um site responsivo. Um aplicativo distribuído pelas lojas precisará de empacotamento e, para vender acesso digital, integração com os sistemas de compra da Apple e Google conforme as regras vigentes. Será necessário validar recibos no servidor e restaurar compras. Regras e preços das lojas devem ser revisados antes da publicação.</p><h3>Contas e sincronização</h3><p>Exigem autenticação real, banco de dados, armazenamento privado de imagens, controle de acesso, exclusão, política de privacidade e consentimento. O cadastro usa autenticação e banco no Supabase. Treinos, medidas e fotos de progresso continuam locais, separados por conta e sem sincronização automática.</p><h3>Meta e divulgação</h3><p>Nenhum anúncio, campanha, Pixel ou SDK está conectado. Futuramente: configurar conta comercial e conta de anúncios, revisar políticas, consentimento para rastreamento e integrar Pixel e/ou Conversions API para eventos permitidos. No app, avaliar o SDK e permissões da plataforma. Nunca enviar fotos corporais, peso, IMC ou outros dados de saúde em eventos publicitários.</p></div>`);
+  openModal(`<div class="modal-inner">${modalHeader('O que vem depois')}<h3>Pagamento no site</h3><p>Escolher um provedor (ex.: Mercado Pago ou Stripe), criar um backend seguro com credenciais fora do navegador, usar checkout hospedado e verificar webhooks assinados para confirmar o pagamento de R$ 24,99. O servidor precisa validar moeda, valor e identificador da transação, evitar duplicação, tratar reembolsos e controlar o acesso associado a uma conta real.</p><h3>Pagamento no aplicativo</h3><p>Este projeto é um site responsivo. Um aplicativo distribuído pelas lojas precisará de empacotamento e, para vender acesso digital, integração com os sistemas de compra da Apple e Google conforme as regras vigentes. Será necessário validar recibos no servidor e restaurar compras. Regras e preços das lojas devem ser revisados antes da publicação.</p><h3>Contas e sincronização</h3><p>Exigem autenticação real, banco de dados, armazenamento privado de imagens, controle de acesso, exclusão, política de privacidade e consentimento. O cadastro usa autenticação e banco no Supabase. Treinos e medidas continuam locais, separados por conta e sem sincronização automática.</p><h3>Meta e divulgação</h3><p>Nenhum anúncio, campanha, Pixel ou SDK está conectado. Futuramente: configurar conta comercial e conta de anúncios, revisar políticas, consentimento para rastreamento e integrar Pixel e/ou Conversions API para eventos permitidos. No app, avaliar o SDK e permissões da plataforma. Nunca enviar fotos corporais, peso, IMC ou outros dados de saúde em eventos publicitários.</p></div>`);
 }
 document.addEventListener('toggle', event=>{
   const detail=event.target;
@@ -1156,20 +1167,14 @@ document.addEventListener('click',async event=>{
     }
     return;
   }
-  if(el.dataset.month) {calendarMonth=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()+Number(el.dataset.month),1);render();return;}
-  if(el.dataset.date) {toggleDate(el.dataset.date);return;}
+  if(el.dataset.month) {calendarMonth=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()+Number(el.dataset.month),1);calendarDate=localDate(calendarMonth);if(calendarDate>today())calendarDate=today();render();return;}
+  if(el.dataset.date) {calendarDate=el.dataset.date;render();document.getElementById('calendar-day-details')?.scrollIntoView({block:'nearest'});document.getElementById('day-detail-title')?.focus({preventScroll:true});return;}
+  if(el.dataset.calendarToggle) {toggleDate(el.dataset.calendarToggle);return;}
   if(el.dataset.deleteMeasure) {
     const date=el.dataset.deleteMeasure;
     openModal(`<div class="modal-inner">${modalHeader('Apagar registro?')}<p>O registro de ${displayDate(date)} será removido do histórico e do gráfico.</p><div class="actions"><button class="btn danger" data-confirm-measure="${escapeHTML(date)}">Apagar registro</button><button class="btn secondary" data-action="close-modal">Cancelar</button></div></div>`);return;
   }
   if(el.dataset.confirmMeasure) {if(persist({...state,measurements:state.measurements.filter(m=>m.date!==el.dataset.confirmMeasure)})){modal.close();render();toast('Registro apagado.');}return;}
-  if(el.dataset.deletePhoto) {
-    openModal(`<div class="modal-inner">${modalHeader('Apagar foto?')}<p>Esta foto será removida do armazenamento local. Não há backup automático.</p><div class="actions"><button class="btn danger" data-confirm-photo="${escapeHTML(el.dataset.deletePhoto)}">Apagar definitivamente</button><button class="btn secondary" data-action="close-modal">Cancelar</button></div></div>`);return;
-  }
-  if(el.dataset.confirmPhoto) {
-    el.disabled=true;
-    try{await photoOperation('readwrite',s=>s.delete(el.dataset.confirmPhoto));modal.close();await render();toast('Foto apagada do navegador.');}catch{toast('Não foi possível apagar a foto. Tente novamente.');el.disabled=false;}return;
-  }
   switch(el.dataset.action) {
     case 'close-modal':modal.close();break;
     case 'workout-list':rememberOpenExercises();showWorkoutList=!showWorkoutList;render();break;
@@ -1258,7 +1263,7 @@ document.addEventListener('error',event=>{
   const target=event.target.closest?.('video');if(target)target.closest('.guide-player')?.querySelector('.video-error')?.removeAttribute('hidden');
 },true);
 document.addEventListener('submit',async event=>{
-  const form=event.target;if(!['profile-form','measurement-form','photo-form','compare-form'].includes(form.id))return;
+  const form=event.target;if(!['profile-form','measurement-form'].includes(form.id))return;
   event.preventDefault();const data=new FormData(form);
   if(form.id==='profile-form') {
     const profile=Object.fromEntries(data);profile.age=Number(profile.age);
@@ -1270,21 +1275,9 @@ document.addEventListener('submit',async event=>{
     if(!validDate(m.date)||!Number.isFinite(m.weight)||m.weight<1||m.weight>500||!Number.isFinite(m.height)||m.height<30||m.height>280) {toast('Confira a data, peso e altura informados.');return;}
     if(persist({...state,measurements:[...state.measurements.filter(r=>r.date!==m.date),m].sort((a,b)=>a.date.localeCompare(b.date))})){render();toast('Registro salvo neste navegador.');}
   }
-  if(form.id==='photo-form') {
-    const date=data.get('date');if(!validDate(date)){toast('Escolha uma data válida, até hoje.');return;}
-    const button=form.querySelector('button');button.disabled=true;button.textContent='Salvando localmente…';
-    try{const blob=await prepareImage(data.get('photo'));await photoOperation('readwrite',s=>s.put({id:crypto.randomUUID?.() || `${Date.now()}-${crypto.getRandomValues(new Uint32Array(2)).join('-')}`,date,blob}));if(view==='fotos')await render();toast('Foto salva somente neste navegador.');}
-    catch(error){toast(error.message?.startsWith('Escolha')?error.message:'Não foi possível salvar a foto. Confira o formato, espaço e permissões do navegador.');button.disabled=false;button.textContent='Salvar foto no navegador';}
-  }
-  if(form.id==='compare-form') {
-    if(data.get('before')===data.get('after')) {toast('Escolha duas fotos diferentes.');return;}
-    const chosen=[data.get('before'),data.get('after')].map(id=>photos.find(p=>p.id===id));
-    if(chosen.some(p=>!p))return;
-    releaseComparison();
-    document.querySelector('#comparison').innerHTML=`<div class="compare-grid">${chosen.map((p,i)=>`<figure><img src="${photoUrl(p.blob,true)}" alt="${i?'Depois':'Antes'}: foto de ${displayDate(p.date)}"><figcaption>${i?'Depois':'Antes'} · ${displayDate(p.date)}</figcaption></figure>`).join('')}</div>`;
-  }
+
 });
-view=location.hash.slice(1)||'inicio';if(!['inicio','perfil','treinos','receitas','evolucao','fotos','calendario'].includes(view))view='inicio';render();
+view=location.hash.slice(1)||'inicio';if(view==='fotos')view='evolucao';if(!['inicio','perfil','treinos','receitas','evolucao','calendario'].includes(view))view='inicio';render();
 
 // Importação explícita: preserva as cópias anteriores, inclusive os arquivos de foto.
 window.importLegacyAccountRecords = async () => {
@@ -1292,18 +1285,15 @@ window.importLegacyAccountRecords = async () => {
   const owner=localStorage.getItem('evoluifit-legacy-owner');
   if(owner && owner!==accountId){toast('Os registros anteriores já foram vinculados a outra conta neste navegador.');return;}
   if(!original){toast('Nenhum registro anterior encontrado neste navegador.');return;}
-  openModal(`<div class="modal-inner">${modalHeader('Trazer seus registros anteriores?')}<p>Confirme apenas se os registros deste navegador são seus. Vamos copiar treinos, medidas, favoritos e fotos para esta conta. A cópia original será mantida.</p><div class="actions"><button class="btn" id="confirm-account-import">Sim, esses registros são meus</button><button class="btn secondary" data-action="close-modal">Cancelar</button></div><p id="import-account-status" role="status"></p></div>`);
+  openModal(`<div class="modal-inner">${modalHeader('Trazer seus registros anteriores?')}<p>Confirme apenas se os registros deste navegador são seus. Vamos copiar treinos, medidas e favoritos para esta conta. A cópia original será mantida.</p><div class="actions"><button class="btn" id="confirm-account-import">Sim, esses registros são meus</button><button class="btn secondary" data-action="close-modal">Cancelar</button></div><p id="import-account-status" role="status"></p></div>`);
   document.getElementById('confirm-account-import').onclick=async event=>{
     const button=event.target;button.disabled=true;
     try {
       const old=restoreState(JSON.parse(original));
-      const legacyPhotos=await new Promise((resolve,reject)=>{const request=indexedDB.open('evoluifit-photos',1);request.onupgradeneeded=()=>request.result.createObjectStore('photos',{keyPath:'id'});request.onerror=()=>reject(request.error);request.onsuccess=()=>{const db=request.result;const tx=db.transaction('photos','readonly'),get=tx.objectStore('photos').getAll();get.onerror=()=>reject(get.error);get.onsuccess=()=>{resolve(get.result);db.close();};};});
       const merged={...state,profile:state.profile||old.profile,measurements:[...new Map([...state.measurements,...old.measurements].map(item=>[item.date,item])).values()].sort((a,b)=>a.date.localeCompare(b.date)),completed:[...new Set([...old.completed,...state.completed])].sort(),workoutSessions:{...old.workoutSessions,...state.workoutSessions},favorites:[...new Set([...old.favorites,...state.favorites])],recipeChecks:{...old.recipeChecks,...state.recipeChecks}};
       if(merged.profile)merged.profile.age=accountAge();
-      const db=await openPhotoDb();
-      await new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite'),store=tx.objectStore('photos');for(const photo of legacyPhotos)store.put({...photo,id:'legacy:'+photo.id});tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});
       if(!persist(merged))throw new Error('Não foi possível salvar os registros. Confira o espaço disponível.');
-      localStorage.setItem('evoluifit-legacy-owner',accountId);modal.close();render();toast('Registros e fotos importados. A cópia original foi preservada.');
+      localStorage.setItem('evoluifit-legacy-owner',accountId);modal.close();render();toast('Registros importados. A cópia original foi preservada.');
     }catch(error){document.getElementById('import-account-status').textContent=error.message||'Não foi possível importar. Seus dados originais continuam preservados.';button.disabled=false;}
   };
 };

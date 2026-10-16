@@ -34,8 +34,8 @@ function ageFor(value) {
   return age >= 0 && age <= 120 ? age : null;
 }
 $('tab-login').onclick = () => selectTab(false);
-$('tab-signup').onclick = () => selectTab(true);
-document.querySelector('[data-signup]').onclick = () => selectTab(true);
+$('tab-signup').onclick = () => {if($('signup-panel').hidden)location.assign('sobre.html');};
+document.querySelector('[data-signup]').onclick = () => location.assign('sobre.html');
 for (const button of document.querySelectorAll('[data-password]')) button.onclick = () => {
   const input = button.previousElementSibling, showing = input.type === 'password';
   input.type = showing ? 'text' : 'password'; button.textContent = showing ? 'Ocultar' : 'Mostrar'; button.setAttribute('aria-label', showing ? 'Ocultar senha' : 'Mostrar senha');
@@ -101,3 +101,5 @@ signup.onsubmit = async event => {
   finally {loading(signup,false);}
 };
 window.addEventListener('pagehide', () => {if(avatarUrl) URL.revokeObjectURL(avatarUrl);});
+
+if(new URLSearchParams(location.search).get('cadastro')==='1')selectTab(true);
