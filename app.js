@@ -13,6 +13,14 @@ function accountAge() {
   const age=now.getFullYear()-year-(now.getMonth()+1<month||(now.getMonth()+1===month&&now.getDate()<day)?1:0);
   return age>=0&&age<=120?age:null;
 }
+function workoutAge(profile) {
+  const manual=Number(profile?.age);
+  const validManual=Number.isInteger(manual)&&manual>=1&&manual<=120;
+  if(profile?.ageSource==='manual'&&validManual)return manual;
+  const calculated=accountAge();
+  return calculated!==null&&calculated>=1?calculated:validManual?manual:null;
+}
+
 const arrow = '<svg class="arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg>';
 const recipes = [
   {name:'Bowl de frango e arroz',time:25,tag:'Almoço descomplicado',cost:'Ingredientes do dia a dia',servings:1,ingredients:['100 g de frango em cubos','½ xícara de arroz cozido','½ xícara de feijão cozido','½ cenoura ralada e folhas a gosto','1 colher de chá de óleo, limão e temperos'],steps:['Cozinhe o frango em frigideira com o óleo e temperos até ficar completamente cozido, sem partes rosadas.','Aqueça o arroz e o feijão. Lave as folhas e rale a cenoura.','Monte o bowl e finalize com limão.'],tip:'Troque o frango por 2 ovos bem cozidos ou grão-de-bico. A porção é uma sugestão; ajuste com orientação conforme sua necessidade.'},
@@ -60,7 +68,7 @@ try {
   const saved = JSON.parse(localStorage.getItem(STORE) || 'null');
   if (saved) {
     state = restoreState(saved);
-    if (JSON.stringify({...initialState(),...saved,...(saved.profile?{profile:{...saved.profile,age:accountAge()}}:{})}) !== JSON.stringify(state)) storageNotice = 'Há registros locais inválidos. Os registros válidos foram recuperados; os dados originais permanecem no navegador até você salvar uma alteração.';
+    if (JSON.stringify({...initialState(),...saved,...(saved.profile?{profile:{...saved.profile,age:workoutAge(saved.profile)}}:{})}) !== JSON.stringify(state)) storageNotice = 'Há registros locais inválidos. Os registros válidos foram recuperados; os dados originais permanecem no navegador até você salvar uma alteração.';
   }
 } catch {
   storageNotice = 'Não foi possível ler os registros locais. Você pode recomeçar ou apagar os dados em Meu plano. O conteúdo original ainda não foi alterado.';
@@ -75,7 +83,7 @@ try {
     localStorage.setItem(STORE,JSON.stringify(state));
   }
 } catch { storageAvailable=false; }
-if(state.profile) state.profile.age=accountAge();
+if(state.profile) state.profile.age=workoutAge(state.profile);
 let view = 'inicio';
 let selectedDay = new Date().getDay();
 const resumableSession=Object.values(state.workoutSessions).filter(s=>s.date===localDate(new Date())&&!s.finished).at(-1);
@@ -107,8 +115,8 @@ function validProfile(p) {
 function restoreState(saved) {
   const restored = initialState();
   if (!saved || typeof saved !== 'object') return restored;
-  const savedProfile=saved.profile?{...saved.profile,age:accountAge()}:null;
-  if (validProfile(savedProfile)) restored.profile = {goal:savedProfile.goal,level:savedProfile.level,days:String(savedProfile.days),gym:savedProfile.gym,age:savedProfile.age};
+  const savedProfile=saved.profile?{...saved.profile,age:workoutAge(saved.profile)}:null;
+  if (validProfile(savedProfile)) restored.profile = {goal:savedProfile.goal,level:savedProfile.level,days:String(savedProfile.days),gym:savedProfile.gym,age:savedProfile.age,...(savedProfile.ageSource==='manual'?{ageSource:'manual'}:{})};
   // Called before UI constants initialize: use localDate directly, not today().
   const dateIsValid = s => typeof s==='string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && localDate(new Date(`${s}T12:00:00`))===s && s>='1900-01-01' && s<=localDate(new Date());
   if (Array.isArray(saved.measurements)) {
@@ -245,9 +253,9 @@ function dashboard() {
   <p class="home-local-note">${svgIcon('check')} Seus registros ficam neste navegador. Seu ritmo é o que importa.</p>`;
 }
 function profileForm() {
-  const p={...(state.profile || {goal:'fat',level:'beginner',days:'3',gym:'no'}),age:accountAge()};
+  const p={...(state.profile || {goal:'fat',level:'beginner',days:'3',gym:'no'}),age:workoutAge(state.profile)};
   const option=(value,label,current)=>`<option value="${value}" ${String(current)===value?'selected':''}>${label}</option>`;
-  return `<form id="profile-form"><div class="form-grid"><label class="field">Qual é seu objetivo?<select name="goal">${Object.entries(goalNames).map(([k,v])=>option(k,v,p.goal)).join('')}</select></label><label class="field">Sua experiência com treinos<select name="level">${Object.entries(levelNames).map(([k,v])=>option(k,v,p.level)).join('')}</select></label><label class="field">Dias disponíveis por semana<select name="days">${[2,3,4,5].map(n=>option(String(n),`${n} dias`,p.days)).join('')}</select><small>Em planos de 5 dias, um dia é de recuperação ativa.</small></label><label class="field">Onde você quer treinar?<select name="gym">${option('no','Calistenia / em casa',p.gym)}${option('yes','Academia',p.gym)}</select></label><label class="field full">Idade (em anos)<input name="age" type="number" min="1" max="120" step="1" readonly required value="${p.age===null?'':p.age}" aria-describedby="plan-age-help"><small id="plan-age-help">${p.age===null?'Não foi possível conferir a data de nascimento do cadastro.':`${p.age} anos · calculados pela data de nascimento do cadastro.`} A idade evita o uso de referências adultas de IMC para menores. Menores de 18 anos precisam de orientação profissional e acompanhamento responsável.</small></label></div><div class="actions"><button class="btn" type="submit">${state.profile?'Salvar meu plano':'Criar meu plano'} ${arrow}</button></div></form>`;
+  return `<form id="profile-form"><div class="form-grid"><label class="field">Qual é seu objetivo?<select name="goal">${Object.entries(goalNames).map(([k,v])=>option(k,v,p.goal)).join('')}</select></label><label class="field">Sua experiência com treinos<select name="level">${Object.entries(levelNames).map(([k,v])=>option(k,v,p.level)).join('')}</select></label><label class="field">Dias disponíveis por semana<select name="days">${[2,3,4,5].map(n=>option(String(n),`${n} dias`,p.days)).join('')}</select><small>Em planos de 5 dias, um dia é de recuperação ativa.</small></label><label class="field">Onde você quer treinar?<select name="gym">${option('no','Calistenia / em casa',p.gym)}${option('yes','Academia',p.gym)}</select></label><label class="field full">Idade (em anos)<input name="age" type="number" min="1" max="120" step="1" required value="${p.age===null?'':p.age}" aria-describedby="plan-age-help"><small id="plan-age-help">${p.age===null?'Informe sua idade: a data de nascimento do cadastro não forneceu uma idade válida para o treino.':state.profile?.ageSource==='manual'?'Idade informada por você. Você pode corrigir este campo.':`${p.age} anos · calculados pela data de nascimento. Confira e ajuste se necessário.`} A idade evita o uso de referências adultas de IMC para menores. Menores de 18 anos precisam de orientação profissional e acompanhamento responsável.</small></label></div><div class="actions"><button class="btn" type="submit">${state.profile?'Salvar meu plano':'Criar meu plano'} ${arrow}</button></div></form>`;
 }
 function profilePage() {
   if (!state.profile) return `${intro('VAMOS COMEÇAR','Um plano com o seu ritmo.','Conte um pouco sobre você. Dá para mudar suas escolhas depois.')}<div class="onboard"><section class="onboard-aside"><div><p class="eyebrow">SEU PONTO DE PARTIDA</p><h2>A evolução começa<br>com um passo.</h2><p>Sem pressa, sem promessas milagrosas. Encontre uma rotina possível para o seu dia a dia.</p></div><strong>01 ${arrow}</strong></section><section class="card">${profileForm()}</section></div><section class="card settings-card" style="margin-top:20px"><h2>Dados e acesso</h2><p>Treinos, receitas salvas e medidas ficam neste navegador, separados por conta. Seu cadastro e sua foto de perfil ficam no Supabase. Não há backup automático do histórico local.</p><p>Preço planejado: R$ 24,99 por acesso vitalício, em uma única compra. Esta demonstração é gratuita e não realiza cobrança.</p><div class="actions"><button class="btn secondary" data-action="export">Exportar registros</button><button class="btn danger" data-action="clear-all">Apagar todos os dados</button><button class="btn subtle" data-action="premium">Ver demonstração</button><button class="text-button" data-action="integrations">Próximas integrações ${arrow}</button></div></section>`;
@@ -956,7 +964,7 @@ function exerciseCard(id,index,p,info,focused,current) {
 function trainingPage() {
   if(trainingMode==='learn')return `${intro('APRENDA NO SEU RITMO','Movimente-se com confiança.','Orientações simples para cuidar do seu corpo.')} ${trainingModeTabs()}${movementLibrary()}`;
   if(!state.profile)return `${intro('SEU PRIMEIRO PASSO','Um treino com a sua cara.','Em casa ou na academia. Você escolhe, a gente organiza.')} ${trainingModeTabs()}<section class="card empty"><p>Escolha seus dias, sua experiência e onde quer treinar.</p><button class="btn" data-view="perfil" style="margin-top:20px">Montar meu plano ${arrow}</button></section>`;
-  const p={...state.profile,age:accountAge()},routine=plan(),w=routine[selectedDay],info=w&&!w.active?currentSessionInfo(w):null;
+  const p={...state.profile,age:workoutAge(state.profile)},routine=plan(),w=routine[selectedDay],info=w&&!w.active?currentSessionInfo(w):null;
   const focused=Boolean(info?.session&&!info.session.finished&&!showWorkoutList);
   const firstIncomplete=info?Math.max(0,w.ids.findIndex(id=>(info.session?.sets[id]||[]).filter(Boolean).length<sets())):0;
   const current=Math.min(Math.max(guidedIndex??firstIncomplete,0),(w?.ids.length||1)-1);
@@ -1073,7 +1081,7 @@ function renderNavigation() {
   document.querySelector('#page-label').textContent=navItems.find(n=>n[0]===view)?.[1]||'Meu plano e dados';
 }
 async function render() {
-  if(state.profile)state.profile.age=accountAge();
+  if(state.profile)state.profile.age=workoutAge(state.profile);
   renderNavigation();main.dataset.view=view;
   const pages={inicio:dashboard,perfil:profilePage,treinos:trainingPage,receitas:recipesPage,evolucao:progressPage,calendario:calendarPage};
   main.innerHTML=(!storageAvailable?'<div class="notice warning">O armazenamento local está indisponível. Seus registros não poderão ser salvos. Verifique as permissões do navegador antes de começar.</div>':'')+(storageNotice?`<div class="notice warning">${escapeHTML(storageNotice)}</div>`:'')+pages[view]();
@@ -1267,6 +1275,7 @@ document.addEventListener('submit',async event=>{
   event.preventDefault();const data=new FormData(form);
   if(form.id==='profile-form') {
     const profile=Object.fromEntries(data);profile.age=Number(profile.age);
+    if(profile.age!==accountAge())profile.ageSource='manual';
     if(!validProfile(profile)) {toast('Confira as opções do perfil e informe uma idade válida.');return;}
     if(persist({...state,profile})){trainingMode='plan';selectedDay=1;openExercises=null;stopRest();restTimer.remaining=restTimer.seconds;navigate('treinos');toast('Seu plano está pronto. Comece no seu ritmo.');}
   }
@@ -1291,7 +1300,7 @@ window.importLegacyAccountRecords = async () => {
     try {
       const old=restoreState(JSON.parse(original));
       const merged={...state,profile:state.profile||old.profile,measurements:[...new Map([...state.measurements,...old.measurements].map(item=>[item.date,item])).values()].sort((a,b)=>a.date.localeCompare(b.date)),completed:[...new Set([...old.completed,...state.completed])].sort(),workoutSessions:{...old.workoutSessions,...state.workoutSessions},favorites:[...new Set([...old.favorites,...state.favorites])],recipeChecks:{...old.recipeChecks,...state.recipeChecks}};
-      if(merged.profile)merged.profile.age=accountAge();
+      if(merged.profile)merged.profile.age=workoutAge(merged.profile);
       if(!persist(merged))throw new Error('Não foi possível salvar os registros. Confira o espaço disponível.');
       localStorage.setItem('evoluifit-legacy-owner',accountId);modal.close();render();toast('Registros importados. A cópia original foi preservada.');
     }catch(error){document.getElementById('import-account-status').textContent=error.message||'Não foi possível importar. Seus dados originais continuam preservados.';button.disabled=false;}
