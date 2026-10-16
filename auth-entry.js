@@ -10,7 +10,11 @@
       account=await EvoluiAuth.readProfile();
       if(!account?.user?.id || !/^[0-9a-f-]{36}$/i.test(account.user.id) || typeof account.profile?.nickname !== 'string') throw new Error('Não foi possível conferir sua conta.');
       window.EvoluiAccount=account;
-      if(!started){started=true;setupMenu();const script=document.createElement('script');script.src='app-age-input-6.js';script.onload=()=>{loading.hidden=true;document.body.classList.add('account-ready');};script.onerror=()=>{report('Não foi possível carregar o site. Tente novamente.');};document.head.appendChild(script);}
+      if(!Array.isArray(window.EvoluiRecipes)) {
+        await new Promise((resolve,reject)=>{const catalog=document.createElement('script');catalog.src='recipes150.js?v=7';catalog.onload=resolve;catalog.onerror=()=>reject(new Error('Não foi possível carregar as receitas. Tente novamente.'));document.head.appendChild(catalog);});
+      }
+      if(window.EvoluiRecipes.length!==150)throw new Error('Não foi possível conferir o catálogo. Atualize a página.');
+      if(!started){started=true;setupMenu();const script=document.createElement('script');script.src='app-onboarding-7.js';script.onload=()=>{loading.hidden=true;document.body.classList.add('account-ready');};script.onerror=()=>{report('Não foi possível carregar o site. Tente novamente.');};document.head.appendChild(script);}
       else{loading.hidden=true;document.body.classList.add('account-ready');}
     }catch(error){document.body.classList.remove('account-ready');if([400,401,403].includes(error.status)){await toLogin();return;}report(error.message);}
   }
