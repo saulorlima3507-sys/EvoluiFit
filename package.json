@@ -1,0 +1,24 @@
+{
+  "name": "evoluifit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Demonstração local e responsiva de treinos e acompanhamento",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node tests/smoke.cjs && node tests/review.cjs && node tests/interactive.cjs && node tests/navigation.cjs",
+    "test:specific-videos": "node tests/specific-videos.cjs",
+    "test:recipes": "node tests/recipes35.cjs",
+    "test:design": "node tests/modern-design.cjs",
+    "test:accounts": "node tests/accounts.cjs",
+    "test:improvements": "node tests/improvements.cjs",
+    "test:onboarding-recipes150": "node tests/onboarding-recipes150.cjs",
+    "test:update-18": "node tests/update-18.cjs",
+    "test:legal": "node tests/legal-acceptance.cjs && node work/legal-18/sql-test.cjs && node work/accounts/backend-test.cjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright": "1.58.2"
+  }
+}

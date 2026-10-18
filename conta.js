@@ -51,7 +51,7 @@ for (const name of ['phone', 'password', 'confirmation', 'cpf', 'birthDate']) si
 $('previous-step').onclick = () => step(false);
 const birth = signup.elements.birthDate;
 const now = new Date(); birth.max = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-birth.addEventListener('input', () => {const age = ageFor(birth.value); $('age-text').textContent = age === null ? 'Informe uma data de nascimento válida.' : `Sua idade: ${age} ${age === 1 ? 'ano' : 'anos'}.`;});
+birth.addEventListener('input', () => {const age = ageFor(birth.value); $('age-text').textContent = age === null ? 'Informe uma data de nascimento válida.' : age<18?'O cadastro está disponível somente para maiores de 18 anos.':`Sua idade: ${age} ${age === 1 ? 'ano' : 'anos'}.`;});
 let avatarUrl;
 function clearAvatar() {if(avatarUrl) URL.revokeObjectURL(avatarUrl); avatarUrl = undefined; $('avatar-preview').removeAttribute('src'); $('avatar-preview').hidden = true; $('avatar-default').hidden = false; $('remove-avatar').hidden = true; $('avatar').value = '';}
 $('avatar').onchange = () => {
@@ -80,15 +80,23 @@ signup.onsubmit = async event => {
   event.preventDefault();if(busy)return;
   if ($('profile-fields').disabled) {$('next-step').click();return;}
   signup.elements.cpf.setCustomValidity(validCpf(signup.elements.cpf.value)?'':'Confira os dígitos do CPF.');
-  birth.setCustomValidity(ageFor(birth.value) === null?'Confira a data de nascimento.':'');
+  const age=ageFor(birth.value);birth.setCustomValidity(age===null?'Confira a data de nascimento.':age<18?'O cadastro está disponível somente para maiores de 18 anos.':'');
   if(!signup.reportValidity())return;
   const names=['email','phone','password','cpf','birthDate','weight','height','nickname','gender'];
   const input=Object.fromEntries(names.map(name=>[name,signup.elements[name].value]));
   input.nickname=input.nickname.trim();
   if(input.nickname.length<2){status('Informe um apelido de pelo menos 2 caracteres.',true);return;}
+  const legal=window.EvoluiLegalManifest;
+  if(!legal){status('Não foi possível carregar os termos. Atualize a página.',true);return;}
+  if(!validateLegalAcceptance(true))return;
+  input.legal={accepted:true,termsVersion:legal.documents.terms.version,privacyVersion:legal.documents.privacy.version,termsSha256:legal.documents.terms.sha256,privacySha256:legal.documents.privacy.sha256,healthConsent:true,healthConsentVersion:legal.healthConsentVersion};
   const file=$('avatar').files[0];loading(signup,true);status('Criando sua conta…');
   try {
+    let readiness;
+    try{readiness=await EvoluiAuth.legalStatus();}catch{throw new Error('O cadastro está temporariamente indisponível. Tente novamente mais tarde.');}
+    if(readiness?.ready!==true||readiness.termsSha256!==legal.documents.terms.sha256||readiness.privacySha256!==legal.documents.privacy.sha256)throw new Error('Os documentos de cadastro estão em atualização. Tente novamente mais tarde.');
     const result=await EvoluiAuth.signup(input);
+    if(!result.legalRecorded)throw new Error('Não foi possível confirmar o registro do aceite. Entre em contato com o suporte.');
     signup.elements.password.value='';signup.elements.confirmation.value='';
     if(result.registered){selectTab(false);$('login-form').elements.identifier.value=input.email;status(result.message);return;}
     const account=await EvoluiAuth.readProfile();
@@ -103,3 +111,18 @@ signup.onsubmit = async event => {
 window.addEventListener('pagehide', () => {if(avatarUrl) URL.revokeObjectURL(avatarUrl);});
 
 if(new URLSearchParams(location.search).get('cadastro')==='1')selectTab(true);
+
+const legalMessage='Para continuar, é necessário ler e aceitar os Termos de Uso e a Política de Privacidade.';
+function validateLegalAcceptance(report=false){
+  let valid=true;
+  for(const [id,errorId,message]of [['legal-accept','legal-accept-error',legalMessage],['health-accept','health-accept-error','Para utilizar as funcionalidades personalizadas, autorize o tratamento específico dos dados de saúde informados.']]){
+    const input=$(id),error=$(errorId);input.setCustomValidity(input.checked?'':message);
+    if(!input.checked){valid=false;if(report){error.hidden=false;error.textContent=message;input.setAttribute('aria-invalid','true');}}
+    else{error.hidden=true;error.textContent='';input.removeAttribute('aria-invalid');}
+  }
+  return valid;
+}
+for(const id of ['legal-accept','health-accept'])$(id).addEventListener('change',()=>validateLegalAcceptance(false));
+signup.addEventListener('invalid',event=>{if(['legal-accept','health-accept'].includes(event.target.id))validateLegalAcceptance(true);},true);
+// Browser constraint validation normally prevents submit; this also protects scripted submits.
+signup.addEventListener('submit',event=>{if(!$('profile-fields').disabled&&!validateLegalAcceptance(true)){event.preventDefault();event.stopImmediatePropagation();$('legal-accept').focus();}},true);
