@@ -2,7 +2,7 @@
 
 ## Situação desta entrega
 
-A interface de cadastro agora exibe os documentos, caixas inicialmente desmarcadas e aceite obrigatório, além da verificação de idade 18+ no formulário. Esta publicação foi solicitada separadamente pelo responsável. Os documentos continuam como minutas com campos pendentes. A versão `conta-cadastro-legal-ui-2.js` envia as declarações e versões ao serviço de contas atual, mas não exige nem afirma que houve gravação permanente de um comprovante. O serviço atual ainda pode aceitar requisições diretas sem essas declarações; a exigência no servidor depende da ativação abaixo.
+A interface de cadastro agora exibe os documentos, caixas inicialmente desmarcadas e aceite obrigatório, além da verificação de idade 18+ no formulário. Esta publicação foi solicitada separadamente pelo responsável. Os documentos continuam como minutas com campos pendentes. A versão `conta-cadastro-questionario-3.js` envia as declarações e versões ao serviço de contas atual, mas não exige nem afirma que houve gravação permanente de um comprovante. O serviço atual ainda pode aceitar requisições diretas sem essas declarações; a exigência no servidor depende da ativação abaixo.
 
 A implementação com comprovante seguro no servidor está testada em navegador e banco local e preparada na branch `feat/termos-aceite-2026-10-18`. Não há acesso administrativo ao Supabase nesta sessão; nenhuma migração foi executada remotamente nem comprovante de usuário real foi inventado.
 
@@ -33,7 +33,7 @@ Os arquivos de elaboração são `work/legal-18/build-documents.py` e `work/lega
    select public.evoluifit_legal_configuration();
    ```
    `ready` passa a `true`. Se gerar uma nova versão na revisão, instale a migração correspondente e ajuste os identificadores da configuração à versão revisada; não reutilize identificador com conteúdo diferente.
-5. Publicar os arquivos da interface da branch preparada em `gh-pages`, incluindo `conta.html`, `conta-legal-1.js`, documentos, manifestos e leitor. A publicação atual usa `conta-cadastro-legal-ui-2.js`, compatível com o backend anterior e sem promessa de recibo. Depois de ativar o backend, a versão estrita `conta-legal-1.js` da branch preparada confirma a prontidão e exige a confirmação `legalRecorded` do servidor. Não copiar só o script novo para um HTML incompatível.
+5. Publicar os arquivos da interface da branch preparada em `gh-pages`, incluindo `conta.html`, `conta-legal-1.js`, documentos, manifestos e leitor. A publicação atual usa `conta-cadastro-questionario-3.js`, compatível com o backend anterior e sem promessa de recibo. Depois de ativar o backend, a versão estrita `conta-legal-1.js` da branch preparada confirma a prontidão e exige a confirmação `legalRecorded` do servidor. Não copiar só o script novo para um HTML incompatível.
 6. Testar no site real: não aceitar → mensagem obrigatória; ler ambos os textos → formulário preservado; aceitar as duas declarações → cadastro; entrar → menu **Termos, privacidade e meu aceite** → horário/versões retornados pelo servidor.
 
 ## Conferência do comprovante no SQL Editor
@@ -70,3 +70,7 @@ Execute `npm ci` na raiz e `npm ci --prefix work/accounts/sql-test` para as depe
 - `node tests/accounts.cjs`, `node tests/improvements.cjs`, `node tests/update-18.cjs`: regressões de cadastro, login, isolamento, histórico, treinos, calendário, receitas e tema.
 
 Testes simulados e locais não substituem a ativação e a conferência do Supabase real.
+
+## Fluxo de entrada preservado
+
+Quem Somos → questionário opcional → cadastro. O link direto de cadastro sem indicação de retorno abre o questionário; concluir ou pular usa `conta.html?cadastro=1&etapa=cadastro`. Esse marcador só organiza a navegação e não é autorização de conta. Há um link de retorno ao questionário no formulário. Ao integrar a confirmação estrita de comprovantes, preservar também esse fluxo e os termos obrigatórios.
