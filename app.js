@@ -24,7 +24,7 @@ function workoutAge(profile) {
 const arrow = '<svg class="arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg>';
 const recipes = window.EvoluiRecipes;
 if(!Array.isArray(recipes)||recipes.length!==150)throw new Error('Catálogo de receitas indisponível. Atualize a página.');
-const initialState = () => ({ profile: null, measurements: [], completed: [], workoutSessions: {}, favorites: [], recipeChecks: {} });
+const initialState = () => ({ profile: null, measurements: [], completed: [], workoutSessions: {}, favorites: [], recipeChecks: {}, recipeHistory: [] });
 let state = initialState();
 let storageAvailable = true;
 let storageNotice = '';
@@ -89,6 +89,11 @@ function restoreState(saved) {
     restored.measurements = [...records.values()].sort((a,b)=>a.date.localeCompare(b.date));
   }
   if (Array.isArray(saved.completed)) restored.completed = [...new Set(saved.completed.filter(dateIsValid))].sort();
+  if (Array.isArray(saved.recipeHistory)) {
+    const records=new Map();
+    for(const entry of saved.recipeHistory) if(entry&&dateIsValid(entry.date)&&Number.isInteger(entry.recipeId)&&entry.recipeId>=0&&entry.recipeId<recipes.length) records.set(`${entry.date}|${entry.recipeId}`,{date:entry.date,recipeId:entry.recipeId});
+    restored.recipeHistory=[...records.values()].sort((a,b)=>a.date.localeCompare(b.date)||a.recipeId-b.recipeId);
+  }
   if (Array.isArray(saved.favorites)) restored.favorites = [...new Set(saved.favorites.filter(i=>Number.isInteger(i)&&i>=0&&i<recipes.length))];
   if (saved.recipeChecks && typeof saved.recipeChecks==='object') for (const [key,entry] of Object.entries(saved.recipeChecks)) {
     if (/^(0|[1-9]\d*)$/.test(key) && Number(key)<recipes.length && entry && typeof entry==='object') restored.recipeChecks[key] = {
@@ -948,7 +953,22 @@ function matchingRecipes() {
   return recipes.map((r,i)=>({r,i})).filter(({r,i})=>(recipeFilter==='all'||state.favorites.includes(i))&&(recipeCategory==='all'||r.category===recipeCategory)&&(!query||recipeSearchText([r.name,...r.ingredients].join(' ')).includes(query)));
 }
 function recipeArt(r,i) {
-  return i<6?foodArt(i):`<div class="food-art recipe-emoji-art" aria-hidden="true"><span>${r.emoji}</span></div>`;
+  const photo=window.EvoluiRecipeCovers?.recipes[i];
+  if(!photo)return '';
+  return `<figure class="recipe-cover"><img src="${escapeHTML(photo.file)}" alt="${escapeHTML(photo.alt)}" width="640" height="400" loading="lazy" decoding="async"><figcaption>Foto ilustrativa</figcaption></figure>`;
+}
+function recipePhotoCredit(i) {
+  const photo=window.EvoluiRecipeCovers?.recipes[i];if(!photo)return '';
+  return `<details class="recipe-photo-credit"><summary>Sobre a foto e licença</summary><p>${escapeHTML(photo.alt)}. Referência visual de alimento; o resultado segue os ingredientes e o preparo desta receita.</p><p>${escapeHTML(photo.attributionText)} · <a href="${escapeHTML(photo.sourceUrl)}" target="_blank" rel="noopener noreferrer">Fonte original</a> · <a href="${escapeHTML(photo.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHTML(photo.license)}</a></p><small>${escapeHTML(photo.changes)}</small></details>`;
+}
+function recipeRecordForm(i) {
+  const records=state.recipeHistory.filter(r=>r.recipeId===i);
+  return `<section class="recipe-record"><h3>Fiz esta receita</h3><p>Registre o preparo para acompanhar no calendário. Um registro por receita e data.</p><form id="recipe-made-form"><input type="hidden" name="recipeId" value="${i}"><label class="field">Data do preparo<input type="date" name="date" min="1900-01-01" max="${today()}" value="${view==='calendario'?calendarDate:today()}" required></label><button class="btn" type="submit">Registrar preparo ${arrow}</button></form><p class="small muted" id="recipe-made-status" role="status">${records.length?`${records.length} ${records.length===1?'preparo registrado':'preparos registrados'}. Último: ${displayDate(records.at(-1).date)}.`:'Seus registros ficam neste navegador, separados por conta.'}</p><button class="text-button" data-action="recipe-calendar">Ver no calendário →</button></section>`;
+}
+function recordRecipe(i,date) {
+  if(!Number.isInteger(i)||!recipes[i]||!validDate(date))return false;
+  if(state.recipeHistory.some(r=>r.recipeId===i&&r.date===date))return true;
+  return persist({...state,recipeHistory:[...state.recipeHistory,{date,recipeId:i}].sort((a,b)=>a.date.localeCompare(b.date)||a.recipeId-b.recipeId)});
 }
 function recipeGrid() {
   const cards=matchingRecipes();
@@ -971,7 +991,7 @@ function recipeModal(i,reset=true) {
   const r=recipes[i];if(!r)return;
   currentRecipe=i;if(reset)currentRecipeStep=0;
   const checked=state.recipeChecks[i]?.ingredients||[];
-  openModal(`<article class="modal-inner recipe-modal">${modalHeader(r.name)}<div class="recipe-modal-meta"><span class="tag">${r.time} min · ${r.servings} ${r.servings===1?'porção':'porções'}</span>${favoriteButton(i,true)}</div>${guidePlayer(`recipe-${i}`,r.name)}${r.restTime?`<p class="small muted">${r.restTime}</p>`:''}<section class="recipe-nutrition" aria-label="Informações nutricionais estimadas por porção"><h3>Nutrição estimada por porção</h3><div class="nutrition-grid"><div><strong>${r.nutrition.calories}</strong><span>kcal</span></div><div><strong>${decimal(r.nutrition.protein)} g</strong><span>Proteínas</span></div><div><strong>${decimal(r.nutrition.carbs)} g</strong><span>Carboidratos</span></div><div><strong>${decimal(r.nutrition.fat)} g</strong><span>Gorduras</span></div></div><p>${r.nutritionNote}</p></section>${r.allergens.length?`<p class="recipe-allergens"><strong>Confira os alérgenos:</strong> ${r.allergens.join('; ')}. Verifique também o rótulo dos produtos.</p>`:''}<h3>Ingredientes</h3><p class="ingredient-count" id="ingredient-count">${ingredientProgress(i)}</p><ul class="ingredient-list">${r.ingredients.map((text,j)=>`<li><label class="ingredient ${checked.includes(j)?'checked':''}"><input type="checkbox" data-ingredient="${j}" data-recipe-id="${i}" ${checked.includes(j)?'checked':''}><span>${text}</span></label></li>`).join('')}</ul><h3>Preparo passo a passo</h3><div class="recipe-step" id="recipe-step">${recipeStepHTML(i)}</div><details class="recipe-transcript"><summary>Ver modo de preparo completo</summary><ol>${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol></details><div class="notice" style="margin:20px 0 0">${r.tip}</div><div class="recipe-modal-footer"><small>Checklist e favoritos ficam neste navegador.</small><button class="text-button" data-action="recipe-reset">Recomeçar preparo</button></div></article>`);
+  openModal(`<article class="modal-inner recipe-modal">${modalHeader(r.name)}${recipeArt(r,i)}${recipePhotoCredit(i)}<div class="recipe-modal-meta"><span class="tag">${r.time} min · ${r.servings} ${r.servings===1?'porção':'porções'}</span>${favoriteButton(i,true)}</div>${guidePlayer(`recipe-${i}`,r.name)}${r.restTime?`<p class="small muted">${r.restTime}</p>`:''}<section class="recipe-nutrition" aria-label="Informações nutricionais estimadas por porção"><h3>Nutrição estimada por porção</h3><div class="nutrition-grid"><div><strong>${r.nutrition.calories}</strong><span>kcal</span></div><div><strong>${decimal(r.nutrition.protein)} g</strong><span>Proteínas</span></div><div><strong>${decimal(r.nutrition.carbs)} g</strong><span>Carboidratos</span></div><div><strong>${decimal(r.nutrition.fat)} g</strong><span>Gorduras</span></div></div><p>${r.nutritionNote}</p></section>${r.allergens.length?`<p class="recipe-allergens"><strong>Confira os alérgenos:</strong> ${r.allergens.join('; ')}. Verifique também o rótulo dos produtos.</p>`:''}${recipeRecordForm(i)}<h3>Ingredientes</h3><p class="ingredient-count" id="ingredient-count">${ingredientProgress(i)}</p><ul class="ingredient-list">${r.ingredients.map((text,j)=>`<li><label class="ingredient ${checked.includes(j)?'checked':''}"><input type="checkbox" data-ingredient="${j}" data-recipe-id="${i}" ${checked.includes(j)?'checked':''}><span>${text}</span></label></li>`).join('')}</ul><h3>Preparo passo a passo</h3><div class="recipe-step" id="recipe-step">${recipeStepHTML(i)}</div><details class="recipe-transcript"><summary>Ver modo de preparo completo</summary><ol>${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol></details><div class="notice" style="margin:20px 0 0">${r.tip}</div><div class="recipe-modal-footer"><small>Checklist e favoritos ficam neste navegador.</small><button class="text-button" data-action="recipe-reset">Recomeçar preparo</button></div></article>`);
 }
 function bmiCard() {
   const m=latest(), value=bmi(m), age=state.profile?.age;
@@ -1018,6 +1038,7 @@ function weeklyChart() {
 }
 function calendarDayDetails(date) {
   const sessions=Object.values(state.workoutSessions).filter(session=>session.date===date);
+  const made=state.recipeHistory.filter(entry=>entry.date===date);
   const completed=state.completed.includes(date),measurement=state.measurements.find(m=>m.date===date);
   const sessionCards=sessions.map(session=>{
     const [,gym,level,list]=session.signature.split('|');
@@ -1027,17 +1048,17 @@ function calendarDayDetails(date) {
     return `<article class="day-session"><div class="section-header"><h3>${escapeHTML(template?.name||'Treino registrado')}</h3><span class="tag">${session.finished?'FINALIZADO':'EM ANDAMENTO'}</span></div><p class="small muted">${gym==='yes'?'Academia':'Calistenia / em casa'} · ${escapeHTML(levelNames[level])}</p><ul class="day-exercises">${ids.map(id=>{const exercise=exerciseForMode(id,gym),checked=(session.sets[id]||[]).filter(Boolean).length;return `<li><span>${escapeHTML(gym==='yes'?exercise.gym:exercise.body)}</span><strong>${checked} de ${plannedSets} séries</strong></li>`;}).join('')}</ul>${session.finished&&!completed?'<p class="small muted">A sessão foi finalizada; este dia está desmarcado no calendário.</p>':''}</article>`;
   }).join('');
   const manual=completed&&!sessions.some(s=>s.finished)?'<div class="notice"><strong>Treino registrado manualmente</strong><p>Conclusão marcada neste dia. Não há detalhes de exercícios concluídos salvos para esse registro.</p></div>':'';
-  return `<section id="calendar-day-details" class="card calendar-day-details" aria-labelledby="day-detail-title"><div class="section-header"><div><p class="eyebrow">ATIVIDADES DO DIA</p><h2 id="day-detail-title" tabindex="-1">${displayDate(date)}</h2></div><span class="tag">${completed?'DIA CONCLUÍDO':'SEM CONCLUSÃO'}</span></div>${sessionCards}${manual}${measurement?`<div class="day-measurement"><strong>Peso registrado</strong><span>${decimal(measurement.weight)} kg · ${decimal(measurement.height)} cm</span></div>`:''}${!sessions.length&&!completed&&!measurement?'<p class="empty day-empty">Nenhuma atividade registrada nesta data.</p>':''}<button class="btn secondary" data-calendar-toggle="${date}">${completed?'Desmarcar conclusão deste dia':'Marcar treino deste dia como concluído'}</button></section>`;
+  return `<section id="calendar-day-details" class="card calendar-day-details" aria-labelledby="day-detail-title"><div class="section-header"><div><p class="eyebrow">ATIVIDADES DO DIA</p><h2 id="day-detail-title" tabindex="-1">${displayDate(date)}</h2></div><span class="tag">${completed?'DIA CONCLUÍDO':'SEM CONCLUSÃO'}</span></div>${sessionCards}${manual}<section class="day-recipes"><div class="section-header"><h3>Receitas preparadas</h3><span class="tag">${made.length}</span></div>${made.length?`<ul>${made.map(entry=>`<li><button class="day-recipe-open" data-recipe="${entry.recipeId}">${escapeHTML(recipes[entry.recipeId].name)} <span>Ver receita →</span></button><button class="text-button" data-remove-recipe="${entry.recipeId}" data-record-date="${date}" aria-label="Remover registro de ${escapeHTML(recipes[entry.recipeId].name)} em ${displayDate(date)}">Remover registro</button></li>`).join('')}</ul>`:'<p class="small muted">Nenhuma receita registrada neste dia.</p>'}<button class="btn secondary" data-action="calendar-add-recipe">Registrar uma receita nesta data</button></section>${measurement?`<div class="day-measurement"><strong>Peso registrado</strong><span>${decimal(measurement.weight)} kg · ${decimal(measurement.height)} cm</span></div>`:''}${!sessions.length&&!completed&&!measurement&&!made.length?'<p class="empty day-empty">Nenhuma atividade registrada nesta data.</p>':''}<button class="btn secondary" data-calendar-toggle="${date}">${completed?'Desmarcar conclusão deste dia':'Marcar treino deste dia como concluído'}</button></section>`;
 }
 function calendarPage() {
   const year=calendarMonth.getFullYear(),month=calendarMonth.getMonth(),first=(calendarMonth.getDay()+6)%7,days=new Date(year,month+1,0).getDate();
   const routine=plan(),week=weekSummary(calendarDate);
   const cells=Array.from({length:first},()=>'<div aria-hidden="true"></div>').concat(Array.from({length:days},(_,i)=>{
-    const date=localDate(new Date(year,month,i+1)),done=state.completed.includes(date),planned=state.profile&&routine[new Date(year,month,i+1).getDay()];
-    return `<button class="calendar-cell ${done?'done':''} ${date===today()?'today':''} ${date===calendarDate?'selected-date':''}" data-date="${date}" ${date>today()?'disabled':''} aria-label="${displayDate(date)}${done?', treino concluído':planned?', treino planejado':', sem registro'}. Ver atividades" aria-pressed="${date===calendarDate}" aria-controls="calendar-day-details"><span>${i+1}${done?' ✓':''}</span><small>${done?'FEITO':planned?'TREINO':''}</small></button>`;
+    const date=localDate(new Date(year,month,i+1)),recipeCount=state.recipeHistory.filter(r=>r.date===date).length,done=state.completed.includes(date),planned=state.profile&&routine[new Date(year,month,i+1).getDay()];
+    return `<button class="calendar-cell ${done?'done':''} ${date===today()?'today':''} ${date===calendarDate?'selected-date':''}" data-date="${date}" ${date>today()?'disabled':''} aria-label="${displayDate(date)}${done?', treino concluído':planned?', treino planejado':', sem treino concluído'}${recipeCount?`, ${recipeCount} receitas preparadas`:''}. Ver atividades" aria-pressed="${date===calendarDate}" aria-controls="calendar-day-details"><span>${i+1}${done?' ✓':''}</span><small>${done?'FEITO':planned?'TREINO':''}</small>${recipeCount?`<small class="calendar-recipe-count">${recipeCount} ${recipeCount===1?'receita':'receitas'}</small>`:''}</button>`;
   })).join('');
   const count=state.completed.filter(date=>date.startsWith(`${year}-${String(month+1).padStart(2,'0')}`)).length;
-  return `${intro('CONSISTÊNCIA EM VISTA','Cada treino tem seu lugar.','Toque em uma data para ver as atividades e os detalhes dos treinos.')}<section class="card weekly-summary" aria-label="Resumo semanal"><div><p class="eyebrow">RESUMO DA SEMANA</p><h2>${week.count}${week.goal?` de ${week.goal}`:''} ${week.count===1&&!week.goal?'treino concluído':'treinos concluídos'}</h2><p class="subtitle">${displayDate(week.start)} a ${displayDate(week.end)}</p></div>${week.goal?`<progress value="${Math.min(week.count,week.goal)}" max="${week.goal}" aria-label="${week.count} de ${week.goal} treinos concluídos"></progress>`:'<button class="btn secondary" data-view="perfil">Definir minha meta</button>'}<small>Cada dia concluído conta como um treino no resumo.</small></section><section class="card"><div class="calendar-controls"><button data-month="-1" aria-label="Mês anterior">‹</button><h2 style="text-transform:capitalize">${calendarMonth.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</h2><button data-month="1" aria-label="Próximo mês">›</button></div><div class="calendar-grid">${['SEG','TER','QUA','QUI','SEX','SÁB','DOM'].map(day=>`<div class="calendar-weekday">${day}</div>`).join('')}${cells}</div><div class="calendar-legend"><span><i></i>Treino concluído</span><span>Planejado: rotina atual</span><span>Datas futuras desativadas</span></div></section>${calendarDayDetails(calendarDate)}<div class="notice" style="margin-top:22px"><strong>${count} ${count===1?'treino concluído':'treinos concluídos'}</strong> neste mês.</div>`;
+  return `${intro('CONSISTÊNCIA EM VISTA','Seu dia, suas conquistas.','Toque em uma data para ver treinos, receitas preparadas e registros de peso.')}<section class="card weekly-summary" aria-label="Resumo semanal"><div><p class="eyebrow">RESUMO DA SEMANA</p><h2>${week.count}${week.goal?` de ${week.goal}`:''} ${week.count===1&&!week.goal?'treino concluído':'treinos concluídos'}</h2><p class="subtitle">${displayDate(week.start)} a ${displayDate(week.end)}</p></div>${week.goal?`<progress value="${Math.min(week.count,week.goal)}" max="${week.goal}" aria-label="${week.count} de ${week.goal} treinos concluídos"></progress>`:'<button class="btn secondary" data-view="perfil">Definir minha meta</button>'}<small>Cada dia concluído conta como um treino no resumo.</small></section><section class="card"><div class="calendar-controls"><button data-month="-1" aria-label="Mês anterior">‹</button><h2 style="text-transform:capitalize">${calendarMonth.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</h2><button data-month="1" aria-label="Próximo mês">›</button></div><div class="calendar-grid">${['SEG','TER','QUA','QUI','SEX','SÁB','DOM'].map(day=>`<div class="calendar-weekday">${day}</div>`).join('')}${cells}</div><div class="calendar-legend"><span><i></i>Treino concluído</span><span>Receitas: preparos registrados</span><span>Planejado: rotina atual</span><span>Datas futuras desativadas</span></div></section>${calendarDayDetails(calendarDate)}<div class="notice" style="margin-top:22px"><strong>${count} ${count===1?'treino concluído':'treinos concluídos'}</strong> neste mês.</div>`;
 }
 const navItems=[['inicio','Início','home'],['treinos','Treinos','train'],['receitas','Receitas','food'],['evolucao','Progresso','chart'],['calendario','Calendário','calendar']];
 function renderNavigation() {
@@ -1082,6 +1103,11 @@ document.addEventListener('toggle', event=>{
 },true);
 document.addEventListener('click',async event=>{
   const el=event.target.closest('button');if(!el)return;
+  if(el.dataset.removeRecipe!==undefined){
+    const i=Number(el.dataset.removeRecipe),date=el.dataset.recordDate;
+    if(!Number.isInteger(i)||!recipes[i]||!validDate(date))return;
+    if(persist({...state,recipeHistory:state.recipeHistory.filter(r=>r.recipeId!==i||r.date!==date)})){render();toast('Registro de preparo removido. A receita e o checklist foram mantidos.');}return;
+  }
   if(el.dataset.guidedStep!==undefined){
     const w=plan()[selectedDay], index=Number(el.dataset.guidedStep);if(!w||!Number.isInteger(index)||index<0||index>=w.ids.length)return;
     guidedIndex=index;showWorkoutList=false;await render();document.querySelector('.guided-toolbar')?.scrollIntoView({behavior:'smooth',block:'start'});return;
@@ -1185,15 +1211,19 @@ document.addEventListener('click',async event=>{
       if(restTimer.running){restTimer.remaining=Math.max(0,Math.ceil((restTimer.deadline-Date.now())/1000));stopRest();updateRestUI();}else startRest();
       break;
     case 'rest-reset':stopRest();restTimer.remaining=restTimer.seconds;updateRestUI();break;
+    case 'recipe-calendar':modal.close();navigate('calendario');break;
+    case 'calendar-add-recipe':openModal(`<div class="modal-inner">${modalHeader('Receita preparada em '+displayDate(calendarDate))}<form id="recipe-made-form"><input type="hidden" name="date" value="${calendarDate}"><label class="field">Qual receita você preparou?<select name="recipeId" required>${recipes.map((r,i)=>`<option value="${i}">${escapeHTML(r.name)}</option>`).join('')}</select></label><button class="btn" type="submit">Registrar preparo ${arrow}</button></form></div>`);break;
     case 'recipe-step-done':{
       if(currentRecipe===null)return;
       const checks=state.recipeChecks[currentRecipe]||{ingredients:[],steps:[]};
       const entry={...checks,steps:[...new Set([...checks.steps,currentRecipeStep])].sort()};
-      if(persist({...state,recipeChecks:{...state.recipeChecks,[currentRecipe]:entry}})){
-        const finished=entry.steps.length===recipes[currentRecipe].steps.length;
+      const finished=entry.steps.length===recipes[currentRecipe].steps.length;
+      const history=finished&&!state.recipeHistory.some(r=>r.date===today()&&r.recipeId===currentRecipe)?[...state.recipeHistory,{date:today(),recipeId:currentRecipe}].sort((a,b)=>a.date.localeCompare(b.date)||a.recipeId-b.recipeId):state.recipeHistory;
+      if(persist({...state,recipeChecks:{...state.recipeChecks,[currentRecipe]:entry},recipeHistory:history})){
+        if(finished){calendarDate=today();calendarMonth=new Date(calendarDate+'T12:00:00');calendarMonth.setDate(1);if(view==='calendario')render();const status=document.getElementById('recipe-made-status');if(status)status.textContent='Preparo de hoje registrado no calendário.';}
         if(!finished)currentRecipeStep=Math.min(currentRecipeStep+1,recipes[currentRecipe].steps.length-1);
         document.querySelector('#recipe-step').innerHTML=recipeStepHTML(currentRecipe);
-        toast(finished?'Preparo concluído. Confira o cozimento antes de servir.':'Etapa marcada. Vamos ao próximo passo.');
+        toast(finished?'Preparo concluído e registrado no calendário. Confira o cozimento antes de servir.':'Etapa marcada. Vamos ao próximo passo.');
       }
       break;
     }
@@ -1237,7 +1267,13 @@ document.addEventListener('error',event=>{
   const target=event.target.closest?.('video');if(target)target.closest('.guide-player')?.querySelector('.video-error')?.removeAttribute('hidden');
 },true);
 document.addEventListener('submit',async event=>{
-  const form=event.target;if(!['profile-form','measurement-form'].includes(form.id))return;
+  const form=event.target;
+  if(form.id==='recipe-made-form'){
+    event.preventDefault();const data=new FormData(form),i=Number(data.get('recipeId')),date=data.get('date');
+    if(!validDate(date)||!Number.isInteger(i)||!recipes[i]){toast('Confira a receita e escolha uma data até hoje.');return;}
+    if(recordRecipe(i,date)){calendarDate=date;calendarMonth=new Date(date+'T12:00:00');calendarMonth.setDate(1);if(view==='calendario')render();const status=document.getElementById('recipe-made-status');if(status)status.textContent='Preparo registrado em '+displayDate(date)+'. Você já pode conferir no calendário.';else modal.close();toast('Receita registrada no calendário.');}return;
+  }
+  if(!['profile-form','measurement-form'].includes(form.id))return;
   event.preventDefault();const data=new FormData(form);
   if(form.id==='profile-form') {
     const profile=Object.fromEntries(data);profile.age=Number(profile.age);
@@ -1265,7 +1301,7 @@ window.importLegacyAccountRecords = async () => {
     const button=event.target;button.disabled=true;
     try {
       const old=restoreState(JSON.parse(original));
-      const merged={...state,profile:state.profile||old.profile,measurements:[...new Map([...state.measurements,...old.measurements].map(item=>[item.date,item])).values()].sort((a,b)=>a.date.localeCompare(b.date)),completed:[...new Set([...old.completed,...state.completed])].sort(),workoutSessions:{...old.workoutSessions,...state.workoutSessions},favorites:[...new Set([...old.favorites,...state.favorites])],recipeChecks:{...old.recipeChecks,...state.recipeChecks}};
+      const merged={...state,profile:state.profile||old.profile,measurements:[...new Map([...state.measurements,...old.measurements].map(item=>[item.date,item])).values()].sort((a,b)=>a.date.localeCompare(b.date)),completed:[...new Set([...old.completed,...state.completed])].sort(),workoutSessions:{...old.workoutSessions,...state.workoutSessions},favorites:[...new Set([...old.favorites,...state.favorites])],recipeChecks:{...old.recipeChecks,...state.recipeChecks},recipeHistory:[...new Map([...old.recipeHistory,...state.recipeHistory].map(r=>[`${r.date}|${r.recipeId}`,r])).values()].sort((a,b)=>a.date.localeCompare(b.date)||a.recipeId-b.recipeId)};
       if(merged.profile)merged.profile.age=workoutAge(merged.profile);
       if(!persist(merged))throw new Error('Não foi possível salvar os registros. Confira o espaço disponível.');
       localStorage.setItem('evoluifit-legacy-owner',accountId);modal.close();render();toast('Registros importados. A cópia original foi preservada.');

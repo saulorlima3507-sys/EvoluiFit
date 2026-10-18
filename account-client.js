@@ -5,9 +5,18 @@
   const sessionKey = 'evoluifit-auth-session-v1';
   let session = null;
   try {session = JSON.parse(sessionStorage.getItem(sessionKey) || 'null');} catch {}
+  let refreshing=null, generation=0;
+  function minimal(next) {
+    if(!next||typeof next.access_token!=='string'||!next.access_token||typeof next.refresh_token!=='string'||!next.refresh_token)return null;
+    const expires=Number(next.expires_at);
+    return {access_token:next.access_token,refresh_token:next.refresh_token,expires_at:Number.isFinite(expires)?expires:0};
+  }
+  session=minimal(session);
+  try{if(session)sessionStorage.setItem(sessionKey,JSON.stringify(session));else sessionStorage.removeItem(sessionKey);}catch{}
   function save(next) {
     // Somente tokens de sessão; nunca senha, CPF ou dados do formulário.
-    sessionStorage.setItem(sessionKey, JSON.stringify(next)); session = next;
+    const value=minimal(next);if(!value)throw new Error("Sessão inválida. Entre novamente.");
+    sessionStorage.setItem(sessionKey, JSON.stringify(value)); session = value;
   }
   async function request(path, body, token, method = 'POST') {
     let response;
@@ -23,10 +32,17 @@
   async function token() {
     if (!session?.access_token || !session.refresh_token) return null;
     if ((session.expires_at || 0) * 1000 < Date.now() + 60000) {
-      try {const refreshed = await request('/auth/v1/token?grant_type=refresh_token',{refresh_token:session.refresh_token});save({...refreshed,expires_at:Math.floor(Date.now()/1000)+refreshed.expires_in});}
-      catch(error) {if ([400,401,403].includes(error.status)) {session=null;sessionStorage.removeItem(sessionKey);} throw error;}
+      if(!refreshing){
+        const version=generation,refreshToken=session.refresh_token;
+        refreshing=(async()=>{
+          try{const refreshed=await request('/auth/v1/token?grant_type=refresh_token',{refresh_token:refreshToken});if(version!==generation)return;save({...refreshed,expires_at:refreshed.expires_at||Math.floor(Date.now()/1000)+refreshed.expires_in});}
+          catch(error){if(version===generation&&[400,401,403].includes(error.status)){session=null;sessionStorage.removeItem(sessionKey);}throw error;}
+          finally{refreshing=null;}
+        })();
+      }
+      await refreshing;
     }
-    return session.access_token;
+    return session?.access_token||null;
   }
   async function account(action, input = {}, authenticated = false) {
     return request('/functions/v1/evoluifit-account',{...input,action},authenticated?await token():undefined);
@@ -40,7 +56,7 @@
     return account('profile',{},true);
   }
   async function logout() {
-    const old = session?.access_token;session=null;sessionStorage.removeItem(sessionKey);
+    const old = session?.access_token;generation++;session=null;sessionStorage.removeItem(sessionKey);
     if(old) request('/auth/v1/logout?scope=local',{},old).catch(()=>{});
   }
   async function avatar(file, id) {

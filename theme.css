@@ -1,0 +1,49 @@
+/* Shared theme, including public account/onboarding screens. */
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:9px 12px;border:1px solid #d7e2d7;border-radius:12px;background:#fff;color:#264736;font:600 11px system-ui,sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0}.theme-toggle>span:first-child{font-size:21px;line-height:1}.theme-toggle:focus-visible{outline:3px solid #81ad4d;outline-offset:3px}.public-theme{padding-bottom:65px}.public-theme>.theme-toggle{position:fixed;right:18px;bottom:max(18px,env(safe-area-inset-bottom));z-index:50;box-shadow:0 4px 20px #12281b20}.recipe-cover{position:relative;margin:0;background:#e7ece4;overflow:hidden;aspect-ratio:16/10;width:100%}.recipe-cover img{display:block;width:100%;height:100%;object-fit:cover}.recipe-cover figcaption{position:absolute;bottom:9px;left:10px;background:#10241ee6;color:white;padding:5px 8px;border-radius:6px;font-size:9px}.recipe-modal>.recipe-cover{border-radius:16px;margin:18px 0 10px;max-height:310px;aspect-ratio:16/8}.recipe-photo-credit{font-size:10px;line-height:1.7;color:#667660;margin-bottom:20px}.recipe-photo-credit summary{cursor:pointer}.recipe-photo-credit p{margin:8px 0}.recipe-photo-credit a{text-decoration:underline}.recipe-record{border:1px solid var(--line);border-radius:16px;padding:20px;margin:22px 0;background:#f4f8ee}.recipe-record h3{margin:0 0 8px}.recipe-record>p{font-size:12px;line-height:1.7;margin:0 0 14px}.recipe-record form{display:flex;align-items:end;gap:12px;margin-bottom:12px}.recipe-record .field{flex:1;margin:0}.recipe-record .text-button{margin-top:10px}#recipe-made-form>.btn{margin-top:16px}.recipe-record #recipe-made-form>.btn{margin-top:0}.day-recipes{padding:20px 0;border-top:1px solid var(--line);margin-top:20px}.day-recipes ul{list-style:none;margin:10px 0 20px;padding:0}.day-recipes li{display:flex;justify-content:space-between;align-items:center;gap:18px;border-bottom:1px solid var(--line);padding:14px 0}.day-recipe-open{text-align:left;font-size:13px;font-weight:650;line-height:1.6}.day-recipe-open span{display:block;font-size:11px;color:#638448;font-weight:400}.day-recipes li>.text-button{font-size:11px;white-space:nowrap}.day-recipes>p{margin:16px 0}.calendar-cell{min-height:86px}.calendar-recipe-count{font-size:9px!important;font-weight:700;color:#416b3c!important;background:#e4eedb;border-radius:4px;padding:2px 3px;line-height:1.4!important}.calendar-cell.done .calendar-recipe-count{background:#d6f77f;color:#173c2b!important}
+[data-theme=dark]{color-scheme:dark;--bg:#111b17;--card:#1a2922;--ink:#e5eee7;--muted:#a8baad;--green:#b8e896;--lime:#d6f77f;--line:#34473b;color:var(--ink);background:var(--bg)}
+[data-theme=dark] body{background:var(--bg);color:var(--ink)}
+[data-theme=dark] :is(.card,.sidebar,.home-metrics,.destination-card,.recipe-card,.active-session,.workout-plan-options,.account-dropdown,.quiz-card,.about-sections article){background:var(--card);border-color:var(--line);color:var(--ink)}
+[data-theme=dark] :is(.demo-tag,.avatar,.theme-toggle,.tabs button[aria-pressed=true],.training-mode-tabs button.active,.recipe-category-nav button,.prominent-mode-selector .workout-choice,.workout-mode-selector button,#skip-quiz,.quiz-choice,.field input,.field select,select,input:not([type=file]),.calendar-cell){background:#21342a;border-color:#405746;color:var(--ink)}
+[data-theme=dark] :is(input,select)::placeholder{color:#99ad9d}
+[data-theme=dark] :is(.subtitle,.muted,.small.muted,.intro,.preview-footer,.measure-note,label small,.question-note,.quiz-small,.hero-description,.cta-note,.about-sections p,.about-next p,.quiz-intro>p:not(.eyebrow),.quiz-optional p,.quiz-solution p,.recipe-photo-credit,.recipe-record>p,.recipe-allergens,.recipe-nutrition p,.recipe-content>p>small,.recipe-content p,.recipe-video-label,.weekly-summary small,.chart-data,.date-chip,.account-dropdown small,.rest-settings-hint,.workout-choice .choice-description,.workout-choice .choice-state,.guide-caption small,.guide-disclaimer,.workout-preparation,.series-controls>span,.guided-toolbar>span,.local-note strong,.local-note small,.settings-link,.home-local-note,.destination-copy>span,.destination-copy>small,.home-metrics span>small,.home-metrics strong small,.recipe-card-nutrition small,.nutrition-grid span,.active-session .session-progress p,.active-session .session-footer p,.active-session .rest-select){color:var(--muted)}
+[data-theme=dark] :is(.eyebrow,.step-label,.section-number,.quiz-progress span,.nav-label,.brand small,.account-dropdown button,.back-button,.switch-copy button,.password-field button,.quiz-back,.text-button,.day-recipe-open span,.prominent-mode-selector>p,.exercise-options>summary,.workout-plan-options>summary,.rest-settings>summary){color:#b7d5a4}
+[data-theme=dark] :is(.notice,.preview-note,.measure-note,.photo-picker>span,.quiz-optional,.quiz-solution,.recipe-guidance p,.recipe-nutrition,.recipe-record,.premium-side,.btn.secondary,.btn.subtle,.recipe-content .btn,.metric-symbol,.exercise-number,.series-button,.rest-illustration,.tag,.workout-choice .choice-icon,.recipe-filters button,.recipe-category-nav span,.recipe-card-nutrition>span,.workout-preparation p,.session-card:not(.active-session),.tabs,.training-mode-tabs){background:#293e2c;border-color:#42573b;color:#d1e7c0}
+[data-theme=dark] :is(.btn:not(.secondary):not(.subtle):not(.danger),.nav-item.active,.day-tab.active,.recipe-filters button.active,.recipe-category-nav button.active){background:#c7ed9d;color:#152c1c;border-color:#c7ed9d}
+[data-theme=dark] :is(.nav-item.active .icon,.nav-item.active:after){color:#214c2e}
+[data-theme=dark] :is(.nav-item,.calendar-weekday,footer){color:#aabcae}
+[data-theme=dark] :is(.nav-item:hover,.account-dropdown button:hover,.calendar-cell:hover:not(:disabled)){background:#304932;color:#edf8e4}
+[data-theme=dark] :is(.workout-mode-selector button.active,.prominent-mode-selector .workout-choice.active,.quiz-choice:has(input:checked),.series-button.done,.calendar-cell.done){background:#355b30;color:#ecf9df;border-color:#91ba6d}
+[data-theme=dark] :is(.workout-choice.active .choice-state,.workout-choice.active .choice-icon){color:#e0f5cf}
+[data-theme=dark] :is(.home-metrics strong,.nutrition-grid strong,.session-percent,.active-session h3,.active-session .rest-controls,.active-session .session-footer,.rest-settings>summary strong,.guided-toolbar strong){color:#c7ed9d}
+[data-theme=dark] :is(.about-next,.today-hero,.welcome,.quiz-highlight){background:#1c392a;color:#eff8e8}
+[data-theme=dark] .about-next p{color:#d0e0c4}
+[data-theme=dark] .quiz-header{background:#111b17f5;border-color:var(--line)}
+[data-theme=dark] .elephant-panel{background:#223528;border-color:#3c513b}
+[data-theme=dark] :is(.brand img,.brand img.brand-mark,.about-brand img,.quiz-brand img,.elephant-panel img){mix-blend-mode:normal;border-radius:14px;background:#f6f7ef}
+[data-theme=dark] .elephant-panel img{border-radius:28px}
+[data-theme=dark] :is(.login-link,.day-session,.day-exercises li,.day-recipes,.day-recipes li,th,td,.exercise,.recipe-step,.ingredient,.recipe-modal-footer,.calendar-legend){border-color:var(--line)}
+[data-theme=dark] :is(.ingredient.checked,.recipe-step,.recipe-finished){background:#263d2a;color:#e4f2db}
+[data-theme=dark] .ingredient input{accent-color:#c0e79b}
+[data-theme=dark] #modal{background:var(--card);color:var(--ink)}
+[data-theme=dark] #modal::backdrop{background:#0009}
+[data-theme=dark] .auth-loading{background:var(--bg);color:var(--ink)}
+[data-theme=dark] #toast{background:#d6edc2;color:#17351d}
+[data-theme=dark] #account-status{background:#293e2c;color:#dfecd2}
+[data-theme=dark] #account-status[data-error=true]{background:#482e27;color:#ffd3ba}
+[data-theme=dark] .mini-chart text{fill:#bed0ae}
+[data-theme=dark] .mini-chart line{stroke:#50644e}
+[data-theme=dark] .mini-chart rect{fill:#92b971}
+[data-theme=dark] .calendar-recipe-count{background:#425c35;color:#f1ffe3!important}
+[data-theme=dark] .theme-toggle{box-shadow:none}
+[data-theme=dark] .btn.danger{background:#7b342f;color:#fff0e8}
+[data-theme=dark] .auth-loading button,[data-theme=dark] .auth-loading a{color:inherit}
+@media(max-width:760px){.theme-toggle{padding:8px;min-width:38px}.topbar-right .theme-label{display:none}.topbar-right{gap:8px}.recipe-record form{flex-direction:column;align-items:stretch}.recipe-record .field{width:100%}.day-recipes li{align-items:flex-start;flex-direction:column;gap:6px}.calendar-cell{min-height:78px}.calendar-recipe-count{font-size:8px!important}.calendar-cell small{font-size:8px}[data-theme=dark] .sidebar{background:#18271ff5}}
+@media(prefers-reduced-motion:no-preference){.theme-toggle{transition:background .15s}}
+[data-theme=dark] :is(.empty,.bmi-value,th,.recipe-step-top,.ingredient-count,.day-tab,.exercise-options,.recipe-transcript,.recipe-modal-footer,.delete-btn){color:#bdd2af}
+[data-theme=dark] tbody tr:hover{background:#263c2c}
+[data-theme=dark] .recipe-filters button span{color:inherit;background:#ffffff15}
+[data-theme=dark] .active-session .session-footer .btn{background:#355932;color:#e5f7d6}
+[data-theme=dark] :is(.settings-card p,.breadcrumb,.breadcrumb strong,.tabs button,.calendar-cell small){color:var(--muted)}
+[data-theme=dark] :is(.calendar-controls button,.progress-tabs button,.favorite-button){background:#293e2c;color:#d4ebbf;border-color:#42573b}
+[data-theme=dark] .progress-tabs button.active{background:#c7ed9d;color:#17351e}
+[data-theme=dark] .favorite-button.is-favorite{background:#c7ed9d;color:#17351e}

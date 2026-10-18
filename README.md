@@ -1,61 +1,126 @@
 # EvoluiFit
 
-Site estático publicado pela branch `gh-pages`: https://saulorlima3507-sys.github.io/EvoluiFit/ .
+Primeira versão funcional de um site responsivo para treinos, receitas e acompanhamento. O repositório original tinha apenas este README; a aplicação foi construída em HTML, CSS e JavaScript, sem framework e sem dependências de produção.
 
-## Calistenia / em casa e Academia
+O visual foi revisado com navegação escura, destaque verde-lima, títulos maiores, cartões com ícones, ilustrações próprias para cada receita e atalhos para os registros. Toda a interface usa recursos locais: não depende de fontes ou imagens externas. Extraia o ZIP inteiro mantendo `index.html`, `styles.css` e `app.js` juntos na mesma pasta para que o visual carregue corretamente.
 
-Em Treinos, escolha a modalidade. Cada exercício tem seu próprio vídeo dentro do cartão, junto das instruções, séries e repetições. O antigo botão para uma galeria genérica foi removido.
+A versão interativa inclui treino guiado, séries marcáveis, cronômetro de descanso, receitas favoritas e checklists. Os exercícios de academia têm **9 demonstrações com pessoas reais**, por Goulart, obtidas no wger e redistribuídas em **CC BY-SA 4.0**. Cada player identifica a execução mostrada e eventuais diferenças em relação ao plano. Arquivos locais MP4/H.264 sem áudio, capas e legendas em português; reprodução apenas por ação do usuário. Os 6 vídeos de receitas continuam sendo guias animados originais.
 
-São 22 associações: 11 exercícios por modalidade. Prancha e dead bug usam a mesma demonstração nas duas modalidades, porque a execução é a mesma. As duas entradas de remada com mochila em casa também usam a mesma demonstração desse movimento.
+Não há filmagens adequadas no catálogo consultado para as versões em casa, prancha e dead bug. Esses exercícios mantêm as instruções escritas e um aviso de indisponibilidade, sem animação ou filmagem de outro movimento. As 9 filmagens são: agachamento com barra, supino com halteres, remada na polia, levantamento romeno, avanço com halteres, desenvolvimento com halteres, barra fixa assistida, hip thrust e panturrilha em pé. Variações são identificadas no player sem alterar a prescrição nem os registros.
 
-As instruções, equipamentos e versões fáceis/difíceis são específicos da modalidade. O seletor usa os valores existentes `gym: yes/no`, preservando as chaves de sessões e o histórico anterior. Alternar para a modalidade anterior permite retomar suas séries na mesma data.
+Fontes, URLs originais, autoria, licença e transformações: [créditos dos vídeos](media/credits.json). Os vídeos foram redimensionados, convertidos para H.264, tiveram o áudio removido e receberam legendas separadas; as adaptações permanecem sob CC BY-SA 4.0.
+## Navegação simplificada
 
-## Fontes e reprodução
+O menu principal tem cinco opções: **Início, Treinos, Receitas, Progresso e Calendário**. Peso/altura e fotos ficam juntos em Progresso. O botão **Meu plano**, no topo, abre os dias disponíveis, objetivo e dados locais. Em Treinos, escolha **Meu treino da semana** ou **Aprender movimentos**. Os sete dias aparecem sem rolagem horizontal e indicam Treino ou Livre. **Começar treino** ativa a marcação de séries; o calendário continua registrando a data de hoje.
 
-[Catálogo por exercício e modalidade](media/exercise-videos.json).
+A área Aprender movimentos contém orientações gerais em texto para aquecimento, corrida, alongamento e fortalecimento. Em 14/10/2026, o acesso HTTPS a wger.de e às APIs de vídeos, exercícios e licenças funcionou. Os arquivos são hospedados junto ao site, sem chamadas externas durante o treino.
+## Abrir no computador
 
-Quatro vídeos locais de academia, por Goulart via wger.de, sob CC BY-SA 4.0: supino com halteres, remada na polia, romeno com halteres e desenvolvimento com halteres. [Créditos e adaptações](media/credits.json). Conversão para MP4/H.264, redimensionamento, remoção de áudio, capa e legendas separadas; adaptações sob CC BY-SA 4.0.
+1. Instale o **Node.js 20 ou superior** (a versão LTS é recomendada).
+2. Use o ZIP mais recente, **EvoluiFit-atualizado.zip**, e extraia a pasta `EvoluiFit`, ou salve os arquivos alterados no seu computador. Enquanto estas alterações não forem enviadas ao GitHub, baixar/clonar `main` traz apenas o README original. Depois de enviar as alterações, também será possível usar **Code → Download ZIP** ou clonar com Git:
+   ```sh
+   git clone --branch gh-pages https://github.com/saulorlima3507-sys/EvoluiFit.git
+   cd EvoluiFit
+   ```
+3. Abra um terminal na pasta extraída que contém `package.json` (por exemplo, `EvoluiFit`) e execute:
+   ```sh
+   npm start
+   ```
+4. Abra **http://127.0.0.1:3000** no navegador. Encerre com `Ctrl+C` no terminal.
 
-As demais demonstrações são incorporadas no player oficial do YouTube, a partir dos canais dos autores. Não foram baixadas ou redistribuídas. Direitos permanecem com seus autores; reprodução depende das permissões do autor e da disponibilidade do serviço. Cada player tem o crédito e um link direto para o vídeo específico, caso a incorporação seja bloqueada. Há demonstrações em português e em inglês, com instruções da aplicação em português.
+Não é necessário `npm install` para usar o site. O servidor usa apenas módulos nativos do Node. Se a porta estiver ocupada: `PORT=3001 npm start` no macOS/Linux ou `$env:PORT=3001; npm start` no PowerShell. Nesse caso, abra a porta escolhida.
 
-O player externo só carrega após tocar em Assistir, dentro do exercício. Fechar o exercício encerra o player; o vídeo fica pausado. Antes do clique, nenhum serviço externo é carregado. A CSP do servidor local permite somente o domínio youtube-nocookie.com para frames; os registros não são enviados ao YouTube. O player tem política de referência própria para permitir a identificação da origem exigida pelo serviço.
+Use sempre o mesmo navegador, perfil e endereço: `localhost` e `127.0.0.1`, assim como portas diferentes, têm armazenamentos separados. Abrir `index.html` diretamente não é a forma recomendada, pois o armazenamento em endereços `file://` varia por navegador.
 
-Os seis guias animados de receitas foram substituídos na interface por vídeos dos canais dos autores. Os arquivos antigos foram preservados no repositório. Os vídeos antigos de academia com outras variações continuam preservados nos arquivos, mas não são usados para ilustrar exercícios diferentes.
+Para experimentar no celular na mesma rede local, use `HOST=0.0.0.0 npm start` (macOS/Linux) ou `$env:HOST='0.0.0.0'; npm start` (PowerShell), permita a porta no firewall e abra `http://IP-DO-COMPUTADOR:3000`. Faça isso apenas em rede confiável; o servidor não tem autenticação nem TLS. Os dados do celular serão independentes dos dados do computador.
 
-## Registros locais
+## Funções
 
-Mantidos `evoluifit-v1` no localStorage e `evoluifit-photos` no IndexedDB, versão 1, coleção `photos`. Sem migração ou limpeza. Use o mesmo endereço, navegador e perfil para acessar seus dados.
+- Perfil: objetivo, experiência, disponibilidade, academia e idade; preferências podem ser alteradas.
+- Planos de 2 ou 3 dias de corpo inteiro; 4 dias alternando parte superior/inferior; 5 dias com 4 sessões de força e 1 de recuperação ativa. Os dias são distribuídos automaticamente, não escolhidos individualmente. Volume: 2 séries para iniciantes, 3 para intermediários e 4 para experientes.
+- Exercícios com execução, músculos, séries/repetições, regressões, progressões e alternativas de academia e casa. Algumas alternativas domésticas usam mochila ou barra própria, indicadas no exercício.
+- Treino guiado: inicie a sessão, marque/desmarque séries e acompanhe a porcentagem. A conclusão só é liberada depois de todas as séries e registra o treino no calendário. As séries ficam salvas localmente e a sessão de hoje pode ser retomada após recarregar. O plano e o equipamento identificam a sessão. O registro é sempre na data de hoje, mesmo ao consultar outro dia da semana.
+- Cronômetro de 60 ou 90 segundos: iniciar, pausar, retomar e reiniciar. Marcar uma série inicia o descanso selecionado. O cronômetro é reiniciado ao recarregar; as séries permanecem. Não há som ou notificações externas; descanse mais se precisar.
+- Seis receitas acessíveis com porções, ingredientes, preparo e observações sobre substituições/restrições.
+- Receitas interativas: marque os ingredientes separados, avance/volte nas etapas e conclua cada passo. Salve receitas no coração e filtre as favoritas. Checklist, etapas e favoritos persistem neste navegador; “Recomeçar preparo” limpa o checklist daquela receita, preservando os favoritos.
+- Peso e altura por data, histórico, gráfico e IMC. Um registro por data; salvar novamente atualiza. Excluir remove do gráfico. Datas futuras e valores fora dos limites são recusados.
+- O IMC é uma referência, não um diagnóstico. Sem idade, não há classificação; abaixo de 18 anos, nenhuma classificação adulta é aplicada. A interpretação pediátrica deve ser profissional. O perfil guarda idade informada, não data de nascimento: atualize a idade quando necessário.
+- Fotos locais JPEG/PNG/WebP (até 10 MB), redimensionadas para até 1200 px, convertidas para JPEG sem os metadados originais, comparação lado a lado e exclusão individual.
+- Calendário com marcação/desmarcação de dias passados ou atuais. Não registra exercícios individuais, apenas a conclusão do dia.
+- Exportação JSON de perfil, medidas, calendário, séries, favoritos e checklists (sem fotos); exclusão de todos os dados em Meu plano e dados.
 
-## QR ilustrativo
+## Dados e limites da demonstração
 
-Acesso vitalício → Testar pagamento com Pix abre uma simulação com QR que abre o próprio EvoluiFit. Não é Pix, não gera cobrança nem confirma pagamento.
+Perfil, medidas, calendário, séries, checklists e receitas favoritas ficam no `localStorage`; fotos, no `IndexedDB`. Não há backend, autenticação, cookies de rastreamento, analytics, anúncios ou envio de registros e imagens. O servidor só entrega a página, os arquivos públicos da aplicação e a lista explícita de vídeos/capas/legendas; não recebe uploads nem expõe a pasta inteira. A política de segurança bloqueia conexões externas da aplicação. SVGs e guias de receitas são originais; as demonstrações de exercícios de Goulart/wger são redistribuídas sob CC BY-SA 4.0 junto ao site, sem players externos. Na versão pública, o navegador baixa os arquivos do próprio site, como em qualquer página; nenhuma interação de acompanhamento transmite registros pessoais.
 
-## Validação
+Dados não sincronizam entre dispositivos e não têm backup automático. Limpar dados do navegador, usar modo privado ou atingir a cota de armazenamento pode afetá-los. As fotos são locais, mas **não estão protegidas por login ou criptografia própria**: alguém com acesso ao mesmo perfil do navegador pode vê-las. Apagar os registros remove as entradas do armazenamento da aplicação, sem promessa de apagamento forense do disco. Evite dispositivos compartilhados. Não há importação/restauração de JSON nesta versão; a exportação permite guardar e consultar os registros.
 
-Testes no Chromium cobrem as 22 associações exercício/modalidade, abertura do vídeo correto dentro de cada cartão, troca de modalidade, preservação de séries e layout em 320/390/768/1440 px. Os quatro vídeos locais tiveram reprodução e busca por trechos verificadas.
+Treinos e receitas são sugestões gerais, não uma prescrição profissional. Não prometemos perda de gordura, ganho muscular nem resultados garantidos. Pessoas com lesões ou condições de saúde devem buscar orientação. Menores precisam de adaptação profissional e acompanhamento responsável.
 
-A rede do ambiente bloqueia o YouTube. Por isso, o teste dos embeds verifica a URL, a política de referência e o ciclo de abertura/fechamento usando uma resposta simulada; não constitui comprovação de reprodução dos vídeos externos. Títulos, autores e descrições foram consultados nas fontes. Há fallback para abrir o vídeo específico no YouTube. A implantação é acompanhada pelo GitHub Actions; github.io também é bloqueado no ambiente.
+## Pagamento e integrações futuras
 
-A atualização da versão anterior foi testada comparando o conteúdo exato do localStorage e os bytes das fotos no IndexedDB, sem diferenças.
+O preço planejado é **R$ 24,99 por acesso vitalício, em uma única compra**. A demonstração é gratuita e aberta. Não há compra simulada, checkout, cartão, cobrança nem desbloqueio falso. O botão de demonstração explica a proposta e as integrações necessárias.
 
-## 35 receitas com vídeos
+Para vender no site:
 
-A área Receitas tem 35 opções nas categorias Café da manhã, Refeições, Lanches, Acompanhamentos e Doces e sobremesas. Há busca por nome ou ingrediente, filtros de categoria e favoritas.
+1. Definir provedor, condições de acesso vitalício, suporte, reembolso e termos de venda.
+2. Implementar contas reais e backend seguro para criar sessões de checkout hospedado. Manter credenciais fora do navegador.
+3. Validar webhooks assinados, valor/moeda e identidade da transação; implementar idempotência, reembolso e autorização persistente do acesso. Nunca liberar acesso apenas com um redirecionamento de sucesso no frontend.
+4. Testar em sandbox antes de ativar produção e ajustar política de privacidade/LGPD.
 
-Cada receita abre ingredientes, porções, tempo estimado, checklist, etapas marcáveis e um player do vídeo correspondente. Há Shorts e vídeos de preparo mais completos, sem duração inventada. Fontes e autores em [media/recipe-videos.json](media/recipe-videos.json). Os vídeos são incorporados pelo player oficial do YouTube, sem cópia ou redistribuição. Carregam apenas quando solicitado e são removidos ao fechar a janela. Há link para o vídeo específico no canal do autor.
+Para um aplicativo: esta entrega é um site com aparência de app, **não um app nativo nem uma PWA instalável/offline**. Será necessário empacotar ou construir o aplicativo, configurar as lojas e integrar compras de conteúdo digital conforme as regras vigentes de Apple e Google, com validação de recibos e restauração de compras. Revisar regras e preço antes de publicar. Sincronizar entre web e app exigirá contas e backend.
 
-As receitas escritas são versões adaptadas do EvoluiFit, com possíveis diferenças de ingredientes, quantidades e porções em relação ao vídeo de referência; essa informação aparece junto ao player. Tempos ativos de overnight oats e pudim de chia indicam o tempo adicional de geladeira.
+Meta: nenhuma integração ou campanha foi criada. Uma etapa futura pode configurar conta comercial, conta de anúncios e consentimento, além de Pixel/Conversions API no site ou SDK no app quando permitido. Não incluir peso, IMC, fotos corporais nem outros dados de saúde em eventos publicitários. Campanhas exigem uma tarefa e autorização próprias.
 
-Os índices, ingredientes e etapas das seis receitas anteriores foram preservados para manter o significado dos favoritos e checklists existentes. O carregamento dos registros agora valida os limites a partir do catálogo completo de 35 receitas, incluindo o salvamento e a restauração de favoritos/checklists das receitas novas. Nenhuma migração ou limpeza é executada.
+## Estrutura
 
-Testes no Chromium: 35 receitas completas, associação do player específico de cada receita, busca sem acentos, filtros, favoritas, checklists antigos e novos após recarregar, fechamento do player e layout móvel. O teste externo usa uma resposta simulada porque a rede do ambiente bloqueia o YouTube; não comprova reprodução externa.
+```text
+index.html         Estrutura e navegação
+styles.css         Visual responsivo e acessibilidade
+app.js             Rotinas, receitas, registros e armazenamento local
+server.mjs         Servidor estático, sem API de dados
+tests/smoke.cjs    Teste funcional no Chromium com perfil isolado
+tests/review.cjs   Revisão de planos, validações, armazenamento e layout
+tests/interactive.cjs  Séries, timer, checklists, favoritos e 28 players
+tests/navigation.cjs   Cinco menus, modos de treino e semana sem rolagem
+media/            Vídeos MP4, capas JPEG e legendas VTT
+scripts/          Fonte dos guias e gerador opcional de vídeos
+package.json       Comandos e dependência de teste
+package-lock.json Dependências de teste fixadas
+```
 
-## Interface moderna e treino por etapas
+## Testar
 
-O início agora prioriza o treino do dia, com uma ação para montar, começar ou retomar o plano. Indicadores compactos e dois atalhos dão acesso a receitas e progresso. A navegação permanece com rótulos, usa uma barra inferior no celular e apresenta um menu claro no computador.
+```sh
+npm ci
+npx playwright install chromium
+npm test
+```
 
-Depois de começar, o treino mostra um exercício por vez, com o vídeo correspondente, execução, séries e botões Anterior/Próximo. Ver lista completa permite consultar todos os exercícios. Alterar dia ou modalidade, descanso e adaptações ficam em controles expansíveis. O cronômetro continua acessível e a conclusão depende de marcar todas as séries.
+Em uma máquina que já tenha Chromium instalado, não é preciso baixar o navegador:
 
-As 35 receitas foram mantidas, com cartões mais visuais, busca, filtros, favoritas e os mesmos players e checklists. Peso, fotos e calendário estão acessíveis em Progresso. O QR ilustrativo de teste e as demais funções permanecem.
+```sh
+CHROMIUM_PATH=/usr/bin/chromium npm test
+```
 
-Nenhuma chave de armazenamento ou estrutura dos registros foi alterada. A posição do exercício na tela é apenas um estado temporário da interface. Testes verificam avanço/retorno, alternativa de lista, preservação de séries e fotos, receitas e seis larguras entre 320 e 1440 px. Os testes externos do YouTube continuam limitados à integração com resposta simulada; a rede não permite conferir a reprodução externa.
+No PowerShell, defina `$env:CHROMIUM_PATH='CAMINHO-DO-CHROMIUM'` e execute `npm test`. No ambiente de nuvem, se o cache padrão do npm não for gravável, use `npm ci --cache /tmp/evoluifit-npm-cache`.
+
+Os testes abrem servidores próprios nas portas 3101, 3102, 3103 e 3105 e perfis temporários: não alteram dados reais. Cobrem configuração, rotinas, receitas, medidas/IMC, menores, calendário, upload/comparação/exclusão de fotos, persistência, exportação, pagamento demonstrativo e limpeza. A revisão também exercita 24 combinações de dias, níveis e equipamento, os três objetivos, todos os dias da semana, dados inválidos e armazenamento bloqueado. O layout é verificado em 320, 390, 600, 768, 950, 1024 e 1440 px, incluindo o carregamento do CSS e os rótulos de navegação. A suíte interativa testa todos os 28 vídeos com reprodução e avanço real, as legendas, as requisições parciais, sessões de treino, cronômetro, favoritos, ingredientes e etapas, incluindo persistência, exportação e limpeza. Para alterar o site, edite os arquivos e recarregue o navegador; não há etapa de build.
+
+Os testes foram executados no Chromium. As larguras móveis simulam telas de celular; ainda é recomendável testar Safari/iOS e aparelhos reais antes de publicar para usuários.
+
+## Autoria e atualização dos guias
+
+Os vídeos são originais do EvoluiFit e já estão prontos em `media/`; nenhum gerador é necessário para usar o site. Para recriar os arquivos em Linux, use Python 3 com Pillow, FFmpeg com libx264 e as fontes DejaVu Sans em `/usr/share/fonts/truetype/dejavu/`, depois execute `python3 scripts/build-guides.py`. `scripts/guide-data.json` contém somente o conteúdo público das receitas e exercícios, não registros de usuários.
+
+Os desenhos são esquemáticos e têm limitações anatômicas. As legendas e o texto explicam os pontos essenciais; não substituem demonstração e avaliação presencial de um profissional. Os guias culinários representam etapas resumidas, não o tempo real de cozimento. Para incluir filmagens reais no futuro, escolha material autorizado, confirme técnica/preparo e mantenha legendas e instruções equivalentes.
+
+
+## Atualização de 18/10/2026
+
+- Receitas preparadas podem ser registradas por data no próprio detalhe ou no calendário. Concluir o passo a passo registra o preparo de hoje. A contagem de treinos permanece independente.
+- As 150 receitas têm capas fotográficas ilustrativas de alimentos/pratos, com fotos reutilizadas e créditos/licenças nos detalhes. Não são fotografias do preparo exato. Fontes em `media/recipe-cover-credits.json`; fotos hospedadas localmente em `media/recipe-covers/`.
+- Modo claro/escuro em todas as páginas. A primeira visita acompanha o sistema; o botão de tema guarda a escolha neste navegador.
+- Sessão reduzida aos tokens necessários, renovação compartilhada e bloqueio de janelas pessoais em falha de verificação.
+- Teste desta atualização: `npm run test:update-18`. Relatório: `SECURITY-REVIEW-2026-10-18.md`.
+- Nenhuma migração necessária. Registros de receitas ficam no histórico local por UUID, sem apagar checklists, favoritos ou dados anteriores. Checklists antigos não recebem datas de preparo inventadas.
