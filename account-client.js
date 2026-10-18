@@ -74,5 +74,5 @@
   async function avatarUrl(id) {
     try {const data = await request('/storage/v1/object/sign/evoluifit-avatars/'+encodeURIComponent(id)+'/profile.webp',{expiresIn:3600},await token());const path=data.signedURL || data.signedUrl;return typeof path==='string' && path.startsWith('/object/sign/')?url+'/storage/v1'+path:null;} catch {return null;}
   }
-  window.EvoluiAuth={login:async input=>accept(await account('login',input)),signup:async input=>accept(await account('signup',input)),readProfile,logout,avatar,avatarUrl,hasSession:()=>!!session?.access_token};
+  window.EvoluiAuth={login:async input=>accept(await account('login',input)),signup:async input=>accept(await account('signup',input)),readProfile,legalStatus:()=>account('legal-status'),logout,avatar,avatarUrl,hasSession:()=>!!session?.access_token};
 })();

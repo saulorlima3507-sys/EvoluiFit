@@ -124,3 +124,8 @@ Os desenhos são esquemáticos e têm limitações anatômicas. As legendas e o 
 - Sessão reduzida aos tokens necessários, renovação compartilhada e bloqueio de janelas pessoais em falha de verificação.
 - Teste desta atualização: `npm run test:update-18`. Relatório: `SECURITY-REVIEW-2026-10-18.md`.
 - Nenhuma migração necessária. Registros de receitas ficam no histórico local por UUID, sem apagar checklists, favoritos ou dados anteriores. Checklists antigos não recebem datas de preparo inventadas.
+
+
+## Termos e Privacidade — implementação preparada
+
+Documentos completos, leitor dentro do cadastro, aceite obrigatório e autorização específica para dados de saúde, recibo com relógio do servidor/versões/hashes e consulta pela conta. A ativação do cadastro com comprovante depende da migração e da função no Supabase, além da revisão dos campos pendentes dos documentos. A fase inicial no site publica minutas para leitura; não afirma que novos aceites já estão sendo registrados. Veja `LEGAL-SETUP.md`. Teste: `npm run test:legal`. Não foram inventados aceites de usuários antigos nem apagados históricos locais.
