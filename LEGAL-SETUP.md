@@ -2,7 +2,9 @@
 
 ## Situação desta entrega
 
-A implementação está testada em navegador e banco local. A publicação inicial disponibiliza os documentos como **minutas para consulta**. O cadastro obrigatório com comprovante no servidor está preparado na branch `feat/termos-aceite-2026-10-18` e depende dos passos abaixo. Não há acesso administrativo ao Supabase nesta sessão; nenhuma migração foi executada remotamente nem comprovante de usuário real foi inventado.
+A interface de cadastro agora exibe os documentos, caixas inicialmente desmarcadas e aceite obrigatório, além da verificação de idade 18+ no formulário. Esta publicação foi solicitada separadamente pelo responsável. Os documentos continuam como minutas com campos pendentes. A versão `conta-cadastro-legal-ui-2.js` envia as declarações e versões ao serviço de contas atual, mas não exige nem afirma que houve gravação permanente de um comprovante. O serviço atual ainda pode aceitar requisições diretas sem essas declarações; a exigência no servidor depende da ativação abaixo.
+
+A implementação com comprovante seguro no servidor está testada em navegador e banco local e preparada na branch `feat/termos-aceite-2026-10-18`. Não há acesso administrativo ao Supabase nesta sessão; nenhuma migração foi executada remotamente nem comprovante de usuário real foi inventado.
 
 **Responsável informado:** Saulo Samuel Reinholz Lima. Contato de suporte/privacidade: saulorlima3507@gmail.com. A identificação fiscal informada consta dos documentos públicos. O endereço e demais pontos [PREENCHER] continuam destacados. Alterações futuras devem criar nova versão, sem reescrever textos já aceitos.
 
@@ -31,7 +33,7 @@ Os arquivos de elaboração são `work/legal-18/build-documents.py` e `work/lega
    select public.evoluifit_legal_configuration();
    ```
    `ready` passa a `true`. Se gerar uma nova versão na revisão, instale a migração correspondente e ajuste os identificadores da configuração à versão revisada; não reutilize identificador com conteúdo diferente.
-5. Publicar os arquivos da interface da branch preparada em `gh-pages`, incluindo `conta.html`, `conta-legal-1.js`, documentos, manifestos e leitor. A publicação inicial de minutas usa o cadastro anterior até a configuração remota ficar pronta; não copiar só o script novo para um HTML antigo.
+5. Publicar os arquivos da interface da branch preparada em `gh-pages`, incluindo `conta.html`, `conta-legal-1.js`, documentos, manifestos e leitor. A publicação atual usa `conta-cadastro-legal-ui-2.js`, compatível com o backend anterior e sem promessa de recibo. Depois de ativar o backend, a versão estrita `conta-legal-1.js` da branch preparada confirma a prontidão e exige a confirmação `legalRecorded` do servidor. Não copiar só o script novo para um HTML incompatível.
 6. Testar no site real: não aceitar → mensagem obrigatória; ler ambos os textos → formulário preservado; aceitar as duas declarações → cadastro; entrar → menu **Termos, privacidade e meu aceite** → horário/versões retornados pelo servidor.
 
 ## Conferência do comprovante no SQL Editor
