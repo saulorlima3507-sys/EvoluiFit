@@ -1,0 +1,21 @@
+/* Layout and touch adjustments verified against the published application. */
+#modal{overscroll-behavior:contain;scroll-padding-top:110px}
+#modal .modal-inner>.modal-top,
+#modal .modal-inner>.section-header:first-child{position:sticky;top:0;z-index:5;background:var(--card,#fff);padding:12px 0;border-bottom:1px solid var(--line,#dfe7d9)}
+#modal .modal-top button{width:44px;height:44px;min-width:44px;min-height:44px;background:var(--bg,#f4f5ef);color:var(--ink,#182b25);border:1px solid var(--line,#dfe7d9)}
+#modal .modal-inner>.section-header:first-child button{min-height:44px}
+.legal-dialog-header button{min-height:44px;min-width:44px}
+.legal-dialog{overscroll-behavior:contain}
+.account-dropdown{max-height:calc(100vh - 100px);max-height:calc(100dvh - 100px);overflow-y:auto;overscroll-behavior:contain}
+.account-dropdown button,.account-legal-link{min-height:44px;box-sizing:border-box}
+[data-theme=dark] #modal .modal-inner :is(p,li){color:var(--muted,#b5c9aa)}
+@media(min-width:601px){.sidebar{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}.sidebar>*{flex-shrink:0}}
+@media(max-width:600px){
+ .account-dropdown{max-height:calc(100vh - 170px);max-height:calc(100dvh - 170px)}
+ .account-card input:not([type=checkbox]):not([type=file]),.account-card select,.field input,.field select{font-size:16px}
+}
+[data-theme=dark] .mobile-brand{color:var(--green,#b8e896)}
+[data-theme=dark] .mobile-brand>img{mix-blend-mode:normal;background:#f6f7ef;border-radius:12px}
+[data-theme=dark] #modal :is(.recipe-transcript summary,.recipe-modal-footer small){color:var(--muted,#b5c9aa)}
+@media(max-width:360px){.account-menu summary [data-account-name]{display:none}}
+@media(max-width:380px){.cards-grid{grid-template-columns:minmax(0,1fr)}}

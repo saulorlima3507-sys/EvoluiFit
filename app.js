@@ -177,7 +177,7 @@ function toast(message) {
   const el = document.querySelector('#toast'); el.textContent = message; el.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(()=>el.classList.remove('show'),4500);
 }
-function openModal(content) { document.querySelectorAll('dialog video').forEach(v=>v.pause()); document.querySelector('#modal-content').innerHTML = content; if (!modal.open) modal.showModal(); }
+function openModal(content) { document.querySelectorAll('dialog video').forEach(v=>v.pause()); document.querySelector('#modal-content').innerHTML = content; if (!modal.open) modal.showModal(); modal.scrollTop=0; }
 modal.addEventListener('close',()=>{document.querySelectorAll('dialog video').forEach(v=>v.pause());modal.querySelectorAll('iframe').forEach(frame=>frame.remove());});
 function modalHeader(title) { return `<div class="modal-top"><h2>${title}</h2><button data-action="close-modal" aria-label="Fechar janela">×</button></div>`; }
 function intro(eyebrow,title,sub) { return `<div class="page-intro"><div><p class="eyebrow">${eyebrow}</p><h1>${title}</h1><p class="subtitle">${sub}</p></div><div class="date-chip">${svgIcon('calendar')}${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long'})}</div></div>`; }

@@ -74,3 +74,7 @@ Testes simulados e locais não substituem a ativação e a conferência do Supab
 ## Fluxo de entrada preservado
 
 Quem Somos → questionário opcional → cadastro. O link direto de cadastro sem indicação de retorno abre o questionário; concluir ou pular usa `conta.html?cadastro=1&etapa=cadastro`. Esse marcador só organiza a navegação e não é autorização de conta. Há um link de retorno ao questionário no formulário. Ao integrar a confirmação estrita de comprovantes, preservar também esse fluxo e os termos obrigatórios.
+
+## Ajustes de celular e computador publicados em 18/10
+
+Ao integrar a etapa de servidor, preservar `device-fixes.css`, `app-device-review-4.js` e `auth-entry-device-review-4.js`, bem como os links de estilo nas quatro páginas. Esses arquivos mantêm o fechamento de janelas acessível durante a rolagem, reabrem o conteúdo no início, permitem rolar o menu em telas baixas e corrigem toque/contraste no celular. O fluxo do questionário e as caixas de aceite permanecem ativos; o comprovante permanente continua pendente do Supabase.

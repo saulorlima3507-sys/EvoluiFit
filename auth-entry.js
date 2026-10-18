@@ -19,7 +19,7 @@
       }
       if(window.EvoluiRecipes.length!==150)throw new Error('Não foi possível conferir o catálogo. Atualize a página.');
       if(!window.EvoluiRecipeCovers)await loadScript('recipe-covers.js?v=18');
-      if(!started){await loadScript('app-update-18.js');started=true;loadedId=account.user.id;setupMenu();}
+      if(!started){await loadScript('app-device-review-4.js');started=true;loadedId=account.user.id;setupMenu();}
       loading.hidden=true;document.body.classList.add('account-ready');
     }catch(error){lock();if([400,401,403].includes(error.status)){await toLogin();return;}report(error.message);}
   }
@@ -37,7 +37,7 @@
       const list=content.querySelector('dl');for(const [label,value] of items){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;list.append(dt,dd);}
       content.querySelector('#close-account').onclick=()=>modal.close();
       content.querySelector('#account-photo').onchange=async event=>{const file=event.target.files[0];if(!file)return;event.target.disabled=true;const status=content.querySelector('#photo-status');status.textContent='Salvando foto…';try{await EvoluiAuth.avatar(file,account.user.id);await updateAvatar();status.textContent='Foto atualizada.';}catch(error){status.textContent=error.message;}finally{event.target.disabled=false;event.target.value='';}};
-      modal.showModal();
+      modal.showModal();modal.scrollTop=0;
     };
     details.querySelector('[data-view]').addEventListener('click',()=>{details.open=false;});
     document.getElementById('account-import').onclick=()=>{details.open=false;window.importLegacyAccountRecords?.();};
