@@ -20,7 +20,7 @@
   }
   async function request(path, body, token, method = 'POST') {
     let response;
-    try { response = await fetch(url + path, {method,headers:{apikey:key,'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:body === undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(20000)}); }
+    try { response = await fetch(url + path, {method,credentials:'omit',cache:'no-store',redirect:'error',referrerPolicy:'no-referrer',headers:{apikey:key,'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:body === undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(20000)}); }
     catch {throw new Error('Não foi possível conectar. Confira sua internet e tente novamente.');}
     const data = await response.json().catch(()=>null);
     if (!response.ok) {
@@ -45,11 +45,19 @@
     return session?.access_token||null;
   }
   async function account(action, input = {}, authenticated = false) {
-    return request('/functions/v1/evoluifit-account',{...input,action},authenticated?await token():undefined);
+    const access=authenticated?await token():undefined;
+    if(authenticated&&!access)throw new Error('Sua sessão terminou. Entre novamente.');
+    return request('/functions/v1/evoluifit-account',{...input,action},access);
   }
   function accept(data) {
     if (data?.session?.access_token) save({...data.session,expires_at:data.session.expires_at || Math.floor(Date.now()/1000)+data.session.expires_in});
     return data;
+  }
+  async function authenticate(action,input) {
+    const version=++generation;
+    const data=await account(action,input);
+    if(version!==generation)throw new Error('Esta tentativa de acesso foi encerrada. Entre novamente.');
+    return accept(data);
   }
   async function readProfile() {
     if (!await token()) return null;
@@ -62,17 +70,19 @@
   async function avatar(file, id) {
     if(!file) return;
     if(!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size>5*1024*1024) throw new Error('Escolha JPG, PNG ou WebP de até 5 MB.');
+    if(typeof id!=='string'||! /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))throw new Error('Conta inválida. Entre novamente.');
+    const access=await token();if(!access)throw new Error('Sua sessão terminou. Entre novamente.');
     const bitmap = await createImageBitmap(file);
     const canvas = document.createElement('canvas'), scale = Math.min(1,512/Math.max(bitmap.width,bitmap.height));
     canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
     canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
     const blob = await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',0.85));
     if (!blob || blob.size>2*1024*1024) throw new Error('Não foi possível preparar a foto.');
-    const response = await fetch(url+'/storage/v1/object/evoluifit-avatars/'+encodeURIComponent(id)+'/profile.webp',{method:'POST',headers:{apikey:key,Authorization:'Bearer '+await token(),'Content-Type':'image/webp','x-upsert':'true'},body:blob,signal:AbortSignal.timeout(20000)});
+    const response = await fetch(url+'/storage/v1/object/evoluifit-avatars/'+encodeURIComponent(id)+'/profile.webp',{method:'POST',credentials:'omit',cache:'no-store',redirect:'error',referrerPolicy:'no-referrer',headers:{apikey:key,Authorization:'Bearer '+access,'Content-Type':'image/webp','x-upsert':'true'},body:blob,signal:AbortSignal.timeout(20000)});
     if(!response.ok) throw new Error('Sua conta foi criada, mas a foto não pôde ser enviada. Você pode adicioná-la depois.');
   }
   async function avatarUrl(id) {
     try {const data = await request('/storage/v1/object/sign/evoluifit-avatars/'+encodeURIComponent(id)+'/profile.webp',{expiresIn:3600},await token());const path=data.signedURL || data.signedUrl;return typeof path==='string' && path.startsWith('/object/sign/')?url+'/storage/v1'+path:null;} catch {return null;}
   }
-  window.EvoluiAuth={login:async input=>accept(await account('login',input)),signup:async input=>accept(await account('signup',input)),readProfile,logout,avatar,avatarUrl,hasSession:()=>!!session?.access_token};
+  window.EvoluiAuth={login:input=>authenticate('login',input),signup:input=>authenticate('signup',input),readProfile,logout,avatar,avatarUrl,hasSession:()=>!!session?.access_token};
 })();
